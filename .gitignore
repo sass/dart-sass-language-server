@@ -1,0 +1,16 @@
+# Don't commit the following directories created by pub.
+**/.dart_tool/
+**/.packages
+**/.pub
+
+**/pubspec.lock
+
+# Files to avoid committing
+**/BUILD
+**/METADATA
+**/OWNERS
+**/README.google.md
+**/copy.bara.sky
+**/coverage
+
+.vscode

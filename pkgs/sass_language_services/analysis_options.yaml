@@ -1,0 +1,12 @@
+# Adopted from https://github.com/sass/dart-sass/blob/main/analysis/lib/analysis_options.yaml
+analyzer:
+  exclude: [build/**]
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  errors:
+    deprecated_member_use_from_same_package: ignore
+    avoid_types_as_parameter_names: ignore
+
+include: package:lints/recommended.yaml

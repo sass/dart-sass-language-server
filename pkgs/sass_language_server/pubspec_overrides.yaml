@@ -1,0 +1,3 @@
+dependency_overrides:
+  sass_language_services:
+    path: ../sass_language_services
