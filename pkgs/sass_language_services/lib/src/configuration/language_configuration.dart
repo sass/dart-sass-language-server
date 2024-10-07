@@ -1,16 +1,25 @@
-class LanguageConfiguration {
-  /// Exclude paths from the initial workspace scan. Defaults include `.git` and `node_modules`.
-  late final List<String> exclude;
-  late final Map<String, dynamic> importAliases;
+class FeatureConfiguration {
+  late final bool enabled;
 
-  /// Pass in [load paths](https://sass-lang.com/documentation/cli/dart-sass/#load-path) that will be used in addition to `node_modules`.
-  late final List<String> loadPaths;
-  late final Uri? workspaceRoot;
+  FeatureConfiguration({required this.enabled});
+}
+
+class DefinitionConfiguration extends FeatureConfiguration {
+  DefinitionConfiguration({required super.enabled});
+}
+
+class LinksConfiguration extends FeatureConfiguration {
+  LinksConfiguration({required super.enabled});
+}
+
+class LanguageConfiguration {
+  late final DefinitionConfiguration definition;
+  late final LinksConfiguration links;
 
   LanguageConfiguration.from(Map<dynamic, dynamic> config) {
-    exclude = config["exclude"] as List<String>? ?? [];
-    importAliases = config["importAliases"] as Map<String, dynamic>? ?? {};
-    loadPaths = config["loadPaths"] as List<String>? ?? [];
-    workspaceRoot = config["workspaceRoot"] as Uri?;
+    definition = DefinitionConfiguration(
+        enabled: config["definition"]?["enabled"] as bool? ?? true);
+    links = LinksConfiguration(
+        enabled: config["links"]?["enabled"] as bool? ?? true);
   }
 }

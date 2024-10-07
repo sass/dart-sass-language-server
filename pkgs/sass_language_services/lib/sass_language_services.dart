@@ -6,5 +6,12 @@
 /// in your languages' client.
 library;
 
-export 'src/sass_language_services_base.dart';
-export 'src/file_system.dart';
+export 'src/language_services_base.dart';
+
+export 'src/configuration/configuration.dart';
+export 'src/configuration/editor_configuration.dart';
+export 'src/configuration/language_configuration.dart'
+    show LanguageConfiguration;
+export 'src/configuration/workspace_configuration.dart';
+
+export 'src/file_system_provider.dart';
