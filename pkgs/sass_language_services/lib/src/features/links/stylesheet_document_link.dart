@@ -1,5 +1,6 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
-import 'package:sass_api/sass_api.dart' as sass;
+
+enum LinkType { use, forward, import }
 
 class StylesheetDocumentLink extends lsp.DocumentLink {
   /// The alias, if any.
@@ -11,22 +12,25 @@ class StylesheetDocumentLink extends lsp.DocumentLink {
   /// | `@use "./colors" as *`       | `"*"`       |
   /// | `@forward "./colors"`        | `undefined` |
   /// | `@forward "./colors" as c-*` | `"c"`       |
-  String? as;
+  String? alias;
 
-  /// Either equal to [as] or derived from [target].
   String? namespace;
 
-  List<String>? hide;
+  Set<String>? hiddenVariables;
 
-  List<String>? show;
+  Set<String>? shownVariables;
 
-  sass.AstNode node;
+  LinkType type;
 
   StylesheetDocumentLink({
     super.data,
-    required this.node,
+    required this.type,
     required super.range,
     super.target,
     super.tooltip,
+    this.alias,
+    this.namespace,
+    this.hiddenVariables,
+    this.shownVariables,
   });
 }
