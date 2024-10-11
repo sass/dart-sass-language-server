@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'features/links/stylesheet_document_link.dart';
@@ -25,7 +26,8 @@ class LanguageServicesCache {
     }
 
     late final sass.Stylesheet stylesheet;
-    switch (document.languageId) {
+    final languageId = document.languageId;
+    switch (languageId) {
       case 'css':
         stylesheet = sass.Stylesheet.parseCss(document.text);
         break;
@@ -36,7 +38,11 @@ class LanguageServicesCache {
         stylesheet = sass.Stylesheet.parseSass(document.text);
         break;
       default:
-        throw 'Unsupported language ID ${document.languageId}';
+        throw Intl.message('Unsupported language ID $languageId',
+            name: 'errUnsupportedLanguage',
+            args: [languageId],
+            desc:
+                "Error message that gets thrown if there is no parser available for the document's language");
     }
 
     _cache[key] = CacheEntry(document: document, stylesheet: stylesheet);

@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'configuration/configuration.dart';
@@ -16,7 +17,9 @@ class LanguageServices {
     cache = LanguageServicesCache();
   }
 
-  void configure(LanguageServerConfiguration configuration) {}
+  void configure(LanguageServerConfiguration configuration) {
+    Intl.defaultLocale = configuration.editor.locale;
+  }
 
   sass.Stylesheet parseStylesheet(lsp.TextDocumentItem document) {
     return cache.getStylesheet(document);

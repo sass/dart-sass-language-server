@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_language_services/sass_language_services.dart';
 
@@ -74,7 +75,8 @@ abstract class LanguageFeature {
 
   LanguageConfiguration getLanguageConfiguration(
       lsp.TextDocumentItem document) {
-    switch (document.languageId) {
+    final languageId = document.languageId;
+    switch (languageId) {
       case 'css':
         return _configuration.css;
       case 'sass':
@@ -82,7 +84,11 @@ abstract class LanguageFeature {
       case 'scss':
         return _configuration.scss;
       default:
-        throw 'Unsupported language ID ${document.languageId}';
+        throw Intl.message('Unsupported language ID $languageId',
+            name: 'errUnsupportedLanguage',
+            args: [languageId],
+            desc:
+                "Error message that gets thrown if there is no configuration available for the document's language");
     }
   }
 }

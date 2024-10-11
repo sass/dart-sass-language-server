@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart';
 import 'package:sass_language_services/sass_language_services.dart' as ls;
 
@@ -25,12 +26,15 @@ void listen(Connection connection, ls.FileSystemProvider fileSystemProvider) {
   Future<void>? initialScan;
   connection.onInitialized((params) async {
     try {
-      var configs = await connection.sendRequest<>("workspace/configuration", {
+      var configs = await connection
+          .sendRequest<ls.LanguageServerConfiguration>(
+              "workspace/configuration", {
         "items": [
           {"section": "editor"},
           {"section": "sass"},
         ]
       });
+      Intl.defaultLocale = configs.editor.locale;
 
       await initialScan;
       initialScan = null; // all done
