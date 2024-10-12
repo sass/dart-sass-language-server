@@ -10,13 +10,22 @@ dart compile exe bin/sass_language_server.dart -o bin/sass-language-server
 
 ### Testing the build executable
 
-Add the built executable to your path. Assuming `/usr/local/bin` is already on your path you can create a link there to the built executable.
+Add the built executable to your path.
+
+Assuming:
+
+1. `/usr/local/bin` is already on your path
+2. your terminal is in the same directory as this README
+
+Run:
 
 ```sh
-ln ./bin/sass-language-server /usr/local/bin/sass-language-server
+sudo ln -s "$(pwd)/bin/sass-language-server" /usr/local/bin/sass-language-server
 ```
 
-Then configure your editor to use `sass-language-server` over `stdio`. Here is an example using the [Helix editor](https://docs.helix-editor.com/guides/adding_languages.html).
+Then configure your editor to use `sass-language-server` over `stdio`.
+
+Here is an example using the [Helix editor](https://docs.helix-editor.com/guides/adding_languages.html) (though [not all LSP features are supported in that editor](https://docs.helix-editor.com/languages.html), including links).
 
 Open `.config/helix/languages.toml` and add this configuration.
 

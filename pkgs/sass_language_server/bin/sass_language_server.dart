@@ -12,12 +12,18 @@ void main(List<String> arguments) {
   }
 
   if (arguments.contains('--help') || arguments.contains('-h')) {
-    print('sass-language-server <--stdio|--node-ipc|--socket={number}>');
+    print(
+        'sass-language-server [--loglevel <debug|log|info|warn|error|silent>]');
     return;
+  }
+
+  String? logLevel;
+  int levelArg = arguments.indexOf('--loglevel');
+  if (levelArg != -1) {
+    logLevel = arguments[levelArg + 1];
   }
 
   var connection = lsp.Connection(stdin, stdout);
   var provider = server.LocalFileSystem();
-  print('sass-language-server running using --stdio');
-  server.listen(connection, provider);
+  server.listen(connection, provider, logLevel: logLevel);
 }

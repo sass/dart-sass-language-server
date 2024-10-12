@@ -1,18 +1,24 @@
 import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
+import 'package:sass_language_server/src/remote_console.dart';
 import 'package:sass_language_services/sass_language_services.dart' as sass_ls;
 
+import 'logger.dart';
+
 void listen(
-    lsp.Connection connection, sass_ls.FileSystemProvider fileSystemProvider) {
+    lsp.Connection connection, sass_ls.FileSystemProvider fileSystemProvider,
+    {String? logLevel}) {
   late final lsp.ClientCapabilities clientCapabilities;
   late final sass_ls.LanguageServices ls;
   late final Uri workspaceRoot;
+  final Logger log = Logger(RemoteConsole(connection), level: logLevel);
 
   sass_ls.LanguageServerConfiguration applyConfiguration(
       dynamic userConfiguration) {
     var configuration =
         sass_ls.LanguageServerConfiguration.from(userConfiguration);
     configuration.workspace.workspaceRoot = workspaceRoot;
+    log.setLogLevel(configuration.workspace.logLevel);
     ls.configure(configuration);
     return configuration;
   }
