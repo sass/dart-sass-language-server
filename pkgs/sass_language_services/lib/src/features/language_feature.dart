@@ -9,7 +9,6 @@ final defaultConfiguration = LanguageServerConfiguration.from(null);
 
 abstract class LanguageFeature {
   late final LanguageServices ls;
-  LanguageServerConfiguration configuration = defaultConfiguration;
 
   LanguageFeature({required this.ls});
 
@@ -52,7 +51,7 @@ abstract class LanguageFeature {
 
   DocumentContext getDocumentContext() {
     return DocumentContext(
-        workspaceRoot: configuration.workspace.workspaceRoot);
+        workspaceRoot: ls.configuration.workspace.workspaceRoot);
   }
 
   String getFileName(Uri uri) {
@@ -68,11 +67,11 @@ abstract class LanguageFeature {
     final languageId = document.languageId;
     switch (languageId) {
       case 'css':
-        return configuration.css;
+        return ls.configuration.css;
       case 'sass':
-        return configuration.sass;
+        return ls.configuration.sass;
       case 'scss':
-        return configuration.scss;
+        return ls.configuration.scss;
       default:
         throw Intl.message('Unsupported language ID $languageId',
             name: 'errUnsupportedLanguage',

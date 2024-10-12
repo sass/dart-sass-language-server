@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_language_server/src/remote_console.dart';
@@ -13,13 +15,25 @@ void listen(
   late final Uri workspaceRoot;
   final Logger log = Logger(RemoteConsole(connection), level: logLevel);
 
+  log.info(
+      Intl.message('sass-language-server is running', name: 'logIsRunning'));
+
   sass_ls.LanguageServerConfiguration applyConfiguration(
       dynamic userConfiguration) {
+    log.log('Applying user configuration');
+
     var configuration =
         sass_ls.LanguageServerConfiguration.from(userConfiguration);
+    log.log('Made configuration');
     configuration.workspace.workspaceRoot = workspaceRoot;
+    log.log('Setting loglevel');
     log.setLogLevel(configuration.workspace.logLevel);
+    log.log('Configuring language services');
     ls.configure(configuration);
+
+    log.log(Intl.message('Applied user configuration',
+        name: 'logAppliedUserConfiguration'));
+
     return configuration;
   }
 
@@ -95,23 +109,40 @@ void listen(
     return Future.value(result);
   });
 
+  connection.onNotification("workspace/didChangeConfiguration", (params) async {
+    log.info("Got configuration");
+    if (params is Map && params['settings'] is Map) {
+      log.info('Got settings in configuration params');
+      applyConfiguration(params['settings']);
+    } else {
+      log.info(jsonEncode(params));
+    }
+  });
+
   Future<void>? initialScan;
   connection.onInitialized((params) async {
     try {
       initialScan = Future(() async {
-        var userConfiguration =
-            await connection.sendRequest<dynamic>("workspace/configuration", {
-          "items": [
-            {"section": "editor"},
-            {"section": "sass"},
-          ]
-        });
+        log.debug(Intl.message('Requesting user configuration',
+            name: 'logRequestUserConfig'));
+        try {
+          var response = await connection
+              .sendRequest<List<dynamic>>("workspace/configuration", {
+            "items": [
+              {"section": "editor"},
+              {"section": "sass"},
+            ]
+          });
 
-        var configuration = applyConfiguration(userConfiguration);
+          applyConfiguration(response);
+          log.info(jsonEncode(response));
+        } catch (e) {
+          log.warn(e.toString());
+        }
 
         var files = await fileSystemProvider.findFiles(
             "**/*.{css,scss,sass,svelte,astro,vue}",
-            configuration.workspace.exclude);
+            ls.configuration.workspace.exclude);
         for (var uri in files) {
           if (uri.path.contains('/_')) {
             // Don't include partials in the initial scan.

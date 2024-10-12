@@ -125,16 +125,17 @@ class LinksFeature extends LanguageFeature {
     // Try resolving the reference from loadPaths or importAliases
     if (ref != null && await ls.fs.exists(ref) == false) {
       // Alias may point to a specific file
-      if (configuration.workspace.importAliases.containsKey(target.path)) {
-        final aliasTarget = configuration.workspace.importAliases[target.path];
+      if (ls.configuration.workspace.importAliases.containsKey(target.path)) {
+        final aliasTarget =
+            ls.configuration.workspace.importAliases[target.path];
         return _mapReference(joinPath(rootFolder, [aliasTarget!]), isSassLink);
       }
 
       // Or a directory. Alias must end in / in this case.
       final firstSlash = target.path.indexOf('/');
       final alias = target.path.substring(0, firstSlash + 1);
-      if (configuration.workspace.importAliases.containsKey(alias)) {
-        var aliasTarget = configuration.workspace.importAliases[alias];
+      if (ls.configuration.workspace.importAliases.containsKey(alias)) {
+        var aliasTarget = ls.configuration.workspace.importAliases[alias];
         aliasTarget = aliasTarget!.substring(0, aliasTarget.length - 1);
 
         var newTarget = joinPath(rootFolder, [aliasTarget]);
@@ -144,7 +145,7 @@ class LinksFeature extends LanguageFeature {
         return _mapReference(newTarget, isSassLink);
       }
 
-      for (var loadPath in configuration.workspace.loadPaths) {
+      for (var loadPath in ls.configuration.workspace.loadPaths) {
         final newPath = joinPath(rootFolder, [loadPath, target.path]);
         final ref = await _mapReference(newPath, isSassLink);
         if (ref != null && await ls.fs.exists(ref)) {

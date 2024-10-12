@@ -13,6 +13,9 @@ class LanguageServices {
   final lsp.ClientCapabilities clientCapabilities;
   final FileSystemProvider fs;
 
+  LanguageServerConfiguration configuration =
+      LanguageServerConfiguration.from(null);
+
   late final LinksFeature _links;
 
   LanguageServices({
@@ -25,6 +28,7 @@ class LanguageServices {
 
   void configure(LanguageServerConfiguration configuration) {
     Intl.defaultLocale = configuration.editor.locale;
+    configuration = configuration;
   }
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(
