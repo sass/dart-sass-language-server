@@ -7,10 +7,11 @@ class WorkspaceConfiguration {
   late final List<String> loadPaths;
   late final Uri? workspaceRoot;
 
-  WorkspaceConfiguration.from(Map<dynamic, dynamic> config) {
-    exclude = config["exclude"] as List<String>? ?? [];
-    importAliases = config["importAliases"] as Map<String, String>? ?? {};
-    loadPaths = config["loadPaths"] as List<String>? ?? [];
-    workspaceRoot = config["workspaceRoot"] as Uri?;
+  WorkspaceConfiguration.from(dynamic config) {
+    exclude = config?["exclude"] as List<String>? ??
+        ["**/.git/**", "**/node_modules/**"];
+    importAliases = config?["importAliases"] as Map<String, String>? ?? {};
+    loadPaths = config?["loadPaths"] as List<String>? ?? [];
+    workspaceRoot = config?["workspaceRoot"] as Uri?;
   }
 }

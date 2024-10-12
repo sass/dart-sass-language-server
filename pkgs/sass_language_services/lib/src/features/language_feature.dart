@@ -5,21 +5,13 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import '../../sass_language_services.dart';
 import '../uri_utils.dart';
 
-final defaultConfiguration = LanguageServerConfiguration(
-    css: LanguageConfiguration.from({}),
-    scss: LanguageConfiguration.from({}),
-    sass: LanguageConfiguration.from({}),
-    editor: EditorConfiguration.from({}),
-    workspace: WorkspaceConfiguration.from({}));
+final defaultConfiguration = LanguageServerConfiguration.from(null);
 
 abstract class LanguageFeature {
-  late final lsp.ClientCapabilities clientCapabilities;
-  late final FileSystemProvider fs;
   late final LanguageServices ls;
   LanguageServerConfiguration configuration = defaultConfiguration;
 
-  LanguageFeature(
-      {required this.clientCapabilities, required this.fs, required this.ls});
+  LanguageFeature({required this.ls});
 
   /// Helper to do some kind of lookup for the import tree of [initialDocument].
   ///

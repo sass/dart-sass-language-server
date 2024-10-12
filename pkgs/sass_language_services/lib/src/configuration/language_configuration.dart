@@ -16,10 +16,10 @@ class LanguageConfiguration {
   late final DefinitionConfiguration definition;
   late final LinksConfiguration links;
 
-  LanguageConfiguration.from(Map<dynamic, dynamic> config) {
+  LanguageConfiguration.from(dynamic config) {
     definition = DefinitionConfiguration(
-        enabled: config["definition"]?["enabled"] as bool? ?? true);
+        enabled: config?["definition"]?["enabled"] as bool? ?? true);
     links = LinksConfiguration(
-        enabled: config["links"]?["enabled"] as bool? ?? true);
+        enabled: config?["links"]?["enabled"] as bool? ?? true);
   }
 }

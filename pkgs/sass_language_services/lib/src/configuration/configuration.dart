@@ -3,16 +3,17 @@ import 'language_configuration.dart';
 import 'workspace_configuration.dart';
 
 class LanguageServerConfiguration {
-  LanguageConfiguration css;
-  LanguageConfiguration scss;
-  LanguageConfiguration sass;
-  EditorConfiguration editor;
-  WorkspaceConfiguration workspace;
+  late final LanguageConfiguration css;
+  late final LanguageConfiguration scss;
+  late final LanguageConfiguration sass;
+  late final EditorConfiguration editor;
+  late final WorkspaceConfiguration workspace;
 
-  LanguageServerConfiguration(
-      {required this.css,
-      required this.scss,
-      required this.sass,
-      required this.editor,
-      required this.workspace});
+  LanguageServerConfiguration.from(dynamic config) {
+    css = LanguageConfiguration.from(config?['css']);
+    scss = LanguageConfiguration.from(config?['scss']);
+    sass = LanguageConfiguration.from(config?['sass']);
+    editor = EditorConfiguration.from(config?['editor']);
+    workspace = WorkspaceConfiguration.from(config?['workspace']);
+  }
 }

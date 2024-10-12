@@ -13,10 +13,7 @@ final schemeRegex = RegExp(r'^\w+:\/\/');
 final sassExt = RegExp(r'\.s[ac]ss$');
 
 class LinksFeature extends LanguageFeature {
-  LinksFeature(
-      {required super.clientCapabilities,
-      required super.fs,
-      required super.ls});
+  LinksFeature({required super.ls});
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(
       lsp.TextDocumentItem document) async {
@@ -31,6 +28,8 @@ class LinksFeature extends LanguageFeature {
     final context = getDocumentContext();
     final rootFolder = context.resolveReference('/', document.uri);
 
+    // TODO: if sass_api exports [importers](https://github.com/sass/dart-sass/tree/d58e2191b67cd6d20db335c280950e641be3f0d4/lib/src/importer)
+    // we can probably remove most of this implementation.
     var unresolvedLinks = _findUnresolvedLinks(document, stylesheet);
     for (var (link, isSassLink) in unresolvedLinks) {
       if (link.target == null) {
@@ -52,11 +51,15 @@ class LinksFeature extends LanguageFeature {
         continue;
       }
 
-      final resolved = await _resolveReference(
+      var resolved = await _resolveReference(
           link.target as Uri, document.uri, rootFolder, isSassLink);
       if (resolved == null) {
         continue;
       }
+
+      // For monorepos, resolve the real path behind a symlink, since multiple links in `node_modules/` can point to the same file.
+      // Take this initial performance hit to maximise cache hits and provide better results for projects using symlinks.
+      resolved = await ls.fs.realPath(resolved);
 
       // lsp.DocumentLink.target is marked as final, so we make a new one
       resolvedLinks.add(StylesheetDocumentLink(
@@ -105,7 +108,7 @@ class LinksFeature extends LanguageFeature {
     // the loader will first try to resolve the link as a relative path,
     // then as a path from inside node_modules.
     if (!target.path.endsWith(".css")) {
-      if (ref != null && await fs.exists(ref)) {
+      if (ref != null && await ls.fs.exists(ref)) {
         return ref;
       }
 
@@ -120,7 +123,7 @@ class LinksFeature extends LanguageFeature {
     }
 
     // Try resolving the reference from loadPaths or importAliases
-    if (ref != null && await fs.exists(ref) == false) {
+    if (ref != null && await ls.fs.exists(ref) == false) {
       // Alias may point to a specific file
       if (configuration.workspace.importAliases.containsKey(target.path)) {
         final aliasTarget = configuration.workspace.importAliases[target.path];
@@ -144,7 +147,7 @@ class LinksFeature extends LanguageFeature {
       for (var loadPath in configuration.workspace.loadPaths) {
         final newPath = joinPath(rootFolder, [loadPath, target.path]);
         final ref = await _mapReference(newPath, isSassLink);
-        if (ref != null && await fs.exists(ref)) {
+        if (ref != null && await ls.fs.exists(ref)) {
           return ref;
         }
       }
@@ -157,7 +160,7 @@ class LinksFeature extends LanguageFeature {
   Future<Uri?> _mapReference(Uri? target, bool isSassLink) async {
     if (target != null && isSassLink) {
       for (var variation in _toPathVariations(target)) {
-        if (await fs.exists(variation)) {
+        if (await ls.fs.exists(variation)) {
           return variation;
         }
       }
@@ -227,7 +230,7 @@ class LinksFeature extends LanguageFeature {
       String moduleName, Uri documentFolder, Uri rootFolder) async {
     final packageJson =
         joinPath(documentFolder, ['node_modules', moduleName, 'package.json']);
-    if (await fs.exists(packageJson)) {
+    if (await ls.fs.exists(packageJson)) {
       return dirname(packageJson);
     } else if (documentFolder.path.startsWith(rootFolder.path) &&
         documentFolder.path != rootFolder.path) {
@@ -256,7 +259,7 @@ class LinksFeature extends LanguageFeature {
     dynamic packageJson;
     try {
       final contents =
-          await fs.readFile(joinPath(modulePath, ['package.json']));
+          await ls.fs.readFile(joinPath(modulePath, ['package.json']));
       packageJson = jsonDecode(contents);
       assert(packageJson is Map);
     } catch (e) {

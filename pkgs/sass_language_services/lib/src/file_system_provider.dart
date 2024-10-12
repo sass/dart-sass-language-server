@@ -13,8 +13,8 @@ abstract class FileSystemProvider {
   /// Check if the file at the given [uri] exists or not.
   Future<bool> exists(Uri uri);
 
-  /// Run a search in the file system for [pattern].
-  Stream<Uri> findFiles(String pattern);
+  /// Run a search in the file system for [pattern], optionally [exclude] patterns.
+  Future<Iterable<Uri>> findFiles(String pattern, List<String>? exclude);
 
   /// Get the contents of the file at [uri] as a UTF-8-encoded string.
   Future<String> readFile(Uri uri);

@@ -1,13 +1,29 @@
 import 'dart:io';
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
+import 'package:string_scanner/string_scanner.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
 class LocalFileSystem extends FileSystemProvider {
   @override
-  Stream<Uri> findFiles(String pattern) {
-    final matches = Glob(pattern);
-    return matches.list().map((e) => e.uri);
+  Future<Iterable<Uri>> findFiles(String pattern, List<String>? exclude) async {
+    var matches = Glob(pattern);
+    var list = await matches.list().toList();
+
+    List<Uri> result = [];
+    for (var match in list) {
+      if (exclude != null) {
+        var scanner = StringScanner(match.path);
+        for (var pattern in exclude) {
+          if (scanner.scan(pattern)) {
+            continue;
+          }
+        }
+      }
+      result.add(match.uri);
+    }
+
+    return result;
   }
 
   @override
