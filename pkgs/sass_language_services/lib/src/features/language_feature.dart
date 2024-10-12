@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
-import 'package:sass_language_services/sass_language_services.dart';
+
+import '../../sass_language_services.dart';
+import '../uri_utils.dart';
 
 final defaultConfiguration = LanguageServerConfiguration(
     css: LanguageConfiguration.from({}),
@@ -14,14 +16,10 @@ abstract class LanguageFeature {
   late final lsp.ClientCapabilities clientCapabilities;
   late final FileSystemProvider fs;
   late final LanguageServices ls;
-  var _configuration = defaultConfiguration;
+  LanguageServerConfiguration configuration = defaultConfiguration;
 
   LanguageFeature(
       {required this.clientCapabilities, required this.fs, required this.ls});
-
-  void configure(LanguageServerConfiguration configuration) {
-    _configuration = configuration;
-  }
 
   /// Helper to do some kind of lookup for the import tree of [initialDocument].
   ///
@@ -62,7 +60,7 @@ abstract class LanguageFeature {
 
   DocumentContext getDocumentContext() {
     return DocumentContext(
-        workspaceRoot: _configuration.workspace.workspaceRoot);
+        workspaceRoot: configuration.workspace.workspaceRoot);
   }
 
   String getFileName(Uri uri) {
@@ -78,11 +76,11 @@ abstract class LanguageFeature {
     final languageId = document.languageId;
     switch (languageId) {
       case 'css':
-        return _configuration.css;
+        return configuration.css;
       case 'sass':
-        return _configuration.sass;
+        return configuration.sass;
       case 'scss':
-        return _configuration.scss;
+        return configuration.scss;
       default:
         throw Intl.message('Unsupported language ID $languageId',
             name: 'errUnsupportedLanguage',
@@ -98,17 +96,10 @@ class DocumentContext {
 
   DocumentContext({required this.workspaceRoot});
 
-  String? resolveReference(String ref, String base) {
-    throw "Not yet implemented";
-    // TODO: implement vscode-uri's Utils.joinPath method. Skip encoding URI components.
-    // if (ref.startsWith("/") && workspaceRoot != null) {
-    //   return joinPath(workspaceRoot.toString(), ref)
-    // }
-    // TODO: figure out how to replicate the node resolve method in Dart
-    // try {
-    //   return resolve(base, ref);
-    // } catch (e) {
-    //   return null;
-    // }
+  Uri resolveReference(String ref, Uri base) {
+    if (ref.startsWith("/") && workspaceRoot != null) {
+      return joinPath(workspaceRoot!, [ref]);
+    }
+    return base.resolve(ref);
   }
 }
