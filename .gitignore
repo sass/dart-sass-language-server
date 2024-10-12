@@ -13,6 +13,12 @@
 **/copy.bara.sky
 **/coverage
 
-.vscode
+.vscode/*
+!.vscode/launch.json
 
 sass-language-server
+
+# Don't commit the following in the extensions folder
+dist
+node_modules
+*.vsix

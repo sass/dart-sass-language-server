@@ -1,0 +1,578 @@
+{
+  "name": "sass",
+  "displayName": "Sass",
+  "description": "Improved support for SCSS, Sass indented and SassDoc. Workspace awareness and full support for Sass modules.",
+  "version": "1.0.0-alpha.1",
+  "private": true,
+  "publisher": "",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "icon": "icon.png",
+  "keywords": [
+    "scss",
+    "sass"
+  ],
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./dist/main.js",
+  "dependencies": {
+    "esbuild": "0.24.0",
+    "vscode-languageclient": "9.0.1",
+    "vscode-uri": "3.0.8"
+  },
+  "devDependencies": {
+    "@types/vscode": "1.86.0"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "package": "npx vsce package --baseContentUrl https://github.com/wkillerud/dart-sass-language-server/raw/HEAD --baseImagesUrl https://github.com/wkillerud/dart-sass-language-server/raw/HEAD",
+    "vscode:prepublish": "npm run build",
+    "build": "esbuild src/main.ts --bundle --outdir=dist --external:vscode --format=cjs --platform=node",
+    "dev": "npm run build -- --sourcemap --watch"
+  },
+  "activationEvents": [
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:sass"
+  ],
+  "capabilities": {
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "sass",
+        "aliases": [
+          "Sass",
+          "sass-indented"
+        ],
+        "extensions": [
+          ".sass"
+        ],
+        "configuration": "./languages/sass.configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "sass",
+        "scopeName": "source.sass",
+        "path": "./languages/sass.tmLanguage.json"
+      }
+    ],
+    "configuration": [
+      {
+        "title": "Workspace",
+        "properties": {
+          "sass.workspace.loadPaths": {
+            "type": "array",
+            "scope": "resource",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "markdownDescription": "A list of paths relative to the workspace root where the language server should look for stylesheets loaded by `@use` and `@import`. `node_modules` is always included.\n\nNote that you will have to [configure your Sass compiler separately](https://sass-lang.com/documentation/cli/dart-sass/#load-path).",
+            "order": 0
+          },
+          "sass.workspace.exclude": {
+            "type": "array",
+            "scope": "resource",
+            "items": {
+              "type": "string"
+            },
+            "default": [
+              "**/.git/**",
+              "**/node_modules/**"
+            ],
+            "description": "List of glob patterns for directories that are excluded when scanning.",
+            "order": 1
+          },
+          "sass.workspace.logLevel": {
+            "type": "string",
+            "scope": "resource",
+            "default": "info",
+            "enum": [
+              "silent",
+              "fatal",
+              "error",
+              "warn",
+              "info",
+              "debug",
+              "trace"
+            ],
+            "description": "Control how much gets logged to the Output window.",
+            "order": 2
+          },
+          "sass.trace.server": {
+            "type": "string",
+            "scope": "window",
+            "enum": [
+              "off",
+              "messages",
+              "verbose"
+            ],
+            "default": "off",
+            "description": "Log the messages sent between VS Code and the Sass language server.",
+            "order": 999
+          }
+        }
+      },
+      {
+        "title": "SCSS",
+        "properties": {
+          "sass.scss.codeAction.enabled": {
+            "order": 10,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all code actions."
+          },
+          "sass.scss.colors.enabled": {
+            "order": 20,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all color decorators."
+          },
+          "sass.scss.completion.enabled": {
+            "order": 30,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all completions (IntelliSense)."
+          },
+          "sass.scss.completion.suggestFromUseOnly": {
+            "order": 31,
+            "type": "boolean",
+            "default": false,
+            "description": "If your project uses the new module system with @use and @forward, you may want to only include suggestions from your used modules."
+          },
+          "sass.scss.completion.mixinStyle": {
+            "order": 32,
+            "type": "string",
+            "default": "all",
+            "description": "Controls the style of suggestions for mixins.",
+            "enum": [
+              "all",
+              "nobracket",
+              "bracket"
+            ],
+            "enumItemLabels": [
+              "All",
+              "No brackets",
+              "Only brackets"
+            ],
+            "enumDescriptions": [
+              "Show all suggestions",
+              "Only show suggestions without brackets",
+              "Where brackets are suggested, don't suggest without brackets"
+            ]
+          },
+          "sass.scss.completion.css": {
+            "order": 33,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Compatibility setting for VS Code. Enable or disable CSS completions (IntelliSense). The built-in SCSS language server provides this, so by default it's turned off in Sass."
+          },
+          "sass.scss.completion.triggerPropertyValueCompletion": {
+            "order": 33,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "By default, Sass triggers property value completion after selecting a CSS property. Use this setting to disable this behavior."
+          },
+          "sass.scss.completion.completePropertyWithSemicolon": {
+            "order": 34,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Insert semicolon at end of line when completing CSS properties."
+          },
+          "sass.scss.definition.enabled": {
+            "order": 40,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Go to Definition."
+          },
+          "sass.scss.diagnostics.enabled": {
+            "order": 50,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all diagnostics."
+          },
+          "sass.scss.foldingRanges.enabled": {
+            "order": 60,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable folding ranges."
+          },
+          "sass.scss.highlights.enabled": {
+            "order": 70,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable highlights."
+          },
+          "sass.scss.hover.enabled": {
+            "order": 80,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all hover information."
+          },
+          "sass.scss.hover.documentation": {
+            "order": 81,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Show property and value documentation in CSS hovers."
+          },
+          "sass.scss.hover.references": {
+            "order": 82,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Show references to Sass documentation for Sass built-in modules and SassDoc for annotations."
+          },
+          "sass.scss.links.enabled": {
+            "order": 90,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable the link provider that lets you click an import and open the file."
+          },
+          "sass.scss.references.enabled": {
+            "order": 100,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Find all references."
+          },
+          "sass.scss.rename.enabled": {
+            "order": 110,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Rename."
+          },
+          "sass.scss.selectionRanges.enabled": {
+            "order": 120,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable selection ranges."
+          },
+          "sass.scss.signatureHelp.enabled": {
+            "order": 130,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable signature help."
+          },
+          "sass.scss.workspaceSymbol.enabled": {
+            "order": 140,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable workspace symbols."
+          }
+        }
+      },
+      {
+        "title": "Sass (Indented)",
+        "properties": {
+          "sass.sass.codeAction.enabled": {
+            "order": 10,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all code actions."
+          },
+          "sass.sass.colors.enabled": {
+            "order": 20,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all color decorators."
+          },
+          "sass.sass.completion.enabled": {
+            "order": 30,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all completions (IntelliSense)."
+          },
+          "sass.sass.completion.suggestFromUseOnly": {
+            "order": 31,
+            "type": "boolean",
+            "default": false,
+            "description": "If your project uses the new module system with @use and @forward, you may want to only include suggestions from your used modules."
+          },
+          "sass.sass.completion.mixinStyle": {
+            "order": 32,
+            "type": "string",
+            "default": "all",
+            "description": "Controls the style of suggestions for mixins and placeholders.",
+            "enum": [
+              "all",
+              "nobracket",
+              "bracket"
+            ],
+            "enumItemLabels": [
+              "All",
+              "No brackets",
+              "Only brackets"
+            ],
+            "enumDescriptions": [
+              "Show all suggestions",
+              "Only show suggestions without brackets",
+              "Where brackets are suggested, omit duplicates without brackets"
+            ]
+          },
+          "sass.sass.completion.css": {
+            "order": 33,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable CSS completions (IntelliSense)."
+          },
+          "sass.sass.completion.triggerPropertyValueCompletion": {
+            "order": 33,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "By default, Sass triggers property value completion after selecting a CSS property. Use this setting to disable this behavior."
+          },
+          "sass.sass.definition.enabled": {
+            "order": 40,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Go to Definition."
+          },
+          "sass.sass.diagnostics.enabled": {
+            "order": 50,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all diagnostics."
+          },
+          "sass.sass.foldingRanges.enabled": {
+            "order": 60,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable folding ranges."
+          },
+          "sass.sass.highlights.enabled": {
+            "order": 70,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable highlights."
+          },
+          "sass.sass.hover.enabled": {
+            "order": 80,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable all hover information."
+          },
+          "sass.sass.hover.documentation": {
+            "order": 81,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Show property and value documentation in CSS hovers."
+          },
+          "sass.sass.hover.references": {
+            "order": 82,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Show references to MDN in CSS hovers, Sass documentation for Sass built-in modules and SassDoc for annotations."
+          },
+          "sass.sass.links.enabled": {
+            "order": 90,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable the link provider that lets you click an import and open the file."
+          },
+          "sass.sass.references.enabled": {
+            "order": 100,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Find all references."
+          },
+          "sass.sass.rename.enabled": {
+            "order": 110,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable Rename."
+          },
+          "sass.sass.selectionRanges.enabled": {
+            "order": 120,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable selection ranges."
+          },
+          "sass.sass.signatureHelp.enabled": {
+            "order": 130,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable selection ranges."
+          },
+          "sass.sass.workspaceSymbol.enabled": {
+            "order": 140,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Enable or disable selection ranges."
+          }
+        }
+      },
+      {
+        "title": "CSS",
+        "properties": {
+          "sass.css.codeAction.enabled": {
+            "order": 10,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable all code actions."
+          },
+          "sass.css.colors.enabled": {
+            "order": 20,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable all color decorators."
+          },
+          "sass.css.completion.enabled": {
+            "order": 30,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable all completions (IntelliSense)."
+          },
+          "sass.css.completion.triggerPropertyValueCompletion": {
+            "order": 31,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "By default, Some Sass triggers property value completion after selecting a CSS property. Use this setting to disable this behavior."
+          },
+          "sass.css.completion.completePropertyWithSemicolon": {
+            "order": 32,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Insert semicolon at end of line when completing CSS properties."
+          },
+          "sass.css.definition.enabled": {
+            "order": 40,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable Go to Definition."
+          },
+          "sass.css.diagnostics.enabled": {
+            "order": 50,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable all diagnostics."
+          },
+          "sass.css.foldingRanges.enabled": {
+            "order": 60,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable folding ranges."
+          },
+          "sass.css.highlights.enabled": {
+            "order": 70,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable highlights."
+          },
+          "sass.css.hover.enabled": {
+            "order": 80,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable all hover information."
+          },
+          "sass.css.hover.documentation": {
+            "order": 81,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Show property and value documentation in CSS hovers."
+          },
+          "sass.css.hover.references": {
+            "order": 82,
+            "type": "boolean",
+            "scope": "resource",
+            "default": true,
+            "description": "Show references to MDN in CSS hovers."
+          },
+          "sass.css.links.enabled": {
+            "order": 90,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable the link provider that lets you click an import and open the file."
+          },
+          "sass.css.references.enabled": {
+            "order": 100,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable Find all references."
+          },
+          "sass.css.rename.enabled": {
+            "order": 110,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable Rename."
+          },
+          "sass.css.selectionRanges.enabled": {
+            "order": 120,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable selection ranges."
+          },
+          "sass.css.signatureHelp.enabled": {
+            "order": 130,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable selection ranges."
+          },
+          "sass.css.workspaceSymbol.enabled": {
+            "order": 140,
+            "type": "boolean",
+            "scope": "resource",
+            "default": false,
+            "description": "Enable or disable selection ranges."
+          }
+        }
+      }
+    ]
+  }
+}
