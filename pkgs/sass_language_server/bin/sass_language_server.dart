@@ -6,7 +6,7 @@ void main(List<String> arguments) {
   if (arguments.contains('--version') ||
       arguments.contains('-v') ||
       arguments.contains('-V')) {
-    // TODO: read from pubspec.yaml
+    // TODO: read CLI version from pubspec.yaml
     print('1.0.0');
     return;
   }
@@ -18,6 +18,6 @@ void main(List<String> arguments) {
 
   var connection = lsp.Connection(stdin, stdout);
   var provider = server.LocalFileSystem();
-
+  print('sass-language-server running using --stdio');
   server.listen(connection, provider);
 }

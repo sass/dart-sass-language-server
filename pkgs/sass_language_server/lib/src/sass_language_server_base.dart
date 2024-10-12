@@ -12,6 +12,7 @@ void listen(
       dynamic userConfiguration) {
     var configuration =
         sass_ls.LanguageServerConfiguration.from(userConfiguration);
+    configuration.workspace.workspaceRoot = workspaceRoot;
     ls.configure(configuration);
     return configuration;
   }
@@ -93,7 +94,7 @@ void listen(
     try {
       initialScan = Future(() async {
         var userConfiguration =
-            await connection.sendRequest("workspace/configuration", {
+            await connection.sendRequest<dynamic>("workspace/configuration", {
           "items": [
             {"section": "editor"},
             {"section": "sass"},
