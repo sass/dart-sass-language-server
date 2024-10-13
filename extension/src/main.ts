@@ -15,6 +15,7 @@ import {
   TransportKind,
 } from 'vscode-languageclient/node';
 import { createLanguageClientOptions } from './client';
+import { createServerOptions } from './server';
 
 let defaultClient: LanguageClient;
 const clients: Map<string, BaseLanguageClient> = new Map<
@@ -64,31 +65,6 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 
 export async function activate(context: ExtensionContext): Promise<void> {
   async function didOpenTextDocument(document: TextDocument): Promise<void> {
-    const serverOptions: ServerOptions = {
-      command: 'sass-language-server',
-      transport: TransportKind.stdio,
-      debug: {
-        command: 'dart',
-        args: [
-          'run',
-          // '--pause-isolates-on-start', // TODO: see if we can use this
-          '--observe',
-          '--verbosity',
-          'error',
-          'sass_language_server',
-        ],
-        transport: TransportKind.stdio,
-        options: {
-          cwd: Utils.joinPath(
-            context.extensionUri,
-            '..',
-            'pkgs',
-            'sass_language_server'
-          ).fsPath,
-        },
-      },
-    };
-
     if (
       document.uri.scheme !== 'file' &&
       document.uri.scheme !== 'untitled' &&
@@ -103,12 +79,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
     const uri = document.uri;
     // Untitled files go to a default client.
     if (uri.scheme === 'untitled' && !defaultClient) {
-      const clientOptions = createLanguageClientOptions();
       defaultClient = new LanguageClient(
         'sass',
         'Sass',
-        serverOptions,
-        clientOptions
+        await createServerOptions(context),
+        createLanguageClientOptions()
       );
       defaultClient.start();
       return;
@@ -126,8 +101,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
       const client = new LanguageClient(
         'sass',
         'Sass',
-        serverOptions,
-        clientOptions
+        await createServerOptions(context),
+        createLanguageClientOptions(folder)
       );
 
       clients.set(folder.uri.toString(), client);
