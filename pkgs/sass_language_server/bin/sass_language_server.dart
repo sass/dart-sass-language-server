@@ -54,6 +54,11 @@ Logging options:
     var client = await Socket.connect('127.0.0.1', port);
     var lspConnection = lsp.Connection(client, client);
 
+    client.done.then<dynamic>((_) async {
+      await lspConnection.close();
+      exit(0);
+    });
+
     languageserver.listen(lspConnection, fileSystemProvider,
         logLevel: logLevel);
   }

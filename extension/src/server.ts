@@ -28,8 +28,7 @@ export async function createServerOptions(
           command: 'dart',
           args: [
             'run',
-            // TODO: figure out how we can use the debugger while also not breaking on startup. Maybe we can't use --sdtio? Some Sass uses .ipc
-            // '--pause-isolates-on-start', // TODO: see if we can use this
+            // '--pause-isolates-on-start', // Uncomment this to debug issues during startup and initial scan
             '--observe',
             'sass_language_server',
           ],
