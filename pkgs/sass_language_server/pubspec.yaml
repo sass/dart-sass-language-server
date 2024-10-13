@@ -2,6 +2,7 @@ name: sass_language_server
 description: Language server for Sass using the Language Server Protocol (LSP).
 version: 1.0.0
 repository: https://github.com/wkillerud/sass_language_server/pkgs/sass_language_server
+resolution: workspace
 
 executables:
   sass-language-server: sass_language_server

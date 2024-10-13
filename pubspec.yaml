@@ -1,0 +1,6 @@
+name: _
+environment:
+  sdk: ^3.5.0
+workspace:
+  - pkgs/sass_language_server
+  - pkgs/sass_language_services

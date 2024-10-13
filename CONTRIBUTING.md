@@ -1,4 +1,6 @@
-# Overview
+# Contributing
+
+Thank you for showing an interest in contributing.
 
 This project is an early proof of concept of a language server for Sass written in Dart to make use of [sass_api](https://pub.dev/packages/sass_api).
 

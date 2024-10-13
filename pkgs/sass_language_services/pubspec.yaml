@@ -2,6 +2,7 @@ name: sass_language_services
 description: Language service features for Sass.
 version: 1.0.0
 repository: https://github.com/wkillerud/sass_language_server/pkgs/sass_language_services
+resolution: workspace
 
 environment:
   sdk: ^3.5.3
