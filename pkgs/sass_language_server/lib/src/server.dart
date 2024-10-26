@@ -226,7 +226,10 @@ class Server implements LanguageServer {
 
   @override
   Future<void> stop() async {
-    await _connection.close();
-    exit(0);
+    try {
+      await _connection.close();
+    } finally {
+      exit(0);
+    }
   }
 }
