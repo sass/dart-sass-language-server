@@ -12,13 +12,13 @@ import 'logger.dart';
 class Server implements LanguageServer {
   late Connection _connection;
   late ClientCapabilities _clientCapabilities;
-  late InitializeParamsClientInfo _clientInfo;
   late LanguageServices _ls;
   late Uri _workspaceRoot;
   late Logger _log;
   late final TextDocuments _documents;
 
-  LanguageServerConfiguration _applyConfiguration(dynamic userConfiguration) {
+  LanguageServerConfiguration _applyConfiguration(
+      Map<String, dynamic> userConfiguration) {
     _log.debug('Applying user configuration');
 
     var configuration = LanguageServerConfiguration.from(userConfiguration);
@@ -152,10 +152,11 @@ class Server implements LanguageServer {
 
     _connection.onNotification('workspace/didChangeConfiguration',
         (params) async {
-      if (params is Map && params['settings'] is Map) {
-        _applyConfiguration(params['settings']);
+      if (params is Map && params.asMap['settings'] is Map) {
+        _applyConfiguration(params.asMap['settings'] as Map<String, dynamic>);
       } else {
-        _log.info(jsonEncode(params));
+        _log.info(
+            'workspace/didChangeConfiguration did not get expected parameters');
       }
     });
 
@@ -171,9 +172,11 @@ class Server implements LanguageServer {
                 {'section': 'sass'},
               ]
             });
-
-            _applyConfiguration(response);
-            _log.info(jsonEncode(response));
+            var settings = {
+              "editor": response.first,
+              "sass": response.last,
+            };
+            _applyConfiguration(settings);
           } catch (e) {
             _log.warn(e.toString());
           }
@@ -220,15 +223,20 @@ class Server implements LanguageServer {
       }
     });
 
+    _connection.onShutdown(() async {
+      await stop();
+    });
+
     _connection.listen();
-    return;
   }
 
   @override
   Future<void> stop() async {
     try {
+      _log.debug('Closing connection...');
       await _connection.close();
     } finally {
+      _log.debug('Bye');
       exit(0);
     }
   }
