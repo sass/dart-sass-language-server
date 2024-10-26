@@ -37,7 +37,8 @@ class RemoteConsole {
 
   void send(int type, String message) {
     try {
-      _connection.sendNotification('window/logMessage', ({type, message}));
+      _connection.sendNotification(
+          'window/logMessage', {"type": type, "message": message});
     } catch (e) {
       print(e);
     }
