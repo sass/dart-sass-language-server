@@ -9,8 +9,15 @@ class EditorConfiguration {
   late final bool insertSpaces;
 
   EditorConfiguration.from(dynamic config) {
-    colorDecoratorsLimit = config?["colorDecoratorsLimit"] as int? ?? 500;
-    indentSize = config?["indentSize"] as int? ?? 2;
-    insertSpaces = config?["insertSpaces"] as bool? ?? false;
+    colorDecoratorsLimit = config?['colorDecoratorsLimit'] as int? ?? 500;
+    insertSpaces = config?['insertSpaces'] as bool? ?? false;
+
+    // legacy reasons in VS Code
+    var maybeIndentSize = config?['indentSize'];
+    if (maybeIndentSize is int) {
+      indentSize = maybeIndentSize;
+    } else if (maybeIndentSize is String && maybeIndentSize == 'tabSize') {
+      indentSize = config?['tabSize'] as int? ?? 2;
+    }
   }
 }

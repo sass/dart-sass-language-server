@@ -5,7 +5,7 @@ import 'package:sass_language_services/src/configuration/configuration.dart';
 void main() {
   group('EditorConfiguration', () {
     test('default configuration is as expected', () {
-      var result = LanguageServerConfiguration.from(null);
+      var result = LanguageServerConfiguration.create(null);
 
       expect(result.editor.colorDecoratorsLimit, 500);
       expect(result.editor.indentSize, 2);
@@ -13,7 +13,7 @@ void main() {
     });
 
     test('can override default settings with user settings', () {
-      var result = LanguageServerConfiguration.from({
+      var result = LanguageServerConfiguration.create({
         "editor": {"insertSpaces": true}
       });
 
@@ -27,7 +27,7 @@ void main() {
 
   group('WorkspaceConfiguration', () {
     test('default configuration is as expected', () {
-      var result = LanguageServerConfiguration.from(null);
+      var result = LanguageServerConfiguration.create(null);
 
       expect(result.workspace.exclude,
           equals(["**/.git/**", "**/node_modules/**"]));
@@ -37,9 +37,11 @@ void main() {
     });
 
     test('can override default settings with user settings', () {
-      var result = LanguageServerConfiguration.from({
-        "workspace": {
-          "loadPaths": ["shared/"]
+      var result = LanguageServerConfiguration.create({
+        "sass": {
+          "workspace": {
+            "loadPaths": ["shared/"]
+          }
         }
       });
 

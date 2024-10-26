@@ -2,10 +2,8 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import 'configuration/configuration.dart';
 import 'features/links/links_feature.dart';
 import 'features/links/stylesheet_document_link.dart';
-import 'file_system_provider.dart';
 import 'language_services_cache.dart';
 
 class LanguageServices {
@@ -14,7 +12,7 @@ class LanguageServices {
   final FileSystemProvider fs;
 
   LanguageServerConfiguration configuration =
-      LanguageServerConfiguration.from(null);
+      LanguageServerConfiguration.create(null);
 
   late final LinksFeature _links;
 
@@ -27,7 +25,7 @@ class LanguageServices {
   }
 
   void configure(LanguageServerConfiguration configuration) {
-    configuration = configuration;
+    this.configuration = configuration;
   }
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(

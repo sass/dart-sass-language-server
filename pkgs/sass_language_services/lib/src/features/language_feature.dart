@@ -3,8 +3,6 @@ import 'dart:math';
 import '../../sass_language_services.dart';
 import '../uri_utils.dart';
 
-final defaultConfiguration = LanguageServerConfiguration.from(null);
-
 abstract class LanguageFeature {
   late final LanguageServices ls;
 

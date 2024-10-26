@@ -13,6 +13,4 @@ abstract class LanguageServer {
       required FileSystemProvider fileSystemProvider,
       String logLevel = "info",
       int? port});
-
-  Future<void> stop();
 }

@@ -42,7 +42,16 @@ class LinksFeature extends LanguageFeature {
       }
 
       if (target.startsWith("sass:")) {
-        resolvedLinks.add(link);
+        // target is not included since this doesn't link to a file on disk
+        resolvedLinks.add(StylesheetDocumentLink(
+            type: link.type,
+            range: link.range,
+            alias: link.alias,
+            data: link.data,
+            hiddenVariables: link.hiddenVariables,
+            namespace: link.namespace,
+            shownVariables: link.shownVariables,
+            tooltip: link.tooltip));
         continue;
       }
 
@@ -88,7 +97,7 @@ class LinksFeature extends LanguageFeature {
 
   Future<Uri?> _resolveReference(
       Uri target, Uri document, Uri rootFolder, bool isSassLink) async {
-    if (target.path.startsWith("pkg:")) {
+    if (target.scheme == 'pkg') {
       return _resolvePkgModuleReference(target, document, rootFolder);
     }
 
@@ -160,7 +169,8 @@ class LinksFeature extends LanguageFeature {
 
   Future<Uri?> _mapReference(Uri? target, bool isSassLink) async {
     if (target != null && isSassLink) {
-      for (var variation in _toPathVariations(target)) {
+      var variations = _toPathVariations(target);
+      for (var variation in variations) {
         if (await ls.fs.exists(variation)) {
           return variation;
         }

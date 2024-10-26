@@ -248,7 +248,7 @@
             "order": 90,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable the link provider that lets you click an import and open the file."
           },
           "sass.scss.references.enabled": {
