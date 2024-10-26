@@ -30,8 +30,8 @@ export async function createServerOptions(
             'run',
             // '--pause-isolates-on-start', // Uncomment this to debug issues during startup and initial scan
             '--observe',
-            '--loglevel=debug',
             'sass_language_server',
+            '--loglevel=debug',
           ],
           transport: {
             kind: TransportKind.socket,

@@ -100,12 +100,11 @@
             "default": "info",
             "enum": [
               "silent",
-              "fatal",
               "error",
               "warn",
               "info",
-              "debug",
-              "trace"
+              "log",
+              "debug"
             ],
             "description": "Control how much gets logged to the Output window.",
             "order": 2

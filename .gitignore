@@ -15,6 +15,7 @@
 
 .vscode/*
 !.vscode/launch.json
+!.vscode/tasks.json
 
 sass-language-server
 

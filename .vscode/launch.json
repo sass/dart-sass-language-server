@@ -9,7 +9,8 @@
 			"runtimeExecutable": "${execPath}",
 			"args": ["--extensionDevelopmentPath=${workspaceRoot}/extension"],
 			"outFiles": ["${workspaceRoot}/extension/dist/main.js"],
-			"autoAttachChildProcesses": true
+			"autoAttachChildProcesses": true,
+      "preLaunchTask": "npm: build - extension"
 		}
 	]
 }

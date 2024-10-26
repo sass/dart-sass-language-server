@@ -50,7 +50,8 @@ export function createLanguageClientOptions(
     },
     diagnosticCollectionName: 'sass',
     outputChannel: output,
-    revealOutputChannelOn: RevealOutputChannelOn.Never,
+    // revealOutputChannelOn: RevealOutputChannelOn.Never,
+    revealOutputChannelOn: RevealOutputChannelOn.Warn,
   };
 
   return clientOptions;

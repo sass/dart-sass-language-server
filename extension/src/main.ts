@@ -7,13 +7,7 @@ import {
   Uri,
   TextDocument,
 } from 'vscode';
-import { Utils } from 'vscode-uri';
-import {
-  BaseLanguageClient,
-  LanguageClient,
-  ServerOptions,
-  TransportKind,
-} from 'vscode-languageclient/node';
+import { BaseLanguageClient, LanguageClient } from 'vscode-languageclient/node';
 import { createLanguageClientOptions } from './client';
 import { createServerOptions } from './server';
 
@@ -97,7 +91,6 @@ export async function activate(context: ExtensionContext): Promise<void> {
     // If we have nested workspace folders we only start a server on the outer most workspace folder.
     folder = getOuterMostWorkspaceFolder(folder);
     if (!clients.has(folder.uri.toString())) {
-      const clientOptions = createLanguageClientOptions(folder);
       const client = new LanguageClient(
         'sass',
         'Sass',
