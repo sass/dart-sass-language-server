@@ -70,6 +70,7 @@ class Server implements LanguageServer {
         connection: _connection,
         onDidChangeContent: (params) async {
           try {
+            _ls.cache.remove(params.document.uri);
             if (initialScan != null) {
               await initialScan;
             }
@@ -88,15 +89,14 @@ class Server implements LanguageServer {
       }
 
       try {
-        var uriString = uri.toString();
-        var document = _ls.cache.getDocument(uriString);
+        var document = _ls.cache.getDocument(uri);
         if (document == null) {
           var text = await fileSystemProvider.readFile(uri);
           document = TextDocument(
               uri,
-              uriString.endsWith('.sass')
+              uri.path.endsWith('.sass')
                   ? 'sass'
-                  : uriString.endsWith('.css')
+                  : uri.path.endsWith('.css')
                       ? 'css'
                       : 'scss',
               1,
@@ -113,7 +113,7 @@ class Server implements LanguageServer {
           if (link.target!.path.endsWith('.css')) continue;
           if (link.target!.path.startsWith('sass:')) continue;
 
-          var visited = _ls.cache.getDocument(link.target.toString());
+          var visited = _ls.cache.getDocument(link.target as Uri);
           if (visited is TextDocumentItem) {
             // avoid infinite loop in case of circular references
             continue;
@@ -224,6 +224,7 @@ class Server implements LanguageServer {
     return;
   }
 
+  @override
   Future<void> stop() async {
     await _connection.close();
     exit(0);

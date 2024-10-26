@@ -31,7 +31,7 @@ The Dart DevTools debugger and profiler is available at: http://127.0.0.1:8181/S
 
 Click the second link to open Dart DevTools.
 
-The Debugger tab has a File explorer in which you can find `package:sass_language_server`. Go to `src/sass_language_server_base.dart` to find the request handlers for messages coming in from the client.
+The Debugger tab has a File explorer in which you can find `package:sass_language_server`. Go to `src/server.dart` to find the request handlers for messages coming in from the client.
 
 ## Debug unit tests
 

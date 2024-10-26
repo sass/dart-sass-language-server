@@ -15,10 +15,10 @@ class CacheEntry {
 }
 
 class LanguageServicesCache {
-  final Map<String, CacheEntry> _cache = {};
+  final Map<Uri, CacheEntry> _cache = {};
 
   sass.Stylesheet getStylesheet(TextDocument document) {
-    final key = document.uri.toString();
+    final key = document.uri;
     var cached = _cache[key];
 
     if (cached != null && cached.document.version == document.version) {
@@ -46,28 +46,28 @@ class LanguageServicesCache {
     return stylesheet;
   }
 
-  TextDocument? getDocument(String uri) {
+  TextDocument? getDocument(Uri uri) {
     return _cache[uri]?.document;
   }
 
   List<StylesheetDocumentLink>? getDocumentLinks(TextDocument document) {
-    return _cache[document.uri.toString()]?.links;
+    return _cache[document.uri]?.links;
   }
 
   void setDocumentLinks(
       TextDocument document, List<StylesheetDocumentLink> links) {
-    _cache[document.uri.toString()]?.links = links;
+    _cache[document.uri]?.links = links;
   }
 
   Iterable<TextDocument> getDocuments() {
     return _cache.values.map((e) => e.document);
   }
 
-  bool containsKey(String uri) {
+  bool containsKey(Uri uri) {
     return _cache.containsKey(uri);
   }
 
-  void remove(String uri) {
+  void remove(Uri uri) {
     _cache.remove(uri);
   }
 }
