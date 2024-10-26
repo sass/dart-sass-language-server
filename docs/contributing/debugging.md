@@ -6,10 +6,10 @@ Here we assume you have set up a [development environment](./development-environ
 
 The quickest way to test the language server is to debug the language extension in Visual Studio Code. A debugging launch configuration is included in the repository. To use it:
 
-1. open this repository in VS Code
-2. go to the Run and Debug view
-3. Pick Debug extension and language server from the menu
-4. Click Start debugging
+1. Open this repository in VS Code.
+2. Go to the Run and Debug view.
+3. Pick Debug extension and language server from the menu.
+4. Click Start debugging.
 
 This will open another window of Visual Studio Code, this one running as an `[Extension Development Host]`.
 
@@ -19,8 +19,9 @@ In this configuration, the client has run `dart run --observe` in the local `sas
 
 To find the link to open Dart DevTools, use the `[Extension Development Host]`.
 
-1. open the Output pane (View -> Output in the menu)
-2. in the dropdown, choose Sass from the list
+1. Open a CSS, SCSS or Sass file to activate the language server.
+2. Open the Output pane (View -> Output in the menu).
+3. In the dropdown in the top right, choose Sass from the list.
 
 You should see output similar to this.
 
@@ -28,6 +29,9 @@ You should see output similar to this.
 The Dart VM service is listening on http://127.0.0.1:8181/SMIxtkPzlAY=/
 The Dart DevTools debugger and profiler is available at: http://127.0.0.1:8181/SMIxtkPzlAY=/devtools/?uri=ws://127.0.0.1:8181/SMIxtkPzlAY=/ws
 ```
+
+![screenshot showing the output pane and the dropdown with sass selected](https://github.com/user-attachments/assets/85839d2f-4305-4fb9-aeb0-d78f435e8b7d)
+
 
 Click the second link to open Dart DevTools.
 
