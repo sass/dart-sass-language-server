@@ -8,13 +8,9 @@ class EditorConfiguration {
   /// Insert spaces rather than tabs. Default value is false, meaning tabs are used.
   late final bool insertSpaces;
 
-  /// [Unicode locale identifier](https://www.unicode.org/reports/tr35/#Unicode_locale_identifier). Defaults to "en_US".
-  late final String locale;
-
   EditorConfiguration.from(dynamic config) {
     colorDecoratorsLimit = config?["colorDecoratorsLimit"] as int? ?? 500;
     indentSize = config?["indentSize"] as int? ?? 2;
     insertSpaces = config?["insertSpaces"] as bool? ?? false;
-    locale = config?["locale"] as String? ?? "en_US";
   }
 }

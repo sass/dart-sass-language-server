@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 
 // See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#messageType for levels and values
@@ -40,8 +39,7 @@ class RemoteConsole {
     try {
       _connection.sendNotification('window/logMessage', ({type, message}));
     } catch (e) {
-      print(
-          Intl.message('Sending log message failed', name: 'errLoggingFailed'));
+      print(e);
     }
   }
 }

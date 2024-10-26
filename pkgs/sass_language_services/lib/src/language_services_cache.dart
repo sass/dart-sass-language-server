@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 
@@ -39,11 +38,7 @@ class LanguageServicesCache {
         stylesheet = sass.Stylesheet.parseSass(document.text);
         break;
       default:
-        throw Intl.message('Unsupported language ID $languageId',
-            name: 'errUnsupportedLanguage',
-            args: [languageId],
-            desc:
-                "Error message that gets thrown if there is no parser available for the document's language");
+        throw 'Unsupported language ID $languageId';
     }
 
     _cache[key] = CacheEntry(document: document, stylesheet: stylesheet);

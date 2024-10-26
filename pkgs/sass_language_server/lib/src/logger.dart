@@ -1,4 +1,4 @@
-import 'remote_console.dart';
+import 'lsp/remote_console.dart';
 
 const _silent = 0;
 const _error = 1;

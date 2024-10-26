@@ -1,8 +1,4 @@
-import 'dart:io';
-import 'package:intl/intl.dart';
-import 'package:lsp_server/lsp_server.dart' as lsp;
-import 'package:sass_language_server/sass_language_server.dart'
-    as languageserver;
+import 'package:sass_language_server/sass_language_server.dart';
 
 void main(List<String> arguments) async {
   if (arguments.contains('--version') ||
@@ -33,14 +29,13 @@ Logging options:
       .split("=")
       .last;
 
-  var fileSystemProvider = languageserver.LocalFileSystem();
+  var server = LanguageServer();
 
   String transport = arguments.firstWhere((arg) => arg.startsWith('--socket='),
       orElse: () => '--stdio');
 
   if (transport == '--stdio') {
-    var connection = lsp.Connection(stdin, stdout);
-    languageserver.listen(connection, fileSystemProvider, logLevel: logLevel);
+    await server.start(logLevel: logLevel);
   } else {
     // The client is the one listening to socket connections on the specified port.
     // In other words the language server is a _client_ for the socket transport.
@@ -50,16 +45,7 @@ Logging options:
 
     var split = transport.split('=');
     int port = int.parse(split.last);
-
-    var client = await Socket.connect('127.0.0.1', port);
-    var lspConnection = lsp.Connection(client, client);
-
-    client.done.then<dynamic>((_) async {
-      await lspConnection.close();
-      exit(0);
-    });
-
-    languageserver.listen(lspConnection, fileSystemProvider,
-        logLevel: logLevel);
+    await server.start(
+        transport: Transport.socket, port: port, logLevel: logLevel);
   }
 }

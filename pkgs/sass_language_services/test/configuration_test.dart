@@ -10,7 +10,6 @@ void main() {
       expect(result.editor.colorDecoratorsLimit, 500);
       expect(result.editor.indentSize, 2);
       expect(result.editor.insertSpaces, false);
-      expect(result.editor.locale, "en_US");
     });
 
     test('can override default settings with user settings', () {
@@ -23,7 +22,6 @@ void main() {
       // else defaults
       expect(result.editor.colorDecoratorsLimit, 500);
       expect(result.editor.indentSize, 2);
-      expect(result.editor.locale, "en_US");
     });
   });
 
