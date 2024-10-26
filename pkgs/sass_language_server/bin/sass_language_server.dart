@@ -35,7 +35,8 @@ Logging options:
       orElse: () => '--stdio');
 
   if (transport == '--stdio') {
-    await server.start(logLevel: logLevel);
+    await server.start(
+        logLevel: logLevel, fileSystemProvider: LocalFileSystem());
   } else {
     // The client is the one listening to socket connections on the specified port.
     // In other words the language server is a _client_ for the socket transport.
@@ -46,6 +47,9 @@ Logging options:
     var split = transport.split('=');
     int port = int.parse(split.last);
     await server.start(
-        transport: Transport.socket, port: port, logLevel: logLevel);
+        transport: Transport.socket,
+        port: port,
+        logLevel: logLevel,
+        fileSystemProvider: LocalFileSystem());
   }
 }
