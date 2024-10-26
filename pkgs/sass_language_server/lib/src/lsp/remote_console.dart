@@ -16,26 +16,26 @@ class RemoteConsole {
   }
 
   void error(String message) {
-    send(_error, message);
+    _send(_error, message);
   }
 
   void warn(String message) {
-    send(_warn, message);
+    _send(_warn, message);
   }
 
   void info(String message) {
-    send(_info, message);
+    _send(_info, message);
   }
 
   void log(String message) {
-    send(_log, message);
+    _send(_log, message);
   }
 
   void debug(String message) {
-    send(_debug, message);
+    _send(_debug, message);
   }
 
-  void send(int type, String message) {
+  void _send(int type, String message) {
     try {
       _connection.sendNotification(
           'window/logMessage', {"type": type, "message": message});
