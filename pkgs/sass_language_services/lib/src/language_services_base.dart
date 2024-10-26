@@ -1,5 +1,6 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
+import 'package:sass_language_services/sass_language_services.dart';
 
 import 'configuration/configuration.dart';
 import 'features/links/links_feature.dart';
@@ -30,11 +31,11 @@ class LanguageServices {
   }
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(
-      lsp.TextDocumentItem document) {
+      TextDocument document) {
     return _links.findDocumentLinks(document);
   }
 
-  sass.Stylesheet parseStylesheet(lsp.TextDocumentItem document) {
+  sass.Stylesheet parseStylesheet(TextDocument document) {
     return cache.getStylesheet(document);
   }
 }

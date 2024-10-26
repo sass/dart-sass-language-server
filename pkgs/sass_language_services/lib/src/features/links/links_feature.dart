@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
+import 'package:sass_language_services/sass_language_services.dart';
 
 import '../../node_utils.dart';
 import '../../uri_utils.dart';
@@ -16,7 +16,7 @@ class LinksFeature extends LanguageFeature {
   LinksFeature({required super.ls});
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(
-      lsp.TextDocumentItem document) async {
+      TextDocument document) async {
     final cached = ls.cache.getDocumentLinks(document);
     if (cached != null) {
       return cached;
@@ -80,7 +80,7 @@ class LinksFeature extends LanguageFeature {
   }
 
   List<UnresolvedLinkData> _findUnresolvedLinks(
-      lsp.TextDocumentItem document, sass.Stylesheet stylesheet) {
+      TextDocument document, sass.Stylesheet stylesheet) {
     final visitor = LinkVisitor();
     stylesheet.accept(visitor);
     return visitor.unresolvedLinks;

@@ -1,5 +1,5 @@
 import 'package:lsp_server/lsp_server.dart';
-import 'package:sass_language_server/src/lsp/text_document.dart';
+import 'package:sass_language_services/src/lsp/text_document.dart';
 
 class TextDocumentChangeEvent {
   final TextDocument document;
@@ -16,7 +16,9 @@ class TextDocumentWillSaveEvent {
 
 /// Helper class handling the low-level methods to sync document
 /// contents from the client. Mimics vscode-languageserver-node's
-/// [TextDocuments](https://github.com/microsoft/vscode-languageserver-node/blob/main/server/src/common/textDocuments.ts)
+/// [TextDocuments](https://github.com/microsoft/vscode-languageserver-node/blob/main/server/src/common/textDocuments.ts).
+///
+/// Add event handlers as constructor parameters.
 class TextDocuments {
   final Map<Uri, TextDocument> _syncedDocuments = {};
 
@@ -30,6 +32,7 @@ class TextDocuments {
   late final Future<void> Function(TextDocumentChangeEvent)? _onDidSave;
 
   TextDocuments({
+    required Connection connection,
     Future<void> Function(TextDocumentChangeEvent)? onDidOpen,
     Future<void> Function(TextDocumentChangeEvent)? onDidChangeContent,
     Future<void> Function(TextDocumentChangeEvent)? onDidClose,
@@ -44,21 +47,7 @@ class TextDocuments {
     _onWillSave = onWillSave;
     _onWillSaveWaitUntil = onWillSaveWaitUntil;
     _onDidSave = onDidSave;
-  }
 
-  TextDocument? get(Uri uri) {
-    return _syncedDocuments[uri];
-  }
-
-  Iterable<TextDocument> all() {
-    return _syncedDocuments.values;
-  }
-
-  Iterable<Uri> keys() {
-    return _syncedDocuments.keys;
-  }
-
-  void listen(Connection connection) {
     connection.onDidOpenTextDocument((event) async {
       var td = event.textDocument;
       var document = TextDocument(td.uri, td.languageId, td.version, td.text);
@@ -87,5 +76,51 @@ class TextDocuments {
         _onDidChangeContent(TextDocumentChangeEvent(syncedDocument));
       }
     });
+
+    connection.onDidCloseTextDocument((event) async {
+      var key = event.textDocument.uri;
+      var document = _syncedDocuments.remove(key);
+      if (document != null && _onDidClose != null) {
+        _onDidClose(TextDocumentChangeEvent(document));
+      }
+    });
+
+    connection.onWillSaveTextDocument((event) async {
+      var document = _syncedDocuments[event.textDocument.uri];
+      if (document != null && _onWillSave != null) {
+        _onWillSave(TextDocumentChangeEvent(document));
+      }
+    });
+
+    if (_onWillSaveWaitUntil != null) {
+      connection.onWillSaveWaitUntilTextDocument((event) async {
+        var document = _syncedDocuments[event.textDocument.uri];
+        if (document != null) {
+          return _onWillSaveWaitUntil(
+              TextDocumentWillSaveEvent(document, event.reason));
+        } else {
+          return [];
+        }
+      });
+    }
+
+    connection.onDidSaveTextDocument((event) async {
+      var document = _syncedDocuments[event.textDocument.uri];
+      if (document != null && _onDidSave != null) {
+        _onDidSave(TextDocumentChangeEvent(document));
+      }
+    });
+  }
+
+  TextDocument? get(Uri uri) {
+    return _syncedDocuments[uri];
+  }
+
+  Iterable<TextDocument> all() {
+    return _syncedDocuments.values;
+  }
+
+  Iterable<Uri> keys() {
+    return _syncedDocuments.keys;
   }
 }

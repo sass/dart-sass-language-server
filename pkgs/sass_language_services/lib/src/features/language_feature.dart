@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:lsp_server/lsp_server.dart';
-
 import '../../sass_language_services.dart';
 import '../uri_utils.dart';
 
@@ -16,10 +14,10 @@ abstract class LanguageFeature {
   ///
   /// The [callback] is called for each document in the import tree. Documents will only get visited once.
   Future<List<T>> findInWorkspace<T>(
-      {required Future<List<T>> Function(TextDocumentItem document,
-              String prefix, List<String> hide, List<String> show)
+      {required Future<List<T>> Function(TextDocument document, String prefix,
+              List<String> hide, List<String> show)
           callback,
-      required TextDocumentItem initialDocument,
+      required TextDocument initialDocument,
       bool lazy = false,
       int depth = 0}) async {
     return _findInWorkspace(
@@ -31,11 +29,11 @@ abstract class LanguageFeature {
   }
 
   Future<List<T>> _findInWorkspace<T>(
-      {required Future<List<T>> Function(TextDocumentItem document,
-              String prefix, List<String> hide, List<String> show)
+      {required Future<List<T>> Function(TextDocument document, String prefix,
+              List<String> hide, List<String> show)
           callback,
-      required TextDocumentItem initialDocument,
-      required TextDocumentItem currentDocument,
+      required TextDocument initialDocument,
+      required TextDocument currentDocument,
       accumulatedPrefix = "",
       List<String> hide = const [],
       List<String> show = const [],
@@ -62,7 +60,7 @@ abstract class LanguageFeature {
         : asString.substring(max(0, lastSlash + 1));
   }
 
-  LanguageConfiguration getLanguageConfiguration(TextDocumentItem document) {
+  LanguageConfiguration getLanguageConfiguration(TextDocument document) {
     final languageId = document.languageId;
     switch (languageId) {
       case 'css':

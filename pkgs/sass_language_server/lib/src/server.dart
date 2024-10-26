@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:lsp_server/lsp_server.dart';
 import 'package:sass_language_server/sass_language_server.dart';
 import 'package:sass_language_server/src/lsp/remote_console.dart';
+import 'package:sass_language_server/src/lsp/text_documents.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
 import 'logger.dart';
@@ -15,6 +16,7 @@ class Server implements LanguageServer {
   late LanguageServices _ls;
   late Uri _workspaceRoot;
   late Logger _log;
+  late final TextDocuments _documents;
 
   LanguageServerConfiguration _applyConfiguration(dynamic userConfiguration) {
     _log.debug('Applying user configuration');
@@ -28,7 +30,7 @@ class Server implements LanguageServer {
     return configuration;
   }
 
-  LanguageConfiguration _getLanguageConfiguration(TextDocumentItem document) {
+  LanguageConfiguration _getLanguageConfiguration(TextDocument document) {
     var languageId = document.languageId;
     switch (languageId) {
       case 'css':
@@ -48,6 +50,8 @@ class Server implements LanguageServer {
     String logLevel = "info",
     int? port,
   }) async {
+    Future<void>? initialScan;
+
     if (transport == Transport.socket) {
       if (port == null) {
         throw 'Port is required for socket transport';
@@ -62,6 +66,19 @@ class Server implements LanguageServer {
     }
     _log = Logger(RemoteConsole(_connection), level: logLevel);
 
+    _documents = TextDocuments(
+        connection: _connection,
+        onDidChangeContent: (params) async {
+          try {
+            if (initialScan != null) {
+              await initialScan;
+            }
+            // TODO: doDiagnoastics
+          } catch (e) {
+            _log.debug(e.toString());
+          }
+        });
+
     _log.info('sass-language-server is running');
 
     Future<void> scan(Uri uri, {int depth = 0}) async {
@@ -75,15 +92,15 @@ class Server implements LanguageServer {
         var document = _ls.cache.getDocument(uriString);
         if (document == null) {
           var text = await fileSystemProvider.readFile(uri);
-          document = TextDocumentItem(
-              languageId: uriString.endsWith('.sass')
+          document = TextDocument(
+              uri,
+              uriString.endsWith('.sass')
                   ? 'sass'
                   : uriString.endsWith('.css')
                       ? 'css'
                       : 'scss',
-              text: text,
-              uri: uri,
-              version: 1);
+              1,
+              text);
 
           _ls.parseStylesheet(document);
         }
@@ -142,7 +159,6 @@ class Server implements LanguageServer {
       }
     });
 
-    Future<void>? initialScan;
     _connection.onInitialized((params) async {
       try {
         initialScan = Future(() async {
@@ -181,11 +197,23 @@ class Server implements LanguageServer {
       }
     });
 
+    // The spec says we can return null here which I'd prefer to the empty list
     _connection.onDocumentLinks((params) async {
       try {
-        var document = params.textDocument;
-        // TODO: handle text document sync
+        var document = _documents.get(params.textDocument.uri);
+        if (document == null) return [];
+
         var configuration = _getLanguageConfiguration(document);
+        if (configuration.links.enabled) {
+          if (initialScan != null) {
+            await initialScan;
+          }
+
+          var result = await _ls.findDocumentLinks(document);
+          return result;
+        } else {
+          return [];
+        }
       } catch (e) {
         _log.debug(e.toString());
         return [];

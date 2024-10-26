@@ -1,10 +1,10 @@
-import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
+import 'package:sass_language_services/sass_language_services.dart';
 
 import 'features/links/stylesheet_document_link.dart';
 
 class CacheEntry {
-  lsp.TextDocumentItem document;
+  TextDocument document;
   sass.Stylesheet stylesheet;
   List<StylesheetDocumentLink>? links;
 
@@ -17,7 +17,7 @@ class CacheEntry {
 class LanguageServicesCache {
   final Map<String, CacheEntry> _cache = {};
 
-  sass.Stylesheet getStylesheet(lsp.TextDocumentItem document) {
+  sass.Stylesheet getStylesheet(TextDocument document) {
     final key = document.uri.toString();
     var cached = _cache[key];
 
@@ -29,13 +29,13 @@ class LanguageServicesCache {
     final languageId = document.languageId;
     switch (languageId) {
       case 'css':
-        stylesheet = sass.Stylesheet.parseCss(document.text);
+        stylesheet = sass.Stylesheet.parseCss(document.getText());
         break;
       case 'scss':
-        stylesheet = sass.Stylesheet.parseScss(document.text);
+        stylesheet = sass.Stylesheet.parseScss(document.getText());
         break;
       case 'sass':
-        stylesheet = sass.Stylesheet.parseSass(document.text);
+        stylesheet = sass.Stylesheet.parseSass(document.getText());
         break;
       default:
         throw 'Unsupported language ID $languageId';
@@ -46,21 +46,20 @@ class LanguageServicesCache {
     return stylesheet;
   }
 
-  lsp.TextDocumentItem? getDocument(String uri) {
+  TextDocument? getDocument(String uri) {
     return _cache[uri]?.document;
   }
 
-  List<StylesheetDocumentLink>? getDocumentLinks(
-      lsp.TextDocumentItem document) {
+  List<StylesheetDocumentLink>? getDocumentLinks(TextDocument document) {
     return _cache[document.uri.toString()]?.links;
   }
 
   void setDocumentLinks(
-      lsp.TextDocumentItem document, List<StylesheetDocumentLink> links) {
+      TextDocument document, List<StylesheetDocumentLink> links) {
     _cache[document.uri.toString()]?.links = links;
   }
 
-  Iterable<lsp.TextDocumentItem> getDocuments() {
+  Iterable<TextDocument> getDocuments() {
     return _cache.values.map((e) => e.document);
   }
 

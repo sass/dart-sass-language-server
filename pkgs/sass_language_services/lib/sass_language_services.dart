@@ -8,6 +8,8 @@ library;
 
 export 'src/language_services_base.dart';
 
+export 'src/lsp/text_document.dart';
+
 export 'src/configuration/configuration.dart';
 export 'src/configuration/editor_configuration.dart';
 export 'src/configuration/language_configuration.dart'
