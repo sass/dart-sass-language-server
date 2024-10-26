@@ -19,7 +19,7 @@ This is the language server executable. Users will install this package, and the
 
 This is where you find the core functionality of the language server. Individual features are in the `lib/src/features/` directory. Each feature extends a base `LanguageFeature` class.
 
-When used, all features parse the given [`TextDocumentItem`](https://pub.dev/documentation/lsp_server/latest/lsp_server/TextDocumentItem-class.html) using [`sass_api`](https://pub.dev/packages/sass_api) to get the [`Stylesheet` node](https://pub.dev/documentation/sass_api/latest/sass/Stylesheet-class.html). Parses are cached, along with other often-used information such as resolved links.
+When used, all features parse the given `TextDocument` using [`sass_api`](https://pub.dev/packages/sass_api) to get the [`Stylesheet` node](https://pub.dev/documentation/sass_api/latest/sass/Stylesheet-class.html). Parses are cached, along with other often-used information such as resolved links.
 
 ## extension
 
