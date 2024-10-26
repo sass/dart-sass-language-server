@@ -2,8 +2,8 @@
 
 This document describes how to:
 
-- build the Dart Sass language server
-- build the Sass language extension for Visual Studio Code
+- Build the Dart Sass language server.
+- Build the Sass language extension for Visual Studio Code.
 
 Here we assume you have set up a [development environment](./development-environment.md).
 
