@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import '../../node_utils.dart';
-import '../../uri_utils.dart';
+import '../../utils/node_utils.dart';
+import '../../utils/uri_utils.dart';
 import '../language_feature.dart';
 import 'link_visitor.dart';
 import 'stylesheet_document_link.dart';
@@ -37,11 +37,11 @@ class LinksFeature extends LanguageFeature {
       }
 
       final target = link.target.toString();
-      if (target.startsWith("data:")) {
+      if (target.startsWith('data:')) {
         continue;
       }
 
-      if (target.startsWith("sass:")) {
+      if (target.startsWith('sass:')) {
         // target is not included since this doesn't link to a file on disk
         resolvedLinks.add(StylesheetDocumentLink(
             type: link.type,
@@ -116,7 +116,7 @@ class LinksFeature extends LanguageFeature {
     // Following Webpack's sass-loader's resolving of import at-rules,
     // the loader will first try to resolve the link as a relative path,
     // then as a path from inside node_modules.
-    if (!target.path.endsWith(".css")) {
+    if (!target.path.endsWith('.css')) {
       if (ref != null && await ls.fs.exists(ref)) {
         return ref;
       }
@@ -180,28 +180,28 @@ class LinksFeature extends LanguageFeature {
   }
 
   List<Uri> _toPathVariations(Uri target) {
-    if (target.path.endsWith(".css") ||
-        target.path.endsWith(".scss") ||
-        target.path.endsWith(".sass")) {
+    if (target.path.endsWith('.css') ||
+        target.path.endsWith('.scss') ||
+        target.path.endsWith('.sass')) {
       return [target];
     }
 
     // If a link is like a/, try resolving a/index.scss and a/_index.scss
     // and likewise for .sass
-    if (target.path.endsWith("/")) {
+    if (target.path.endsWith('/')) {
       return [
-        target.replace(path: "${target.path}_index.scss"),
-        target.replace(path: "${target.path}index.scss"),
-        target.replace(path: "${target.path}_index.sass"),
-        target.replace(path: "${target.path}index.sass"),
+        target.replace(path: '${target.path}_index.scss'),
+        target.replace(path: '${target.path}index.scss'),
+        target.replace(path: '${target.path}_index.sass'),
+        target.replace(path: '${target.path}index.sass'),
       ];
     }
 
     final base = basename(target.path);
-    if (base.startsWith("_")) {
+    if (base.startsWith('_')) {
       return [
-        target.replace(path: "${target.path}.scss"),
-        target.replace(path: "${target.path}.sass"),
+        target.replace(path: '${target.path}.scss'),
+        target.replace(path: '${target.path}.sass'),
       ];
     }
 
@@ -220,7 +220,7 @@ class LinksFeature extends LanguageFeature {
 
   Future<Uri?> _resolveModuleReference(
       Uri target, Uri document, Uri rootFolder) async {
-    if (document.scheme != "file") {
+    if (document.scheme != 'file') {
       return null;
     }
 

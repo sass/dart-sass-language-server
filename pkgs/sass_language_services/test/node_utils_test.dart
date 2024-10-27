@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 
-import 'package:sass_language_services/src/node_utils.dart';
+import 'package:sass_language_services/src/utils/node_utils.dart';
 
 void main() {
   group('getModuleNameFromPath', () {

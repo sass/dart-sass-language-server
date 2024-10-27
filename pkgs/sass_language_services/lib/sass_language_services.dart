@@ -6,14 +6,16 @@
 /// in your languages' client.
 library;
 
-export 'src/language_services_base.dart';
-
-export 'src/lsp/text_document.dart';
-
-export 'src/configuration/configuration.dart';
-export 'src/configuration/editor_configuration.dart';
+export 'src/configuration/configuration.dart' show LanguageServerConfiguration;
+export 'src/configuration/editor_configuration.dart' show EditorConfiguration;
 export 'src/configuration/language_configuration.dart'
     show LanguageConfiguration;
-export 'src/configuration/workspace_configuration.dart';
+export 'src/configuration/workspace_configuration.dart'
+    show WorkspaceConfiguration;
 
-export 'src/file_system_provider.dart';
+export 'src/lsp/text_document.dart' show TextDocument;
+
+export 'src/file_system_provider.dart'
+    show FileSystemProvider, ProviderFileStat, ProviderEntryType;
+
+export 'src/language_services.dart' show LanguageServices;

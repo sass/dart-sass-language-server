@@ -1,4 +1,4 @@
-import 'package:lsp_server/lsp_server.dart' as lsp;
+import 'package:lsp_server/lsp_server.dart';
 
 // See https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#messageType for levels and values
 const _error = 1;
@@ -9,9 +9,9 @@ const _debug = 5;
 
 /// Interface for [window/logmessage](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#window_logMessage).
 class RemoteConsole {
-  late lsp.Connection _connection;
+  late Connection _connection;
 
-  RemoteConsole(lsp.Connection connection) {
+  RemoteConsole(Connection connection) {
     _connection = connection;
   }
 

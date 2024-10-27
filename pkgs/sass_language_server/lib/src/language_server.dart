@@ -1,14 +1,15 @@
 import 'dart:io';
 
 import 'package:lsp_server/lsp_server.dart';
-import 'package:sass_language_server/sass_language_server.dart';
 import 'package:sass_language_server/src/lsp/remote_console.dart';
 import 'package:sass_language_server/src/lsp/text_documents.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
 import 'logger.dart';
 
-class Server implements LanguageServer {
+enum Transport { stdio, socket }
+
+class LanguageServer {
   late Connection _connection;
   Socket? _socket;
   late ClientCapabilities _clientCapabilities;
@@ -48,7 +49,6 @@ class Server implements LanguageServer {
     throw 'Unsupported language ID $languageId';
   }
 
-  @override
   Future<void> start({
     Transport transport = Transport.stdio,
     required FileSystemProvider fileSystemProvider,

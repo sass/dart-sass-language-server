@@ -1,5 +1,5 @@
 import 'package:lsp_server/lsp_server.dart';
-import 'package:sass_language_services/src/lsp/text_document.dart';
+import 'package:sass_language_services/sass_language_services.dart';
 
 class TextDocumentChangeEvent {
   final TextDocument document;

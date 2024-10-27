@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import '../../sass_language_services.dart';
-import '../uri_utils.dart';
+import '../utils/uri_utils.dart';
 
 abstract class LanguageFeature {
   late final LanguageServices ls;
@@ -32,7 +32,7 @@ abstract class LanguageFeature {
           callback,
       required TextDocument initialDocument,
       required TextDocument currentDocument,
-      accumulatedPrefix = "",
+      accumulatedPrefix = '',
       List<String> hide = const [],
       List<String> show = const [],
       Set<Uri> visited = const {},
@@ -42,7 +42,7 @@ abstract class LanguageFeature {
       return Future.value([]);
     }
 
-    throw "Not yet implemented";
+    throw 'Not yet implemented';
   }
 
   DocumentContext getDocumentContext() {
@@ -52,7 +52,7 @@ abstract class LanguageFeature {
 
   String getFileName(Uri uri) {
     var asString = uri.toString();
-    var lastSlash = asString.lastIndexOf("/");
+    var lastSlash = asString.lastIndexOf('/');
     return lastSlash == -1
         ? asString
         : asString.substring(max(0, lastSlash + 1));
@@ -79,7 +79,7 @@ class DocumentContext {
   DocumentContext({required this.workspaceRoot});
 
   Uri resolveReference(String ref, Uri base) {
-    if (ref.startsWith("/") && workspaceRoot != null) {
+    if (ref.startsWith('/') && workspaceRoot != null) {
       return joinPath(workspaceRoot!, [ref]);
     }
     return base.resolve(ref);

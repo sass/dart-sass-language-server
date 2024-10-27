@@ -1,6 +1,6 @@
 class WorkspaceConfiguration {
   /// Exclude paths from the initial workspace scan. Defaults include `.git` and `node_modules`.
-  final List<String> exclude = ["**/.git/**", "**/node_modules/**"];
+  final List<String> exclude = ['**/.git/**', '**/node_modules/**'];
   final Map<String, String> importAliases = {};
 
   /// Pass in [load paths](https://sass-lang.com/documentation/cli/dart-sass/#load-path) that will be used in addition to `node_modules`.
@@ -10,7 +10,7 @@ class WorkspaceConfiguration {
   Uri? workspaceRoot;
 
   WorkspaceConfiguration.from(dynamic config) {
-    var excludeConfig = config?["exclude"];
+    var excludeConfig = config?['exclude'];
     if (excludeConfig is List) {
       exclude.removeRange(0, exclude.length);
       for (var entry in excludeConfig) {
@@ -20,7 +20,7 @@ class WorkspaceConfiguration {
       }
     }
 
-    var loadPathsConfig = config?["loadPaths"];
+    var loadPathsConfig = config?['loadPaths'];
     if (loadPathsConfig is List) {
       loadPaths.removeRange(0, loadPaths.length);
       for (var entry in loadPathsConfig) {
@@ -30,7 +30,7 @@ class WorkspaceConfiguration {
       }
     }
 
-    var importAliasesConfig = config?["importAliases"];
+    var importAliasesConfig = config?['importAliases'];
     if (importAliasesConfig is Map) {
       for (var key in importAliases.keys) {
         importAliases.remove(key);
@@ -43,6 +43,6 @@ class WorkspaceConfiguration {
       }
     }
 
-    logLevel = config?["logLevel"] as String? ?? 'info';
+    logLevel = config?['logLevel'] as String? ?? 'info';
   }
 }

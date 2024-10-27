@@ -18,8 +18,8 @@ class LanguageConfiguration {
 
   LanguageConfiguration.from(dynamic config) {
     definition = DefinitionConfiguration(
-        enabled: config?["definition"]?["enabled"] as bool? ?? true);
+        enabled: config?['definition']?['enabled'] as bool? ?? true);
     links = LinksConfiguration(
-        enabled: config?["links"]?["enabled"] as bool? ?? true);
+        enabled: config?['links']?['enabled'] as bool? ?? true);
   }
 }
