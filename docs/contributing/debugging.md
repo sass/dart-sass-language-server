@@ -32,7 +32,6 @@ The Dart DevTools debugger and profiler is available at: http://127.0.0.1:8181/S
 
 ![screenshot showing the output pane and the dropdown with sass selected](https://github.com/user-attachments/assets/85839d2f-4305-4fb9-aeb0-d78f435e8b7d)
 
-
 Click the second link to open Dart DevTools.
 
 The Debugger tab has a File explorer in which you can find `package:sass_language_server`. Go to `src/server.dart` to find the request handlers for messages coming in from the client.
@@ -42,3 +41,13 @@ The Debugger tab has a File explorer in which you can find `package:sass_languag
 Assuming you installed [Dart for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=Dart-Code.dart-code) you can debug individual unit tests by right-clicking the Run button in the editor gutter.
 
 Writing a test is often faster when debugging an issue with a specific language feature, and helps improve test coverage.
+
+## Testing in isolation
+
+VS Code ships with some built-in support for SCSS and CSS. To test this language server in isolation you can disable the built-in extension.
+
+1. Go to the Extensions tab and search for `@builtin css language features`.
+2. Click the settings icon and pick Disable from the list.
+3. Click Restart extension to turn it off.
+
+You should also turn off extensions like SCSS IntelliSense or Some Sass.
