@@ -21,12 +21,12 @@ class LanguageServerConfiguration {
   }
 
   void update(dynamic config) {
-    var extension = config?['sass'];
-    if (extension != null) {
-      css = LanguageConfiguration.from(extension?['css']);
-      scss = LanguageConfiguration.from(extension?['scss']);
-      sass = LanguageConfiguration.from(extension?['sass']);
-      workspace = WorkspaceConfiguration.from(extension?['workspace']);
+    var extensionConfig = config?['sass'];
+    if (extensionConfig != null) {
+      css = LanguageConfiguration.from(extensionConfig?['css']);
+      scss = LanguageConfiguration.from(extensionConfig?['scss']);
+      sass = LanguageConfiguration.from(extensionConfig?['sass']);
+      workspace = WorkspaceConfiguration.from(extensionConfig?['workspace']);
     }
     var editorConfig = config?['editor'];
     if (editorConfig != null) {

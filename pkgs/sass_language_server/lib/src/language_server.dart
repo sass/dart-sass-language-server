@@ -6,8 +6,11 @@ import 'package:sass_language_server/src/lsp/text_documents.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
 import 'logger.dart';
+import 'utils/uri.dart';
 
 enum Transport { stdio, socket }
+
+const scannerMaxDepth = 256;
 
 class LanguageServer {
   late Connection _connection;
@@ -22,14 +25,17 @@ class LanguageServer {
   void _applyConfiguration(Map<String, dynamic> userConfiguration) {
     _log.debug('Applying user configuration');
 
-    if (_configuration == null) {
-      _configuration = LanguageServerConfiguration.create(userConfiguration);
-    } else {
+    if (_configuration case var configuration?) {
+      _log.debug('Update existing configuration');
       // updates only contain the section that is updated ("editor" or "sass")
-      _configuration!.update(userConfiguration);
+      configuration.update(userConfiguration);
+    } else {
+      _log.debug('First time creating configuration');
+      _configuration = LanguageServerConfiguration.create(userConfiguration);
     }
 
     _configuration!.workspace.workspaceRoot = _workspaceRoot;
+    _log.debug('Setting new log level ${_configuration!.workspace.logLevel}');
     _log.setLogLevel(_configuration!.workspace.logLevel);
     _ls.configure(_configuration!);
 
@@ -83,8 +89,8 @@ class LanguageServer {
               if (initialScan != null) {
                 await initialScan;
               }
-              // TODO: doDiagnoastics
-            } catch (e) {
+              // TODO: doDiagnostics
+            } on Exception catch (e) {
               _log.debug(e.toString());
             }
           });
@@ -92,8 +98,7 @@ class LanguageServer {
       _log.info('sass-language-server is running');
 
       Future<void> scan(Uri uri, {int depth = 0}) async {
-        const maxDepth = 256; // arbitrary number
-        if (depth > maxDepth) {
+        if (depth > scannerMaxDepth) {
           return;
         }
 
@@ -123,38 +128,37 @@ class LanguageServer {
             if (link.target!.path.startsWith('sass:')) continue;
 
             var visited = _ls.cache.getDocument(link.target as Uri);
-            if (visited is TextDocumentItem) {
+            if (visited != null) {
               // avoid infinite loop in case of circular references
               continue;
             }
 
             try {
               await scan(link.target!, depth: depth + 1);
-            } catch (e) {
-              // do nothing
+            } on Exception catch (e) {
+              // continue
+              _log.debug(e.toString());
             }
           }
-        } catch (e) {
+        } on Exception catch (e) {
           // Something went wrong parsing this file, try parsing the others
+          _log.debug(e.toString());
         }
       }
 
-      _connection.onInitialize((params) {
+      _connection.onInitialize((params) async {
         if (params.rootUri == null) {
           throw 'rootUri is required in InitializeParams';
         }
 
         _clientCapabilities = params.capabilities;
 
-        if (params.rootPath is String) {
-          var rootPath = params.rootPath!;
-          var uri = Uri.parse(rootPath);
-          _workspaceRoot = uri;
-          if (!_workspaceRoot.hasScheme) {
-            _workspaceRoot = Uri.parse('file://$rootPath');
-          }
+        if (params.rootPath case var rootPath?) {
+          _workspaceRoot = filePathToUri(rootPath);
+        } else if (params.rootUri case var rootUri?) {
+          _workspaceRoot = rootUri;
         } else {
-          _workspaceRoot = params.rootUri!;
+          throw 'Got neither rootPath or rootUri in initialize params';
         }
 
         _log.debug('workspace root $_workspaceRoot');
@@ -163,12 +167,13 @@ class LanguageServer {
             clientCapabilities: _clientCapabilities, fs: fileSystemProvider);
 
         var serverCapabilities = ServerCapabilities(
-          documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
-          textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
+          documentLinkProvider: DocumentLinkOptions(
+              resolveProvider: false, workDoneProgress: false),
+          textDocumentSync: Either2.t1(TextDocumentSyncKind.Full),
         );
 
         var result = InitializeResult(capabilities: serverCapabilities);
-        return Future.value(result);
+        return result;
       });
 
       _connection.onNotification('workspace/didChangeConfiguration',
@@ -202,8 +207,12 @@ class LanguageServer {
               _log.warn(e.toString());
             }
 
+            _log.debug('Searching workspace for files');
             var files = await fileSystemProvider.findFiles(
-                '**/*.{css,scss,sass}', _ls.configuration.workspace.exclude);
+                '**/*.{css,scss,sass}',
+                root: _workspaceRoot.toFilePath(),
+                exclude: _ls.configuration.workspace.exclude);
+            _log.debug('Found ${files.length} files in workspace');
             for (var uri in files) {
               if (uri.path.contains('/_')) {
                 // Don't include partials in the initial scan.
@@ -211,13 +220,15 @@ class LanguageServer {
                 // partials which may or may not have been forwarded with a prefix.
                 continue;
               }
+              _log.debug('Scanning $uri');
               await scan(uri);
             }
           });
           await initialScan;
           initialScan = null; // all done
-        } catch (e) {
-          print(e);
+          _log.debug('Finished initial scan of workspace');
+        } on Exception catch (e) {
+          _log.error(e.toString());
         }
       });
 
@@ -238,7 +249,7 @@ class LanguageServer {
           } else {
             return [];
           }
-        } catch (e) {
+        } on Exception catch (e) {
           _log.debug(e.toString());
           return [];
         }
@@ -248,17 +259,14 @@ class LanguageServer {
         await _socket?.close();
         exitCode = 0;
       });
+
       _connection.onExit(() async {
         exit(exitCode);
       });
 
       _connection.listen();
-    } catch (e) {
-      if (e is SocketException) {
-        exit(exitCode);
-      } else {
-        rethrow;
-      }
+    } on SocketException catch (_) {
+      exit(exitCode);
     }
   }
 }

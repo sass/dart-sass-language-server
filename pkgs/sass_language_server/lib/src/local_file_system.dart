@@ -2,23 +2,28 @@ import 'dart:io';
 
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
-import 'package:string_scanner/string_scanner.dart';
+import 'package:sass_language_server/src/utils/uri.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
 class LocalFileSystem extends FileSystemProvider {
   @override
-  Future<Iterable<Uri>> findFiles(String pattern, List<String>? exclude) async {
-    var matches = Glob(pattern);
-    var list = await matches.list().toList();
+  Future<Iterable<Uri>> findFiles(String pattern,
+      {String? root, List<String>? exclude}) async {
+    var list =
+        await Glob(pattern, caseSensitive: false).list(root: root).toList();
 
-    List<Uri> result = [];
+    var excludeGlobs = <Glob>[];
+    if (exclude != null) {
+      for (var pattern in exclude) {
+        excludeGlobs.add(Glob(pattern));
+      }
+    }
+
+    var result = <Uri>[];
     for (var match in list) {
-      if (exclude != null) {
-        var scanner = StringScanner(match.path);
-        for (var pattern in exclude) {
-          if (scanner.scan(pattern)) {
-            continue;
-          }
+      for (var glob in excludeGlobs) {
+        if (glob.matches(match.path)) {
+          continue;
         }
       }
       result.add(match.uri);
@@ -70,7 +75,7 @@ class LocalFileSystem extends FileSystemProvider {
     var path = Uri.parse('.').resolveUri(uri).toFilePath();
     if (path == '') path = '.';
     var resolved = await File(path).resolveSymbolicLinks();
-    return Uri.file(resolved);
+    return filePathToUri(resolved);
   }
 
   @override
