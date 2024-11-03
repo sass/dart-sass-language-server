@@ -4,7 +4,7 @@ import 'stylesheet_document_link.dart';
 
 typedef UnresolvedLinkData = (StylesheetDocumentLink, bool);
 
-class LinkVisitor with sass.RecursiveStatementVisitor {
+class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
   List<UnresolvedLinkData> unresolvedLinks = [];
 
   @override
