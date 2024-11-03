@@ -167,9 +167,8 @@ class LanguageServer {
             clientCapabilities: _clientCapabilities, fs: fileSystemProvider);
 
         var serverCapabilities = ServerCapabilities(
-          documentLinkProvider: DocumentLinkOptions(
-              resolveProvider: false, workDoneProgress: false),
-          textDocumentSync: Either2.t1(TextDocumentSyncKind.Full),
+          documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
+          textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
         );
 
         var result = InitializeResult(capabilities: serverCapabilities);
