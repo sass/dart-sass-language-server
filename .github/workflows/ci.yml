@@ -71,6 +71,10 @@ jobs:
         run: git config --global core.autocrlf false
 
       - uses: actions/checkout@v4
+        with:
+          # Workaround for max length of socket name used for client/server communication
+          # https://nodejs.org/api/net.html#identifying-paths-for-ipc-connections
+          path: "."
 
       - uses: dart-lang/setup-dart@v1
         with: { sdk: "${{ matrix.dart_channel }}" }
