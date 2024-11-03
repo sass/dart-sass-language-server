@@ -18,6 +18,8 @@ class EditorConfiguration {
       indentSize = maybeIndentSize;
     } else if (maybeIndentSize is String && maybeIndentSize == 'tabSize') {
       indentSize = config?['tabSize'] as int? ?? 2;
+    } else {
+      indentSize = 2;
     }
   }
 }
