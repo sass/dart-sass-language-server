@@ -2,8 +2,8 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import 'features/links/links_feature.dart';
-import 'features/links/stylesheet_document_link.dart';
+import 'features/document_links/document_links_feature.dart';
+import 'features/document_links/stylesheet_document_link.dart';
 import 'language_services_cache.dart';
 
 class LanguageServices {
@@ -14,14 +14,14 @@ class LanguageServices {
   LanguageServerConfiguration configuration =
       LanguageServerConfiguration.create(null);
 
-  late final LinksFeature _links;
+  late final DocumentLinksFeature _links;
 
   LanguageServices({
     required this.clientCapabilities,
     required this.fs,
   }) {
     cache = LanguageServicesCache();
-    _links = LinksFeature(ls: this);
+    _links = DocumentLinksFeature(ls: this);
   }
 
   void configure(LanguageServerConfiguration configuration) {

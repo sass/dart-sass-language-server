@@ -6,14 +6,14 @@ import 'package:sass_language_services/sass_language_services.dart';
 import '../../utils/node_utils.dart';
 import '../../utils/uri_utils.dart';
 import '../language_feature.dart';
-import 'link_visitor.dart';
+import 'document_link_visitor.dart';
 import 'stylesheet_document_link.dart';
 
 final schemeRegex = RegExp(r'^\w+:\/\/');
 final sassExt = RegExp(r'\.s[ac]ss$');
 
-class LinksFeature extends LanguageFeature {
-  LinksFeature({required super.ls});
+class DocumentLinksFeature extends LanguageFeature {
+  DocumentLinksFeature({required super.ls});
 
   Future<List<StylesheetDocumentLink>> findDocumentLinks(
       TextDocument document) async {
@@ -90,7 +90,7 @@ class LinksFeature extends LanguageFeature {
 
   List<UnresolvedLinkData> _findUnresolvedLinks(
       TextDocument document, sass.Stylesheet stylesheet) {
-    final visitor = LinkVisitor();
+    final visitor = DocumentLinkVisitor();
     stylesheet.accept(visitor);
     return visitor.unresolvedLinks;
   }
