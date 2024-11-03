@@ -20,6 +20,8 @@
 sass-language-server
 
 # Don't commit the following in the extensions folder
+.vscode-test
 dist
 node_modules
+!extension/test/**/node_modules
 *.vsix

@@ -1,0 +1,6 @@
+@use 'pkg:my-components/colors';
+@use 'circular';
+
+button {
+  color: colors.$color-primary;
+}
