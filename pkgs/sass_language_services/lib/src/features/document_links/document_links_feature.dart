@@ -43,15 +43,18 @@ class DocumentLinksFeature extends LanguageFeature {
 
       if (target.startsWith('sass:')) {
         // target is not included since this doesn't link to a file on disk
+        // TODO: https://github.com/sass/dart-sass-language-server/issues/5#issuecomment-2452932807
         resolvedLinks.add(StylesheetDocumentLink(
             type: link.type,
             range: link.range,
-            alias: link.alias,
             data: link.data,
-            hiddenVariables: link.hiddenVariables,
+            tooltip: link.tooltip,
             namespace: link.namespace,
+            prefix: link.prefix,
+            hiddenVariables: link.hiddenVariables,
             shownVariables: link.shownVariables,
-            tooltip: link.tooltip));
+            hiddenMixinsAndFunctions: link.hiddenMixinsAndFunctions,
+            shownMixinsAndFunctions: link.shownMixinsAndFunctions));
         continue;
       }
 
@@ -72,15 +75,17 @@ class DocumentLinksFeature extends LanguageFeature {
 
       // lsp.DocumentLink.target is marked as final, so we make a new one
       resolvedLinks.add(StylesheetDocumentLink(
+        type: link.type,
         target: resolved,
         range: link.range,
         data: link.data,
         tooltip: link.tooltip,
-        alias: link.alias,
         namespace: link.namespace,
+        prefix: link.prefix,
         hiddenVariables: link.hiddenVariables,
         shownVariables: link.shownVariables,
-        type: link.type,
+        hiddenMixinsAndFunctions: link.hiddenMixinsAndFunctions,
+        shownMixinsAndFunctions: link.shownMixinsAndFunctions,
       ));
     }
 
