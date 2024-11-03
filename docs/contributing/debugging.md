@@ -42,6 +42,26 @@ Assuming you installed [Dart for Visual Studio Code](https://marketplace.visuals
 
 Writing a test is often faster when debugging an issue with a specific language feature, and helps improve test coverage.
 
+## Debug VS Code tests
+
+To debug, add this launch configuration to `.vscode/launch.json`
+and change the path to match the test suite you're debugging.
+Place breakpoints in the test code and choose the Debug extensions
+test profile in the Run and Debug view in VS Code.
+
+```json
+{
+  "name": "Debug extension tests",
+  "type": "extensionHost",
+  "request": "launch",
+  "runtimeExecutable": "${execPath}",
+  "args": [
+    "--extensionDevelopmentPath=${workspaceFolder}/extension",
+    "--extensionTestsPath=${workspaceFolder}/extension/test/electron/document-links/index"
+  ]
+}
+```
+
 ## Testing in isolation
 
 VS Code ships with some built-in support for SCSS and CSS. To test this language server in isolation you can disable the built-in extension.
