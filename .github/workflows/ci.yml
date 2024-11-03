@@ -11,7 +11,7 @@ env:
 
 jobs:
   dart_tests:
-    name: "Dart tests | Dart ${{ matrix.dart_channel }} | ${{ matrix.os }}"
+    name: "Dart tests | Dart ${{ matrix.dart_channel }} | ${{ matrix.os }} | ${{ matrix.pkg }}"
     runs-on: "${{ matrix.os }}"
 
     strategy:
@@ -36,7 +36,7 @@ jobs:
         working-directory: pkgs/${{ matrix.pkg }}
 
   static_analysis:
-    name: Static analysis
+    name: "Static analysis  | ${{ matrix.pkg }}"
     runs-on: ubuntu-latest
 
     strategy:
