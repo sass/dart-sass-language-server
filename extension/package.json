@@ -25,18 +25,21 @@
   },
   "devDependencies": {
     "@types/node": "22.7.5",
-    "@types/vscode": "1.86.0"
+    "@types/vscode": "1.86.0",
+    "@vscode/test-electron": "2.4.1",
+    "mocha": "10.8.2"
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "package": "npx -y @vscode/vsce package --baseContentUrl https://github.com/wkillerud/dart-sass-language-server/raw/HEAD --baseImagesUrl https://github.com/wkillerud/dart-sass-language-server/raw/HEAD",
+    "package": "npx -y @vscode/vsce package --baseContentUrl https://github.com/sass/dart-sass-language-server/raw/HEAD --baseImagesUrl https://github.com/sass/dart-sass-language-server/raw/HEAD",
     "vscode:prepublish": "npm run build",
     "build": "esbuild src/main.ts --bundle --outdir=dist --external:vscode --format=cjs --platform=node",
-    "dev": "npm run build -- --sourcemap --watch"
+    "dev": "npm run build -- --sourcemap --watch",
+    "test": "CI=true node test/electron/run.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/wkillerud/dart-sass-language-server"
+    "url": "https://github.com/sass/dart-sass-language-server"
   },
   "activationEvents": [
     "onLanguage:css",
