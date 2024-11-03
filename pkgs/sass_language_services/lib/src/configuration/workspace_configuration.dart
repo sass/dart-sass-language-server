@@ -25,7 +25,7 @@ class WorkspaceConfiguration {
       loadPaths.removeRange(0, loadPaths.length);
       for (var entry in loadPathsConfig) {
         if (entry is String) {
-          exclude.add(entry);
+          loadPaths.add(entry);
         }
       }
     }
