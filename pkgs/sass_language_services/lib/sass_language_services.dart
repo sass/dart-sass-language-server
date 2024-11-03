@@ -19,3 +19,5 @@ export 'src/file_system_provider.dart'
     show FileSystemProvider, ProviderFileStat, ProviderEntryType;
 
 export 'src/language_services.dart' show LanguageServices;
+
+export 'src/features/document_links/stylesheet_document_link.dart';

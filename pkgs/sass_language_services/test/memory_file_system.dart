@@ -3,16 +3,31 @@ import 'dart:io';
 import 'package:path/path.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
+/// Implementation of [FileSystemProvider] for use in automated tests.
 class MemoryFileSystem extends FileSystemProvider {
   final _storage = <String, TextDocument>{};
 
+  /// Make a [TextDocument] with the content.
+  ///
+  /// Sets the default [languageId] based on the file extension in
+  /// [uri], which defaults to `index.scss`.
   TextDocument createDocument(String content,
       {String? uri, String? languageId, int? version}) {
     var documentUri =
         Uri.file(join(Directory.current.path, uri ?? 'index.scss'));
 
-    var document =
-        TextDocument(documentUri, languageId ?? 'scss', version ?? 1, content);
+    var language = 'scss';
+    if (languageId != null) {
+      language = languageId;
+    } else if (uri != null) {
+      language = uri.endsWith('.sass')
+          ? 'sass'
+          : uri.endsWith('.css')
+              ? 'css'
+              : 'scss';
+    }
+
+    var document = TextDocument(documentUri, language, version ?? 1, content);
 
     _storage[document.uri.toString()] = document;
     return document;

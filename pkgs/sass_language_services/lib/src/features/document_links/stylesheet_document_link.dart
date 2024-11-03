@@ -3,24 +3,14 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 enum LinkType { use, forward, import }
 
 class StylesheetDocumentLink extends lsp.DocumentLink {
-  /// The alias, if any.
-  ///
-  /// | Link                         | Value       |
-  /// | ---------------------------- | ----------- |
-  /// | `@use "./colors"`            | `undefined` |
-  /// | `@use "./colors" as c`       | `"c"`       |
-  /// | `@use "./colors" as *`       | `"*"`       |
-  /// | `@forward "./colors"`        | `undefined` |
-  /// | `@forward "./colors" as c-*` | `"c"`       |
-  String? alias;
+  final LinkType type;
 
-  String? namespace;
-
-  Set<String>? hiddenVariables;
-
-  Set<String>? shownVariables;
-
-  LinkType type;
+  final String? namespace;
+  final String? prefix;
+  final Set<String>? hiddenVariables;
+  final Set<String>? shownVariables;
+  final Set<String>? hiddenMixinsAndFunctions;
+  final Set<String>? shownMixinsAndFunctions;
 
   StylesheetDocumentLink({
     super.data,
@@ -28,9 +18,11 @@ class StylesheetDocumentLink extends lsp.DocumentLink {
     required super.range,
     super.target,
     super.tooltip,
-    this.alias,
     this.namespace,
+    this.prefix,
     this.hiddenVariables,
     this.shownVariables,
+    this.hiddenMixinsAndFunctions,
+    this.shownMixinsAndFunctions,
   });
 }

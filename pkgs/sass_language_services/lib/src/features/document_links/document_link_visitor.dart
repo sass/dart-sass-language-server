@@ -22,10 +22,6 @@ class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
               line: node.urlSpan.start.line,
               character: node.urlSpan.start.column),
         ),
-        alias: node.namespace == null ||
-                node.url.toString().contains(node.namespace!)
-            ? null
-            : node.namespace,
         namespace: node.namespace,
       ),
       isSassLink
@@ -47,8 +43,11 @@ class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
               line: node.urlSpan.start.line,
               character: node.urlSpan.start.column),
         ),
+        prefix: node.prefix,
         shownVariables: node.shownVariables,
         hiddenVariables: node.hiddenVariables,
+        shownMixinsAndFunctions: node.shownMixinsAndFunctions,
+        hiddenMixinsAndFunctions: node.hiddenMixinsAndFunctions,
       ),
       isSassLink
     ));
