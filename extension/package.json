@@ -35,6 +35,7 @@
     "vscode:prepublish": "npm run build",
     "build": "esbuild src/main.ts --bundle --outdir=dist --external:vscode --format=cjs --platform=node",
     "dev": "npm run build -- --sourcemap --watch",
+    "pretest": "npm run build",
     "test": "node test/electron/run.js"
   },
   "repository": {

@@ -1,4 +1,6 @@
 import { AddressInfo, createServer } from 'node:net';
+import path from 'node:path';
+import os from 'node:os';
 import vscode from 'vscode';
 import {
   Executable,
@@ -21,45 +23,54 @@ export async function createServerOptions(
     socketServer.on('error', (e) => {
       reject(e);
     });
-    socketServer.listen(0, () => {
-      const debug: Executable = {
-        command: 'dart',
-        args: [
-          'run',
-          // '--pause-isolates-on-start', // Uncomment this to debug issues during startup and initial scan
-          '--observe',
-          'sass_language_server',
-          '--loglevel=debug',
-        ],
-        transport: {
-          kind: TransportKind.socket,
-          port: (socketServer.address() as AddressInfo).port,
-        },
-        options: {
-          cwd: Utils.joinPath(
-            context.extensionUri,
-            '..',
-            'pkgs',
-            'sass_language_server'
-          ).fsPath,
-        },
-      };
-
-      // @ts-expect-error Set in test/electron/mocha.js so we
-      // don't have to build and add the server to PATH to test.
-      if (vscode.env.isTest) {
-        resolve(debug);
-      } else {
-        const serverOptions: ServerOptions = {
-          command: 'sass-language-server',
+    socketServer.listen(
+      {
+        // We need a short-ish path to the socket because of
+        // https://github.com/actions/runner/issues/1676 and
+        // https://nodejs.org/api/net.html#identifying-paths-for-ipc-connections
+        path: path.join(os.tmpdir(), 'sass', 'main.sock'),
+        port: 0,
+      },
+      () => {
+        const debug: Executable = {
+          command: 'dart',
+          args: [
+            'run',
+            // '--pause-isolates-on-start', // Uncomment this to debug issues during startup and initial scan
+            '--observe',
+            'sass_language_server',
+            '--loglevel=debug',
+          ],
           transport: {
             kind: TransportKind.socket,
             port: (socketServer.address() as AddressInfo).port,
           },
-          debug,
+          options: {
+            cwd: Utils.joinPath(
+              context.extensionUri,
+              '..',
+              'pkgs',
+              'sass_language_server'
+            ).fsPath,
+          },
         };
-        resolve(serverOptions);
+
+        // @ts-expect-error Set in test/electron/mocha.js so we
+        // don't have to build and add the server to PATH to test.
+        if (vscode.env.isTest) {
+          resolve(debug);
+        } else {
+          const serverOptions: ServerOptions = {
+            command: 'sass-language-server',
+            transport: {
+              kind: TransportKind.socket,
+              port: (socketServer.address() as AddressInfo).port,
+            },
+            debug,
+          };
+          resolve(serverOptions);
+        }
       }
-    });
+    );
   });
 }
