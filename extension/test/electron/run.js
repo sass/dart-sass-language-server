@@ -1,4 +1,5 @@
 const path = require('node:path');
+const os = require('node:os');
 const fs = require('node:fs/promises');
 const {
   runTests,
@@ -45,6 +46,13 @@ async function main() {
           'fixtures'
         );
 
+        const userDataDir = path.join(os.tmpdir(), 'vscode-test', 'user-data');
+        try {
+          await fs.mkdir(userDataDir, { recursive: true });
+        } catch {
+          // might already exist
+        }
+
         await runTests({
           vscodeExecutablePath,
           version,
@@ -52,11 +60,15 @@ async function main() {
           extensionTestsPath,
           launchArgs: [
             workspaceDir,
-            ...args,
             // Turn off the built-in language server to
             // make sure we're testing our own.
             '--disable-extension',
             'vscode.css-language-features',
+            // We need a shorter path to the socket because of
+            // https://github.com/actions/runner/issues/1676 and
+            // https://nodejs.org/api/net.html#identifying-paths-for-ipc-connections
+            '--user-data-dir',
+            userDataDir,
           ],
         });
       }

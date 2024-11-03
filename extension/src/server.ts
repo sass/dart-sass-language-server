@@ -25,10 +25,6 @@ export async function createServerOptions(
     });
     socketServer.listen(
       {
-        // We need a short-ish path to the socket because of
-        // https://github.com/actions/runner/issues/1676 and
-        // https://nodejs.org/api/net.html#identifying-paths-for-ipc-connections
-        path: path.join(os.tmpdir(), 'sass', 'main.sock'),
         port: 0,
       },
       () => {
