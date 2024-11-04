@@ -1,0 +1,13 @@
+{
+  "name": "web_data",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Generates Dart code with CSS and HTML data used by the Sass language services.",
+  "main": "build.js",
+  "scripts": {},
+  "license": "MIT",
+  "dependencies": {
+    "@vscode/web-custom-data": "0.4.12"
+  }
+}
