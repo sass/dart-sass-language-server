@@ -1,8 +1,6 @@
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import 'features/document_links/stylesheet_document_link.dart';
-
 class CacheEntry {
   TextDocument document;
   sass.Stylesheet stylesheet;
