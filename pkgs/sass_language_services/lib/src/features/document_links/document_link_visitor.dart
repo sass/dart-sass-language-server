@@ -4,6 +4,8 @@ import 'stylesheet_document_link.dart';
 
 typedef UnresolvedLinkData = (StylesheetDocumentLink, bool);
 
+final quotes = RegExp('["\']');
+
 class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
   List<UnresolvedLinkData> unresolvedLinks = [];
 
@@ -56,12 +58,13 @@ class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitImportRule(sass.ImportRule node) {
     super.visitImportRule(node);
-    const isSassLink = true;
     for (var import in node.imports) {
       if (import is sass.DynamicImport) {
+        const isSassLink = true;
         unresolvedLinks.add((
           StylesheetDocumentLink(
             type: LinkType.import,
+            target: import.url,
             range: lsp.Range(
               end: lsp.Position(
                   line: import.urlSpan.end.line,
@@ -75,9 +78,29 @@ class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
         ));
       } else {
         var staticImport = import as sass.StaticImport;
+
+        Uri? target;
+        if (import.url.isPlain) {
+          // This text includes quotes (if they are present, optional in Indented)
+          target = Uri.tryParse(import.span.text.replaceAll(quotes, ''));
+        } else if (import.url.contents.isNotEmpty) {
+          // drill down to the link target from f. ex. `@import url("foo.css");`
+          var maybeUrlFunction = import.url.contents.first;
+          if (maybeUrlFunction is sass.InterpolatedFunctionExpression) {
+            if (maybeUrlFunction.arguments.positional.isNotEmpty) {
+              var arg = maybeUrlFunction.arguments.positional.first;
+              if (arg is sass.StringExpression && arg.text.isPlain) {
+                target = Uri.tryParse(arg.text.asPlain!);
+              }
+            }
+          }
+        }
+
+        const isSassLink = false;
         unresolvedLinks.add((
           StylesheetDocumentLink(
             type: LinkType.import,
+            target: target,
             range: lsp.Range(
               end: lsp.Position(
                   line: staticImport.url.span.end.line,

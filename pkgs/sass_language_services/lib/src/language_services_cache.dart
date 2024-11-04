@@ -68,4 +68,8 @@ class LanguageServicesCache {
   void remove(Uri uri) {
     _cache.remove(uri.toString());
   }
+
+  void clear() {
+    _cache.clear();
+  }
 }
