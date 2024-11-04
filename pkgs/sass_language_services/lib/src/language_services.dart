@@ -3,7 +3,6 @@ import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
 import 'features/document_links/document_links_feature.dart';
-import 'features/document_links/stylesheet_document_link.dart';
 import 'language_services_cache.dart';
 
 class LanguageServices {

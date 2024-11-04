@@ -7,7 +7,6 @@ import '../../utils/node_utils.dart';
 import '../../utils/uri_utils.dart';
 import '../language_feature.dart';
 import 'document_link_visitor.dart';
-import 'stylesheet_document_link.dart';
 
 final schemeRegex = RegExp(r'^\w+:\/\/');
 final sassExt = RegExp(r'\.s[ac]ss$');
