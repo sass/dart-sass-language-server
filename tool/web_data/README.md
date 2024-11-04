@@ -8,6 +8,6 @@ To generate updated Dart code:
 
 - Update the version in `package.json`.
 - Run `npm install`.
-- Run `npm start`.
+- Run `node build.js`.
 
 Commit the updated `package.json` and Dart files.
