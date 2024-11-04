@@ -9,6 +9,10 @@ final ls = LanguageServices(fs: fs, clientCapabilities: getCapabilities());
 
 void main() {
   group('Document links', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
     test('should resolve valid links', () async {
       fs.createDocument('\$var: 1px;', uri: 'variables.scss');
       fs.createDocument('\$tr: 2px;', uri: 'corners.scss');
@@ -22,29 +26,29 @@ void main() {
 ''');
 
       var links = await ls.findDocumentLinks(document);
-      expect(links.length, 4);
+      expect(links.length, equals(4));
 
       var use = links.where((link) => link.type == LinkType.use);
       var forward = links.where((link) => link.type == LinkType.forward);
 
-      expect(use.length, 2);
-      expect(forward.length, 2);
+      expect(use.length, equals(2));
+      expect(forward.length, equals(2));
 
-      expect(use.last.namespace, 'vars');
-      expect(use.first.namespace, null,
+      expect(use.last.namespace, equals('vars'));
+      expect(use.first.namespace, isNull,
           reason: 'Expected wildcard @use not to have a namespace');
 
-      expect(forward.last.shownVariables, {'public'});
-      expect(forward.first.hiddenVariables, {'foo'});
-      expect(forward.first.hiddenMixinsAndFunctions, {'barfunc'});
-      expect(forward.first.prefix, 'color-');
-      expect(forward.last.prefix, 'foo-');
+      expect(forward.last.shownVariables, equals({'public'}));
+      expect(forward.first.hiddenVariables, equals({'foo'}));
+      expect(forward.first.hiddenMixinsAndFunctions, equals({'barfunc'}));
+      expect(forward.first.prefix, equals('color-'));
+      expect(forward.last.prefix, equals('foo-'));
 
-      expect(use.first.target != null, true);
-      expect(use.last.target != null, true);
-      expect(forward.first.target != null, true);
+      expect(use.first.target!.path, endsWith('corners.scss'));
+      expect(use.last.target!.path, endsWith('variables.scss'));
+      expect(forward.first.target!.path, endsWith('colors.scss'));
 
-      expect(forward.last.target != null, true,
+      expect(forward.last.target!.path, endsWith('does-not-exist'),
           reason:
               'Expected to have a target even though the file does not exist in our file system.');
     });
@@ -62,7 +66,7 @@ void main() {
 
       var links = await ls.findDocumentLinks(document);
 
-      equals(links.length, 3);
+      expect(links.length, equals(3));
     });
 
     test('should not break on circular references', () async {
@@ -78,11 +82,62 @@ void main() {
 
       var links = await ls.findDocumentLinks(document);
 
-      expect(links.length, 1);
+      expect(links.length, equals(1));
     });
 
-    // TODO: tests for partials
-    // TODO: test for CSS imports (@import 'foo.css')
-    // TODO: test for Sass imports (with and without string quotes)
+    test('handles various forms of partials', () async {
+      fs.createDocument('''
+\$foo: blue;
+''', uri: '_foo.scss');
+
+      fs.createDocument('''
+\$bar: red
+''', uri: 'bar/_index.sass');
+
+      var document = fs.createDocument('''
+@use "foo";
+@use "bar";
+''');
+
+      var links = await ls.findDocumentLinks(document);
+
+      expect(links.length, equals(2));
+
+      expect(links.first.target!.path, endsWith('_foo.scss'));
+      expect(links.last.target!.path, endsWith('bar/_index.sass'));
+    });
+
+    test('handles CSS imports', () async {
+      var links = await ls.findDocumentLinks(fs.createDocument('''
+@import "string.css";
+'''));
+      expect(links.first.target!.path, endsWith('string.css'));
+    });
+
+    test('handles remote CSS imports', () async {
+      var links = await ls.findDocumentLinks(fs.createDocument('''
+@import 'http://foo.com/foo.css';
+'''));
+      expect(links.first.target!.toString(), equals('http://foo.com/foo.css'));
+    });
+
+    test('handles CSS url function imports', () async {
+      var links = await ls.findDocumentLinks(fs.createDocument('''
+@import url("func.css") print;
+'''));
+      expect(links.first.target!.path, endsWith('func.css'));
+    });
+
+    test('handles Sass imports without string quotes', () async {
+      fs.createDocument('''
+\$foo: blue;
+''', uri: '_foo.scss');
+
+      var links = await ls.findDocumentLinks(fs.createDocument('''
+@import foo
+''', uri: 'index.sass'));
+
+      expect(links.first.target!.path, endsWith('_foo.scss'));
+    });
   });
 }

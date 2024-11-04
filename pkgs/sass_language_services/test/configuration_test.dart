@@ -7,9 +7,9 @@ void main() {
     test('default configuration is as expected', () {
       var result = LanguageServerConfiguration.create(null);
 
-      expect(result.editor.colorDecoratorsLimit, 500);
-      expect(result.editor.indentSize, 2);
-      expect(result.editor.insertSpaces, false);
+      expect(result.editor.colorDecoratorsLimit, equals(500));
+      expect(result.editor.indentSize, equals(2));
+      expect(result.editor.insertSpaces, isFalse);
     });
 
     test('can override default settings with user settings', () {
@@ -17,11 +17,11 @@ void main() {
         "editor": {"insertSpaces": true}
       });
 
-      expect(result.editor.insertSpaces, true);
+      expect(result.editor.insertSpaces, isTrue);
 
       // else defaults
-      expect(result.editor.colorDecoratorsLimit, 500);
-      expect(result.editor.indentSize, 2);
+      expect(result.editor.colorDecoratorsLimit, equals(500));
+      expect(result.editor.indentSize, equals(2));
     });
   });
 
@@ -32,8 +32,8 @@ void main() {
       expect(result.workspace.exclude,
           equals(["**/.git/**", "**/node_modules/**"]));
 
-      expect(result.workspace.loadPaths.isEmpty, true);
-      expect(result.workspace.importAliases.isEmpty, true);
+      expect(result.workspace.loadPaths, isEmpty);
+      expect(result.workspace.importAliases, isEmpty);
     });
 
     test('can override default settings with user settings', () {
@@ -51,7 +51,7 @@ void main() {
 
       expect(result.workspace.exclude,
           equals(["**/.git/**", "**/node_modules/**"]));
-      expect(result.workspace.importAliases.isEmpty, true);
+      expect(result.workspace.importAliases, isEmpty);
     });
   });
 }

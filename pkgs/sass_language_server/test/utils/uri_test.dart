@@ -7,8 +7,8 @@ void main() {
       expect(
           filePathToUri(
               "c:\\workspace\\dart-sass-language-server\\extension\\test\\electron\\document-links\\fixtures"),
-          Uri.parse(
-              "file:///c:/workspace/dart-sass-language-server/extension/test/electron/document-links/fixtures"));
+          equals(Uri.parse(
+              "file:///c:/workspace/dart-sass-language-server/extension/test/electron/document-links/fixtures")));
     });
   });
 }
