@@ -8,9 +8,13 @@ class SassModuleFunction {
   final Uri? reference;
   final String? deprecationMessage;
 
-  SassModuleFunction(this.name, this.description, this.signature,
-      this.parameterSnippet, this.returns,
-      {this.reference, this.deprecationMessage});
+  SassModuleFunction(this.name,
+      {required this.description,
+      required this.signature,
+      required this.parameterSnippet,
+      required this.returns,
+      this.reference,
+      this.deprecationMessage});
 
   bool get isDeprecated => deprecationMessage != null;
 }
