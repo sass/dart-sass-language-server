@@ -11,6 +11,7 @@ dependencies:
   lsp_server: ^0.3.2
   path: ^1.9.0
   sass_api: ^14.1.0
+  source_span: ^1.10.0
 
 dev_dependencies:
   lints: ^4.0.0
