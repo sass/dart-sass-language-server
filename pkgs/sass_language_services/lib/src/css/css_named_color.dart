@@ -1,9 +1,9 @@
 class CssNamedColor {
   /// For example `aliceblue`.
-  String name;
+  final String name;
 
   /// The color keyword value, typically a hexadecimal.
-  String value;
+  final String value;
 
   CssNamedColor(this.name, this.value);
 }

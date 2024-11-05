@@ -3,16 +3,16 @@ import 'entry_status.dart';
 import 'reference.dart';
 
 class CssProperty {
-  String name;
-  String? description;
-  List<String>? browsers;
-  List<String>? restrictions;
-  EntryStatus? status;
-  String? syntax;
-  List<CssValue>? values;
-  List<Reference>? references;
-  int? relevance;
-  String? atRule;
+  final String name;
+  final String? description;
+  final List<String>? browsers;
+  final List<String>? restrictions;
+  final EntryStatus? status;
+  final String? syntax;
+  final List<CssValue>? values;
+  final List<Reference>? references;
+  final int? relevance;
+  final String? atRule;
 
   CssProperty(this.name,
       {this.description,
