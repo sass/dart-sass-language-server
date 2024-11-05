@@ -10,7 +10,7 @@ import 'css_value.dart';
 import 'entry_status.dart';
 import 'reference.dart';
 
-class CssData {
+class CssDataGenerated {
   final properties = [
     
     CssProperty("additive-symbols",

@@ -1,8 +1,6 @@
-import 'package:lsp_server/lsp_server.dart';
-
 class CssKeyword {
   String name;
-  MarkupContent description;
+  String description;
 
   CssKeyword(this.name, this.description);
 }
