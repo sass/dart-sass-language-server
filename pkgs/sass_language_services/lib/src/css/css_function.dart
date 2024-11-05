@@ -1,6 +1,6 @@
 class CssFunction {
-  String name;
-  String description;
+  final String name;
+  final String description;
 
   CssFunction(this.name, this.description);
 }

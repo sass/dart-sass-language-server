@@ -1,6 +1,6 @@
 class Reference {
-  String name;
-  Uri uri;
+  final String name;
+  final Uri uri;
 
   Reference(this.name, this.uri);
 }
