@@ -24,13 +24,11 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
       for (var complexSelector in selectorList.components) {
         for (var component in complexSelector.components) {
           for (var simpleSelector in component.selector.components) {
-            var name = simpleSelector.toString();
-
             var symbol = StylesheetDocumentSymbol(
-                name: name.trim(),
+                name: simpleSelector.toString(),
                 kind: lsp.SymbolKind.Class,
-                range: toRange(node.span),
-                selectionRange: toRange(node.span));
+                range: toRange(simpleSelector.span),
+                selectionRange: toRange(simpleSelector.span));
 
             symbols.classes.add(symbol);
           }
