@@ -75,4 +75,28 @@ void main() {
           result.selectors.first.name, equals('.foo:has([data-testid="bar"])'));
     });
   });
+
+  group('variables', () {
+    test('CSS variables', () {
+      var document = fs.createDocument('''
+.hello {
+  --world: blue;
+  color: var(--world);
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.cssVariables.first.name, equals('--world'));
+    });
+
+    test('public variables', () {
+      var document = fs.createDocument(r'''
+$world: blue;
+.hello {
+  color: $world;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.variables.first.name, equals(r'$world'));
+    });
+  });
 }

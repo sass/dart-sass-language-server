@@ -16,6 +16,53 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   DocumentSymbolsVisitor(this._document);
 
   @override
+  void visitAtRule(node) {
+    super.visitAtRule(node);
+    // TODO: keyframe, fontface stuff?
+  }
+
+  @override
+  void visitDeclaration(node) {
+    super.visitDeclaration(node);
+    if (node.name.isPlain && node.name.asPlain!.startsWith("--")) {
+      var symbol = StylesheetDocumentSymbol(
+          name: node.name.span.text.trim(),
+          kind: lsp.SymbolKind.Variable,
+          location:
+              lsp.Location(range: toRange(node.name.span), uri: _document.uri));
+      symbols.cssVariables.add(symbol);
+    }
+  }
+
+  @override
+  void visitFunctionRule(node) {
+    super.visitFunctionRule(node);
+    var symbol = StylesheetDocumentSymbol(
+        name: node.name,
+        kind: lsp.SymbolKind.Function,
+        location:
+            lsp.Location(range: toRange(node.nameSpan), uri: _document.uri));
+    symbols.functions.add(symbol);
+  }
+
+  @override
+  void visitMediaRule(node) {
+    super.visitMediaRule(node);
+    // TODO: media queries
+  }
+
+  @override
+  void visitMixinRule(node) {
+    super.visitMixinRule(node);
+    var symbol = StylesheetDocumentSymbol(
+        name: node.name,
+        kind: lsp.SymbolKind.Function,
+        location:
+            lsp.Location(range: toRange(node.nameSpan), uri: _document.uri));
+    symbols.mixins.add(symbol);
+  }
+
+  @override
   void visitStyleRule(sass.StyleRule node) {
     super.visitStyleRule(node);
 
@@ -38,5 +85,17 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     } on sass.SassFormatException catch (_) {
       // Do nothing.
     }
+  }
+
+  @override
+  void visitVariableDeclaration(node) {
+    super.visitVariableDeclaration(node);
+    var symbol = StylesheetDocumentSymbol(
+        // Include the $ since this field is user-facing
+        name: '\$${node.name}',
+        kind: lsp.SymbolKind.Variable,
+        location:
+            lsp.Location(range: toRange(node.nameSpan), uri: _document.uri));
+    symbols.variables.add(symbol);
   }
 }
