@@ -1,6 +1,8 @@
 ## Development environment
 
-The Sass language server, like the Sass compiler, is written in [Dart](https://dart.dev/). The language extension for Visual Studio Code is written in [TypeScript](https://www.typescriptlang.org/).
+The Sass language server, like the Sass compiler, is written in [Dart](https://dart.dev/).
+The language extension for Visual Studio Code is written in [TypeScript](https://www.typescriptlang.org/).
+Tests for the extension are written in JavaScript.
 
 If you have a background writing JavaScript or TypeScript, [Learning Dart as a JavaScript developer](https://dart.dev/resources/coming-from/js-to-dart) is a great place to start.
 
