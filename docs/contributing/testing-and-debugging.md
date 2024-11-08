@@ -1,4 +1,4 @@
-# Debugging
+# Testing and debugging
 
 Here we assume you have set up a [development environment](./development-environment.md).
 
@@ -12,6 +12,16 @@ The quickest way to test the language server is to debug the language extension 
 4. Click Start debugging.
 
 This will open another window of Visual Studio Code, this one running as an `[Extension Development Host]`.
+
+### Testing in isolation
+
+VS Code ships with some built-in support for SCSS and CSS. To test this language server in isolation you can disable the built-in extension.
+
+1. Go to the Extensions tab and search for `@builtin css language features`.
+2. Click the settings icon and pick Disable from the list.
+3. Click Restart extension to turn it off.
+
+You should also turn off extensions like SCSS IntelliSense or Some Sass.
 
 ### Open the Dart DevTools
 
@@ -61,13 +71,3 @@ test profile in the Run and Debug view in VS Code.
   ]
 }
 ```
-
-## Testing in isolation
-
-VS Code ships with some built-in support for SCSS and CSS. To test this language server in isolation you can disable the built-in extension.
-
-1. Go to the Extensions tab and search for `@builtin css language features`.
-2. Click the settings icon and pick Disable from the list.
-3. Click Restart extension to turn it off.
-
-You should also turn off extensions like SCSS IntelliSense or Some Sass.
