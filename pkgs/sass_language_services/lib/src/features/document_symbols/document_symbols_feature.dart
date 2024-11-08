@@ -9,7 +9,7 @@ class DocumentSymbolsFeature extends LanguageFeature {
 
   StylesheetDocumentSymbols findDocumentSymbols(TextDocument document) {
     var stylesheet = ls.parseStylesheet(document);
-    var symbolsVisitor = DocumentSymbolsVisitor();
+    var symbolsVisitor = DocumentSymbolsVisitor(document);
     stylesheet.accept(symbolsVisitor);
     return symbolsVisitor.symbols;
   }

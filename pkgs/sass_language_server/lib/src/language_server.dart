@@ -168,6 +168,7 @@ class LanguageServer {
 
         var serverCapabilities = ServerCapabilities(
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
+          documentSymbolProvider: Either2.t1(true),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
         );
 
@@ -231,20 +232,41 @@ class LanguageServer {
         }
       });
 
-      // The spec says we can return null here which I'd prefer to the empty list
       _connection.onDocumentLinks((params) async {
         try {
           var document = _documents.get(params.textDocument.uri);
           if (document == null) return [];
 
           var configuration = _getLanguageConfiguration(document);
-          if (configuration.links.enabled) {
+          if (configuration.documentLinks.enabled) {
             if (initialScan != null) {
               await initialScan;
             }
 
             var result = await _ls.findDocumentLinks(document);
             return result;
+          } else {
+            return [];
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
+        }
+      });
+
+      _connection.onDocumentSymbol((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) return [];
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.documentSymbols.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+
+            var result = _ls.findDocumentSymbols(document);
+            return Future.value(result.symbols);
           } else {
             return [];
           }
