@@ -8,12 +8,12 @@ final fs = MemoryFileSystem();
 final ls = LanguageServices(fs: fs, clientCapabilities: getCapabilities());
 
 void main() {
-  group('Document symbols', () {
+  group('selectors', () {
     setUp(() {
       ls.cache.clear();
     });
 
-    test('should collect CSS class selectors', () async {
+    test('should collect CSS class selectors', () {
       var document = fs.createDocument('''
 .foo {
   color: red;
@@ -27,12 +27,11 @@ void main() {
       var result = ls.findDocumentSymbols(document);
       expect(result.symbols.length, equals(2));
 
-      expect(result.classes.first.name, equals(".foo"));
-      expect(result.classes.last.name, equals(".bar"));
+      expect(result.selectors.first.name, equals(".foo"));
+      expect(result.selectors.last.name, equals(".bar"));
     });
 
-    test('should collect individual CSS class selectors when combined',
-        () async {
+    test('should treat CSS selectors with multiple classes as one', () {
       var document = fs.createDocument('''
 .foo.bar {
   color: red;
@@ -44,12 +43,36 @@ void main() {
 ''');
 
       var result = ls.findDocumentSymbols(document);
-      expect(result.symbols.length, equals(4));
+      expect(result.symbols.length, equals(2));
 
-      expect(result.classes[0].name, equals(".foo"));
-      expect(result.classes[1].name, equals(".bar"));
-      expect(result.classes[2].name, equals(".fizz"));
-      expect(result.classes[3].name, equals(".buzz"));
+      expect(result.selectors.first.name, equals(".foo.bar"));
+      expect(result.selectors.last.name, equals(".fizz .buzz"));
+    });
+
+    test('should treat lists of selectors as separate', () {
+      var document = fs.createDocument('''
+.foo.bar,
+.fizz .buzz {
+  color: red;
+}
+''');
+
+      var result = ls.findDocumentSymbols(document);
+      expect(result.symbols.length, equals(2));
+
+      expect(result.selectors.first.name, equals(".foo.bar"));
+      expect(result.selectors.last.name, equals(".fizz .buzz"));
+    });
+
+    test('should include extras', () {
+      var document = fs.createDocument('''
+.foo:has([data-testid="bar"]) {
+  color: red;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(
+          result.selectors.first.name, equals('.foo:has([data-testid="bar"])'));
     });
   });
 }
