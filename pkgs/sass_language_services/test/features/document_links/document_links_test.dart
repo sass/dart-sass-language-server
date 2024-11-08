@@ -14,15 +14,15 @@ void main() {
     });
 
     test('should resolve valid links', () async {
-      fs.createDocument('\$var: 1px;', uri: 'variables.scss');
-      fs.createDocument('\$tr: 2px;', uri: 'corners.scss');
-      fs.createDocument('\$b: #000;', uri: 'colors.scss');
+      fs.createDocument(r'$var: 1px;', uri: 'variables.scss');
+      fs.createDocument(r'$tr: 2px;', uri: 'corners.scss');
+      fs.createDocument(r'$b: #000;', uri: 'colors.scss');
 
-      var document = fs.createDocument('''
+      var document = fs.createDocument(r'''
 @use "corners" as *;
 @use "variables" as vars;
-@forward "colors" as color-* hide \$foo, barfunc;
-@forward "./does-not-exist" as foo-* show \$public;
+@forward "colors" as color-* hide $foo, barfunc;
+@forward "./does-not-exist" as foo-* show $public;
 ''');
 
       var links = await ls.findDocumentLinks(document);
@@ -54,9 +54,9 @@ void main() {
     });
 
     test('should resolve various relative links', () async {
-      fs.createDocument('\$var: 1px;', uri: 'upper.scss');
-      fs.createDocument('\$tr: 2px;', uri: 'middle/middle.scss');
-      fs.createDocument('\$b: #000;', uri: 'middle/lower/lower.scss');
+      fs.createDocument(r'$var: 1px;', uri: 'upper.scss');
+      fs.createDocument(r'$tr: 2px;', uri: 'middle/middle.scss');
+      fs.createDocument(r'$b: #000;', uri: 'middle/lower/lower.scss');
 
       var document = fs.createDocument('''
 @use "../upper";
@@ -70,14 +70,14 @@ void main() {
     });
 
     test('should not break on circular references', () async {
-      fs.createDocument('''
+      fs.createDocument(r'''
 @use "./pong"
-\$var: ping
+$var: ping
 ''', uri: 'ping.sass');
 
-      var document = fs.createDocument('''
+      var document = fs.createDocument(r'''
 @use "./pong"
-\$var: ping
+$var: ping
 ''', uri: 'ping.sass');
 
       var links = await ls.findDocumentLinks(document);
@@ -86,12 +86,12 @@ void main() {
     });
 
     test('handles various forms of partials', () async {
-      fs.createDocument('''
-\$foo: blue;
+      fs.createDocument(r'''
+$foo: blue;
 ''', uri: '_foo.scss');
 
-      fs.createDocument('''
-\$bar: red
+      fs.createDocument(r'''
+$bar: red
 ''', uri: 'bar/_index.sass');
 
       var document = fs.createDocument('''
@@ -129,8 +129,8 @@ void main() {
     });
 
     test('handles Sass imports without string quotes', () async {
-      fs.createDocument('''
-\$foo: blue;
+      fs.createDocument(r'''
+$foo: blue;
 ''', uri: '_foo.scss');
 
       var links = await ls.findDocumentLinks(fs.createDocument('''
