@@ -17,7 +17,7 @@ class StylesheetDocumentSymbols {
   final placeholderUsages = <StylesheetDocumentSymbol>[];
 
   /// Declared CSS selectors.
-  final classes = <StylesheetDocumentSymbol>[];
+  final selectors = <StylesheetDocumentSymbol>[];
 
   /// Declared CSS variables.
   final cssVariables = <StylesheetDocumentSymbol>[];
@@ -34,7 +34,7 @@ class StylesheetDocumentSymbols {
         ...mixins,
         ...placeholders,
         ...placeholderUsages,
-        ...classes,
+        ...selectors,
         ...cssVariables,
         ...keyframeIdentifiers,
         ...fontFaces,

@@ -22,17 +22,13 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     try {
       var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
       for (var complexSelector in selectorList.components) {
-        for (var component in complexSelector.components) {
-          for (var simpleSelector in component.selector.components) {
-            var symbol = StylesheetDocumentSymbol(
-                name: simpleSelector.toString(),
-                kind: lsp.SymbolKind.Class,
-                range: toRange(simpleSelector.span),
-                selectionRange: toRange(simpleSelector.span));
+        var symbol = StylesheetDocumentSymbol(
+            name: complexSelector.span.text.trim(),
+            kind: lsp.SymbolKind.Class,
+            range: toRange(complexSelector.span),
+            selectionRange: toRange(complexSelector.span));
 
-            symbols.classes.add(symbol);
-          }
-        }
+        symbols.selectors.add(symbol);
       }
     } on sass.SassFormatException catch (_) {
       // Do nothing.
