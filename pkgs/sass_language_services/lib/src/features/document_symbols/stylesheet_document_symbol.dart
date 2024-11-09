@@ -1,7 +1,7 @@
 import 'package:lsp_server/lsp_server.dart';
 
 class StylesheetDocumentSymbol extends SymbolInformation {
-  final String? documentation;
+  final String? docComment;
 
   StylesheetDocumentSymbol({
     required super.name,
@@ -9,6 +9,6 @@ class StylesheetDocumentSymbol extends SymbolInformation {
     required super.location,
     super.tags,
     super.deprecated,
-    this.documentation,
+    this.docComment,
   });
 }

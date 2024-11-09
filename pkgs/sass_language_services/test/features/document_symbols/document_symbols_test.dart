@@ -118,6 +118,9 @@ $world: blue;
 ''');
       var result = ls.findDocumentSymbols(document);
       expect(result.functions.first.name, equals(r'doStuff'));
+      // Don't include function arguments
+      expect(result.variables.length, equals(1));
+      expect(result.variables.last.name, equals(r'$value'));
     });
 
     test('mixins', () {
@@ -129,6 +132,45 @@ $world: blue;
 ''');
       var result = ls.findDocumentSymbols(document);
       expect(result.mixins.first.name, equals(r'mixin1'));
+      expect(result.variables.first.name, equals(r'$value'));
+    });
+  });
+
+  group('at-rules', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('@media', () {
+      var document = fs.createDocument(r'''
+@media screen, print {
+  body {
+    font-size: 14pt;
+  }
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.mediaQueries.first.name, equals('@media screen, print'));
+    });
+
+    test('@font-face', () {
+      var document = fs.createDocument(r'''
+@font-face {
+  font-family: "Vulf Mono", monospace;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.fontFaces.first.name, equals('@font-face'));
+    });
+
+    test('@keyframes', () {
+      var document = fs.createDocument(r'''
+@keyframes animation {
+
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.keyframeIdentifiers.first.name, equals('animation'));
     });
   });
 }
