@@ -4,3 +4,9 @@
 button {
   color: colors.$color-primary;
 }
+
+@media screen, print {
+  body {
+    font-size: 14pt;
+  }
+}

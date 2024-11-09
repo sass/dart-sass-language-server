@@ -21,3 +21,4 @@ export 'src/file_system_provider.dart'
 export 'src/language_services.dart' show LanguageServices;
 
 export 'src/features/document_links/stylesheet_document_link.dart';
+export 'src/features/document_symbols/stylesheet_document_symbol.dart';

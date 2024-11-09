@@ -25,10 +25,10 @@ void main() {
 ''');
 
       var result = ls.findDocumentSymbols(document);
-      expect(result.symbols.length, equals(2));
+      expect(result.length, equals(2));
 
-      expect(result.selectors.first.name, equals(".foo"));
-      expect(result.selectors.last.name, equals(".bar"));
+      expect(result.first.name, equals(".foo"));
+      expect(result.last.name, equals(".bar"));
     });
 
     test('should treat CSS selectors with multiple classes as one', () {
@@ -43,10 +43,10 @@ void main() {
 ''');
 
       var result = ls.findDocumentSymbols(document);
-      expect(result.symbols.length, equals(2));
+      expect(result.length, equals(2));
 
-      expect(result.selectors.first.name, equals(".foo.bar"));
-      expect(result.selectors.last.name, equals(".fizz .buzz"));
+      expect(result.first.name, equals(".foo.bar"));
+      expect(result.last.name, equals(".fizz .buzz"));
     });
 
     test('should treat lists of selectors as separate', () {
@@ -58,10 +58,10 @@ void main() {
 ''');
 
       var result = ls.findDocumentSymbols(document);
-      expect(result.symbols.length, equals(2));
+      expect(result.length, equals(2));
 
-      expect(result.selectors.first.name, equals(".foo.bar"));
-      expect(result.selectors.last.name, equals(".fizz .buzz"));
+      expect(result.first.name, equals(".foo.bar"));
+      expect(result.last.name, equals(".fizz .buzz"));
     });
 
     test('should include extras', () {
@@ -71,8 +71,17 @@ void main() {
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(
-          result.selectors.first.name, equals('.foo:has([data-testid="bar"])'));
+      expect(result.first.name, equals('.foo:has([data-testid="bar"])'));
+    });
+
+    test('placeholder selectors', () {
+      var document = fs.createDocument('''
+%waitforit {
+  color: red;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.first.name, equals('%waitforit'));
     });
   });
 
@@ -89,7 +98,11 @@ void main() {
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.cssVariables.first.name, equals('--world'));
+      expect(result.length, equals(1));
+      expect(result.first.name, equals('.hello'));
+
+      expect(result.first.children!.length, equals(1));
+      expect(result.first.children!.first.name, equals('--world'));
     });
 
     test('public variables', () {
@@ -100,7 +113,7 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.variables.first.name, equals(r'$world'));
+      expect(result.first.name, equals(r'$world'));
     });
   });
 
@@ -117,10 +130,11 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.functions.first.name, equals(r'doStuff'));
-      // Don't include function arguments
-      expect(result.variables.length, equals(1));
-      expect(result.variables.last.name, equals(r'$value'));
+      expect(result.length, equals(1));
+      expect(result.first.name, equals('doStuff'));
+
+      expect(result.first.children!.length, equals(1));
+      expect(result.first.children!.first.name, equals(r'$value'));
     });
 
     test('mixins', () {
@@ -131,8 +145,12 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.mixins.first.name, equals(r'mixin1'));
-      expect(result.variables.first.name, equals(r'$value'));
+
+      expect(result.length, equals(1));
+      expect(result.first.name, equals(r'mixin1'));
+
+      expect(result.first.children!.length, equals(1));
+      expect(result.first.children!.first.name, equals(r'$value'));
     });
   });
 
@@ -150,7 +168,11 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.mediaQueries.first.name, equals('@media screen, print'));
+      expect(result.length, equals(1));
+      expect(result.first.name, equals('@media screen, print'));
+
+      expect(result.first.children!.length, equals(1));
+      expect(result.first.children!.first.name, equals('body'));
     });
 
     test('@font-face', () {
@@ -160,7 +182,7 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.fontFaces.first.name, equals('@font-face'));
+      expect(result.first.name, equals('font-face'));
     });
 
     test('@keyframes', () {
@@ -170,7 +192,7 @@ $world: blue;
 }
 ''');
       var result = ls.findDocumentSymbols(document);
-      expect(result.keyframeIdentifiers.first.name, equals('animation'));
+      expect(result.first.name, equals('animation'));
     });
   });
 }
