@@ -254,9 +254,13 @@ class LanguageServer {
         }
       });
 
-      _connection.onDocumentSymbol((params) async {
+      // TODO: upstream allowing DocumentSymbol here
+      Future<List<DocumentSymbol>> onDocumentSymbol(dynamic params) async {
         try {
-          var document = _documents.get(params.textDocument.uri);
+          var documentSymbolParams = DocumentSymbolParams.fromJson(
+              params.value as Map<String, Object?>);
+
+          var document = _documents.get(documentSymbolParams.textDocument.uri);
           if (document == null) return [];
 
           var configuration = _getLanguageConfiguration(document);
@@ -266,7 +270,7 @@ class LanguageServer {
             }
 
             var result = _ls.findDocumentSymbols(document);
-            return Future.value(result.symbols);
+            return Future.value(result);
           } else {
             return [];
           }
@@ -274,7 +278,10 @@ class LanguageServer {
           _log.debug(e.toString());
           return [];
         }
-      });
+      }
+
+      _connection.peer
+          .registerMethod('textDocument/documentSymbol', onDocumentSymbol);
 
       _connection.onShutdown(() async {
         await _socket?.close();
@@ -286,7 +293,8 @@ class LanguageServer {
       });
 
       _connection.listen();
-    } on SocketException catch (_) {
+    } on Exception catch (e) {
+      _log.error(e.toString());
       exit(exitCode);
     }
   }

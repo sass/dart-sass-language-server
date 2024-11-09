@@ -2,9 +2,8 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import 'features/document_symbols/document_symbols_feature.dart';
-import 'features/document_symbols/stylesheet_document_symbols.dart';
 import 'features/document_links/document_links_feature.dart';
+import 'features/document_symbols/document_symbols_feature.dart';
 import 'language_services_cache.dart';
 
 class LanguageServices {
@@ -35,7 +34,7 @@ class LanguageServices {
     return _documentLinks.findDocumentLinks(document);
   }
 
-  StylesheetDocumentSymbols findDocumentSymbols(TextDocument document) {
+  List<StylesheetDocumentSymbol> findDocumentSymbols(TextDocument document) {
     return _documentSymbols.findDocumentSymbols(document);
   }
 
