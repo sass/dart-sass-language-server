@@ -77,6 +77,10 @@ void main() {
   });
 
   group('variables', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
     test('CSS variables', () {
       var document = fs.createDocument('''
 .hello {
