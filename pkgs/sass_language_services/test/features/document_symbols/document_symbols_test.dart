@@ -103,4 +103,32 @@ $world: blue;
       expect(result.variables.first.name, equals(r'$world'));
     });
   });
+
+  group('callables', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('functions', () {
+      var document = fs.createDocument(r'''
+@function doStuff($a: 1, $b: 2) {
+  $value: $a + $b;
+  @return $value;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.functions.first.name, equals(r'doStuff'));
+    });
+
+    test('mixins', () {
+      var document = fs.createDocument(r'''
+@mixin mixin1 {
+  $value: 1;
+  line-height: $value;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      expect(result.mixins.first.name, equals(r'mixin1'));
+    });
+  });
 }
