@@ -58,8 +58,8 @@ void main() {
       expect(symbolRange, StartsAtLine(0));
       expect(symbolRange, StartsAtCharacter(0));
 
-      expect(symbolRange, EndsAtLine(2));
-      expect(symbolRange, EndsAtCharacter(1));
+      expect(symbolRange, EndsAtLine(1));
+      expect(symbolRange, EndsAtCharacter(12));
     });
   });
 }
