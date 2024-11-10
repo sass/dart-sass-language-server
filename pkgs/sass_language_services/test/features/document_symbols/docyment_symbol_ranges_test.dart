@@ -2,7 +2,7 @@ import 'package:sass_language_services/sass_language_services.dart';
 import 'package:test/test.dart';
 
 import '../../memory_file_system.dart';
-import '../../position_matchers.dart';
+import '../../range_matchers.dart';
 import '../../test_client_capabilities.dart';
 
 final fs = MemoryFileSystem();
@@ -28,32 +28,32 @@ void main() {
       var result = ls.findDocumentSymbols(document);
       var fooNameRange = result.first.selectionRange;
       var fooSymbolRange = result.first.range;
-      expect(fooNameRange.start, AtLine(0));
-      expect(fooNameRange.start, AtCharacter(0));
+      expect(fooNameRange, StartsAtLine(0));
+      expect(fooNameRange, StartsAtCharacter(0));
 
-      expect(fooNameRange.end, AtLine(0));
-      expect(fooNameRange.end, AtCharacter(4));
+      expect(fooNameRange, EndsAtLine(0));
+      expect(fooNameRange, EndsAtCharacter(4));
 
-      expect(fooSymbolRange.start, AtLine(0));
-      expect(fooSymbolRange.start, AtCharacter(0));
+      expect(fooSymbolRange, StartsAtLine(0));
+      expect(fooSymbolRange, StartsAtCharacter(0));
 
-      expect(fooSymbolRange.end, AtLine(2));
-      expect(fooSymbolRange.end, AtCharacter(1));
+      expect(fooSymbolRange, EndsAtLine(2));
+      expect(fooSymbolRange, EndsAtCharacter(1));
 
       var barNameRange = result.last.selectionRange;
       var barSymbolRange = result.last.range;
 
-      expect(barNameRange.start, AtLine(4));
-      expect(barNameRange.start, AtCharacter(0));
+      expect(barNameRange, StartsAtLine(4));
+      expect(barNameRange, StartsAtCharacter(0));
 
-      expect(barNameRange.end, AtLine(4));
-      expect(barNameRange.end, AtCharacter(4));
+      expect(barNameRange, EndsAtLine(4));
+      expect(barNameRange, EndsAtCharacter(4));
 
-      expect(barSymbolRange.start, AtLine(4));
-      expect(barSymbolRange.start, AtCharacter(0));
+      expect(barSymbolRange, StartsAtLine(4));
+      expect(barSymbolRange, StartsAtCharacter(0));
 
-      expect(barSymbolRange.end, AtLine(6));
-      expect(barSymbolRange.end, AtCharacter(1));
+      expect(barSymbolRange, EndsAtLine(6));
+      expect(barSymbolRange, EndsAtCharacter(1));
     });
 
     test('Sass indented selector ranges are correct', () {
