@@ -21,15 +21,14 @@ after(async () => {
  * @returns {Promise<import('vscode').DocumentSymbol[]>}
  */
 async function findDocumentSymbols(documentUri) {
-  const links = await vscode.commands.executeCommand(
+  const result = await vscode.commands.executeCommand(
     'vscode.executeDocumentSymbolProvider',
     documentUri
   );
-  return links;
+  return result;
 }
 
 test('gets CSS selectors', async () => {
-  await showFile(stylesUri);
   const result = await findDocumentSymbols(stylesUri);
 
   assert.ok(
