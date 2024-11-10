@@ -220,34 +220,53 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     try {
       var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
       for (var complexSelector in selectorList.components) {
-        var nameRange = toRange(complexSelector.span);
-        var nameWithoutTrailingSpace = complexSelector.span.text.trimRight();
-        var diff =
-            complexSelector.span.text.length - nameWithoutTrailingSpace.length;
-        if (diff != 0) {
-          nameRange = lsp.Range(
-              start: lsp.Position(
-                  line: node.span.start.line + nameRange.start.line,
-                  character:
-                      node.span.start.column + nameRange.start.character),
-              end: lsp.Position(
-                  line: node.span.start.line + nameRange.end.line,
-                  character:
-                      node.span.start.column + nameRange.end.character - diff));
+        String? name;
+        lsp.Range? nameRange;
+        lsp.Range? symbolRange;
+
+        for (var component in complexSelector.components) {
+          var selector = component.selector;
+
+          if (name == null) {
+            name = selector.span.text;
+          } else {
+            name = '$name ${selector.span.text}';
+          }
+
+          if (nameRange == null) {
+            // The selector span seems to be relative to node, not to the file.
+            nameRange = lsp.Range(
+                start: lsp.Position(
+                    line: node.span.start.line + selector.span.start.line,
+                    character:
+                        node.span.start.column + selector.span.start.column),
+                end: lsp.Position(
+                    line: node.span.start.line + selector.span.end.line,
+                    character:
+                        node.span.start.column + selector.span.end.column));
+
+            // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
+            symbolRange = lsp.Range(
+                start: lsp.Position(
+                    line: nameRange.start.line,
+                    character: nameRange.start.character),
+                end: lsp.Position(
+                    line: node.span.end.line, character: node.span.end.column));
+          } else {
+            // Move the end of the name range down to include this selector component
+            nameRange = lsp.Range(
+                start: nameRange.start,
+                end: lsp.Position(
+                    line: node.span.start.line + selector.span.end.line,
+                    character:
+                        node.span.start.column + selector.span.end.column));
+          }
         }
 
-        // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
-        var symbolRange = lsp.Range(
-            start: lsp.Position(
-                line: nameRange.start.line,
-                character: nameRange.start.character),
-            end: lsp.Position(
-                line: node.span.end.line, character: node.span.end.column));
-
         _collect(
-            name: nameWithoutTrailingSpace,
+            name: name!,
             kind: lsp.SymbolKind.Class,
-            symbolRange: symbolRange,
+            symbolRange: symbolRange!,
             nameRange: nameRange,
             bodyRange: _bodyRange(node));
       }
