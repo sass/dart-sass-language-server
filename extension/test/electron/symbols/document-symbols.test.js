@@ -28,7 +28,7 @@ async function findDocumentSymbols(documentUri) {
   return result;
 }
 
-test('gets CSS selectors', async () => {
+test('gets document symbols', async () => {
   const result = await findDocumentSymbols(stylesUri);
 
   assert.ok(
