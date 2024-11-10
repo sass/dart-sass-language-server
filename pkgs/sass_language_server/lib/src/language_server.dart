@@ -122,10 +122,13 @@ class LanguageServer {
           var links = await _ls.findDocumentLinks(document);
           for (var link in links) {
             if (link.target == null) continue;
-            if (link.target!.path.contains('#{')) continue;
+
+            var target = link.target.toString();
+            if (target.contains('#{')) continue;
             // Our findFiles glob will handle the initial parsing of CSS files
-            if (link.target!.path.endsWith('.css')) continue;
-            if (link.target!.path.startsWith('sass:')) continue;
+            if (target.endsWith('.css')) continue;
+            // Sass built-ins are not files we can scan.
+            if (target.startsWith('sass:')) continue;
 
             var visited = _ls.cache.getDocument(link.target as Uri);
             if (visited != null) {

@@ -41,10 +41,9 @@ class DocumentLinksFeature extends LanguageFeature {
       }
 
       if (target.startsWith('sass:')) {
-        // target is not included since this doesn't link to a file on disk
-        // TODO: https://github.com/sass/dart-sass-language-server/issues/5#issuecomment-2452932807
         resolvedLinks.add(StylesheetDocumentLink(
             type: link.type,
+            target: Uri.parse('sass:///${link.namespace}.scss'),
             range: link.range,
             data: link.data,
             tooltip: link.tooltip,
@@ -54,6 +53,7 @@ class DocumentLinksFeature extends LanguageFeature {
             shownVariables: link.shownVariables,
             hiddenMixinsAndFunctions: link.hiddenMixinsAndFunctions,
             shownMixinsAndFunctions: link.shownMixinsAndFunctions));
+        resolvedLinks.add(link);
         continue;
       }
 
