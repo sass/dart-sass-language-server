@@ -1,4 +1,5 @@
 import 'package:glob/glob.dart';
+import 'package:path/path.dart' as p;
 import 'package:sass_language_services/sass_language_services.dart';
 import 'package:test/test.dart';
 
@@ -8,7 +9,8 @@ void main() {
       var config = WorkspaceConfiguration.from(null);
       var excludeGlobs = <Glob>[];
       for (var pattern in config.exclude) {
-        excludeGlobs.add(Glob(pattern, caseSensitive: false));
+        excludeGlobs.add(Glob(pattern,
+            caseSensitive: false, context: p.Context(style: p.Style.url)));
       }
 
       var nodeModulesPath =
@@ -27,7 +29,8 @@ void main() {
 
       var excludeGlobs = <Glob>[];
       for (var pattern in config.exclude) {
-        excludeGlobs.add(Glob(pattern, caseSensitive: false));
+        excludeGlobs.add(Glob(pattern,
+            caseSensitive: false, context: p.Context(style: p.Style.url)));
       }
 
       var nodeModulesPath =

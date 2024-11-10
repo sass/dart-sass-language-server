@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:glob/glob.dart';
 import 'package:glob/list_local_fs.dart';
+import 'package:path/path.dart' as p;
 import 'package:sass_language_server/src/utils/uri.dart';
 import 'package:sass_language_services/sass_language_services.dart';
 
@@ -22,7 +23,8 @@ class LocalFileSystem extends FileSystemProvider {
     var excludeGlobs = <Glob>[];
     if (exclude != null) {
       for (var pattern in exclude) {
-        excludeGlobs.add(Glob(pattern, caseSensitive: false));
+        excludeGlobs.add(Glob(pattern,
+            caseSensitive: false, context: p.Context(style: p.Style.url)));
       }
     }
 
@@ -30,7 +32,7 @@ class LocalFileSystem extends FileSystemProvider {
     for (var match in list) {
       var excluded = false;
       for (var glob in excludeGlobs) {
-        if (glob.matches(match.path)) {
+        if (glob.matches(match.uri.path)) {
           excluded = true;
           break;
         }
