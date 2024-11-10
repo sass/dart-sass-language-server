@@ -211,8 +211,7 @@ class LanguageServer {
             }
 
             _log.debug('Searching workspace for files');
-            var files = await fileSystemProvider.findFiles(
-                '**/*.{css,scss,sass}',
+            var files = await fileSystemProvider.findFiles('**.{css,scss,sass}',
                 root: _workspaceRoot.toFilePath(),
                 exclude: _ls.configuration.workspace.exclude);
             _log.debug('Found ${files.length} files in workspace');
