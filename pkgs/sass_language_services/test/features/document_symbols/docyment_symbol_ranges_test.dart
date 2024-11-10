@@ -80,4 +80,114 @@ void main() {
       expect(symbolRange, EndsAtCharacter(12));
     });
   });
+
+  group('variables', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('CSS variable ranges are correct', () {
+      var document = fs.createDocument('''
+.hello {
+  --world: blue;
+  color: var(--world);
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      var nameRange = result.first.children!.first.selectionRange;
+      var symbolRange = result.first.children!.first.range;
+
+      expect(nameRange, StartsAtLine(1));
+      expect(nameRange, StartsAtCharacter(2));
+
+      expect(nameRange, EndsAtLine(1));
+      expect(nameRange, EndsAtCharacter(9));
+
+      expect(symbolRange, StartsAtLine(1));
+      expect(symbolRange, StartsAtCharacter(2));
+
+      expect(symbolRange, EndsAtLine(1));
+      expect(symbolRange, EndsAtCharacter(15)); // excluding ;
+    });
+
+    test('Sass variable ranges are correct', () {
+      var document = fs.createDocument(r'''
+$world: blue;
+.hello {
+  color: $world;
+}
+''');
+      var result = ls.findDocumentSymbols(document);
+      var nameRange = result.first.selectionRange;
+      var symbolRange = result.first.range;
+
+      expect(nameRange, StartsAtLine(0));
+      expect(nameRange, StartsAtCharacter(0));
+
+      expect(nameRange, EndsAtLine(0));
+      expect(nameRange, EndsAtCharacter(6));
+
+      expect(symbolRange, StartsAtLine(0));
+      expect(symbolRange, StartsAtCharacter(0));
+
+      expect(symbolRange, EndsAtLine(0));
+      expect(symbolRange, EndsAtCharacter(12)); // excluding ;
+    });
+  });
+
+  group('callable', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('function ranges are correct', () {
+      var document = fs.createDocument(r'''
+@function doStuff($a: 1, $b: 2) {
+  $value: $a + $b;
+  @return $value;
+}
+''');
+
+      var result = ls.findDocumentSymbols(document);
+      var nameRange = result.first.selectionRange;
+      var symbolRange = result.first.range;
+
+      expect(nameRange, StartsAtLine(0));
+      expect(nameRange, StartsAtCharacter(10));
+
+      expect(nameRange, EndsAtLine(0));
+      expect(nameRange, EndsAtCharacter(17));
+
+      expect(symbolRange, StartsAtLine(0));
+      expect(symbolRange, StartsAtCharacter(0));
+
+      expect(symbolRange, EndsAtLine(3));
+      expect(symbolRange, EndsAtCharacter(1));
+    });
+
+    test('mixin ranges are correct', () {
+      var document = fs.createDocument(r'''
+@mixin mixin1 {
+  $value: 1;
+  line-height: $value;
+}
+''');
+
+      var result = ls.findDocumentSymbols(document);
+      var nameRange = result.first.selectionRange;
+      var symbolRange = result.first.range;
+
+      expect(nameRange, StartsAtLine(0));
+      expect(nameRange, StartsAtCharacter(7));
+
+      expect(nameRange, EndsAtLine(0));
+      expect(nameRange, EndsAtCharacter(13));
+
+      expect(symbolRange, StartsAtLine(0));
+      expect(symbolRange, StartsAtCharacter(0));
+
+      expect(symbolRange, EndsAtLine(3));
+      expect(symbolRange, EndsAtCharacter(1));
+    });
+  });
 }
