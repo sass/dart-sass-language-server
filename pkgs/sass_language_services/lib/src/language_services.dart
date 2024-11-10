@@ -4,6 +4,7 @@ import 'package:sass_language_services/sass_language_services.dart';
 
 import 'features/document_links/document_links_feature.dart';
 import 'features/document_symbols/document_symbols_feature.dart';
+import 'features/workspace_symbols/workspace_symbols_feature.dart';
 import 'language_services_cache.dart';
 
 class LanguageServices {
@@ -16,6 +17,7 @@ class LanguageServices {
 
   late final DocumentLinksFeature _documentLinks;
   late final DocumentSymbolsFeature _documentSymbols;
+  late final WorkspaceSymbolsFeature _workspaceSymbols;
 
   LanguageServices({
     required this.clientCapabilities,
@@ -23,6 +25,7 @@ class LanguageServices {
   }) : cache = LanguageServicesCache() {
     _documentLinks = DocumentLinksFeature(ls: this);
     _documentSymbols = DocumentSymbolsFeature(ls: this);
+    _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
   }
 
   void configure(LanguageServerConfiguration configuration) {
@@ -36,6 +39,10 @@ class LanguageServices {
 
   List<StylesheetDocumentSymbol> findDocumentSymbols(TextDocument document) {
     return _documentSymbols.findDocumentSymbols(document);
+  }
+
+  List<lsp.WorkspaceSymbol> findWorkspaceSymbols(String? query) {
+    return _workspaceSymbols.findWorkspaceSymbols(query);
   }
 
   sass.Stylesheet parseStylesheet(TextDocument document) {
