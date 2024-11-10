@@ -23,7 +23,6 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
       required lsp.SymbolKind kind,
       required lsp.Range symbolRange,
       lsp.Range? nameRange,
-      lsp.Range? bodyRange, // TODO: delete if unused
       String? docComment,
       String? detail,
       List<lsp.SymbolTag>? tags}) {
@@ -49,9 +48,6 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     var keep = <StylesheetDocumentSymbol>[];
 
     for (var other in symbols) {
-      // This probably scales terribly with document size.
-      // A tree structure that uses ranges for lookup would probably be the ticket here.
-      // We can maybe get away with it if we cache the result.
       if (_containsRange(symbol.range, other.range)) {
         symbol.children!.add(other);
       } else {
@@ -90,24 +86,6 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     return false;
   }
 
-  lsp.Range? _bodyRange(sass.ParentStatement<List<sass.Statement>?> node) {
-    if (node.children case var children?) {
-      if (children.isEmpty) {
-        return null;
-      }
-
-      return lsp.Range(
-          start: lsp.Position(
-              line: children.first.span.start.line,
-              character: children.first.span.start.column),
-          end: lsp.Position(
-              line: children.last.span.start.line,
-              character: children.last.span.start.column));
-    }
-
-    return null;
-  }
-
   String? _detail(sass.CallableDeclaration node) {
     var arguments = node.arguments.arguments
         .map<String>((arg) => arg.defaultValue != null
@@ -120,6 +98,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitAtRule(node) {
     super.visitAtRule(node);
+
     if (!node.name.isPlain) {
       return;
     }
@@ -129,8 +108,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
           name: node.name.span.text,
           kind: lsp.SymbolKind.Class,
           symbolRange: toRange(node.span),
-          nameRange: toRange(node.name.span),
-          bodyRange: _bodyRange(node));
+          nameRange: toRange(node.name.span));
     } else if (node.name.asPlain!.startsWith('keyframes')) {
       var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
       if (keyframesName != null) {
@@ -147,8 +125,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
             name: keyframesName,
             kind: lsp.SymbolKind.Class,
             symbolRange: toRange(node.span),
-            nameRange: keyframesNameRange,
-            bodyRange: _bodyRange(node));
+            nameRange: keyframesNameRange);
       }
     }
   }
@@ -161,8 +138,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
           name: node.name.span.text,
           kind: lsp.SymbolKind.Variable,
           symbolRange: toRange(node.span),
-          nameRange: toRange(node.name.span),
-          bodyRange: _bodyRange(node));
+          nameRange: toRange(node.name.span));
     }
   }
 
@@ -176,8 +152,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
         kind: lsp.SymbolKind.Function,
         docComment: node.comment?.docComment,
         symbolRange: toRange(node.span),
-        nameRange: toRange(node.nameSpan),
-        bodyRange: _bodyRange(node));
+        nameRange: toRange(node.nameSpan));
   }
 
   @override
@@ -202,8 +177,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
         name: '@media ${node.query.asPlain}',
         kind: lsp.SymbolKind.Module,
         symbolRange: toRange(node.span),
-        nameRange: nameRange,
-        bodyRange: _bodyRange(node));
+        nameRange: nameRange);
   }
 
   @override
@@ -216,8 +190,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
         kind: lsp.SymbolKind.Method,
         docComment: node.comment?.docComment,
         symbolRange: toRange(node.span),
-        nameRange: toRange(node.nameSpan),
-        bodyRange: _bodyRange(node));
+        nameRange: toRange(node.nameSpan));
   }
 
   @override
@@ -279,8 +252,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
             name: name!,
             kind: lsp.SymbolKind.Class,
             symbolRange: symbolRange!,
-            nameRange: nameRange,
-            bodyRange: _bodyRange(node));
+            nameRange: nameRange);
       }
     } on sass.SassFormatException catch (_) {
       // Do nothing.
