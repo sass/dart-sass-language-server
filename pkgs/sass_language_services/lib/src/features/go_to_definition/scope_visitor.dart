@@ -1,0 +1,403 @@
+import 'package:lsp_server/lsp_server.dart' as lsp;
+import 'package:sass_api/sass_api.dart' as sass;
+
+import '../../utils/sass_lsp_utils.dart';
+import 'scope.dart';
+import 'scoped_document_symbol.dart';
+
+final deprecated = RegExp(r'///\s*@deprecated');
+
+/// This is a document scope builder.
+///
+/// The visitor doesn't gather "document symbols" per se, it builds scopes,
+/// and a list of symbols (ex. media rules, font rules) in those scopes.
+/// So, we care about things like while and each here, that we _don't_ care
+/// about in the document symbols feature. Similar, but different.
+class ScopeVisitor with sass.RecursiveStatementVisitor {
+  final Scope scope;
+
+  ScopeVisitor(this.scope);
+
+  void _addSymbol({
+    required String name,
+    required ReferenceKind kind,
+    required lsp.Range symbolRange,
+    required int offset,
+    required int length,
+    lsp.Range? nameRange,
+  }) {
+    var symbolScope = scope.findScope(offset: offset, length: length);
+    if (symbolScope != null) {
+      var range = symbolRange;
+      var selectionRange = nameRange;
+
+      var symbol = ScopedDocumentSymbol(
+        name: name,
+        referenceKind: kind,
+        range: range,
+        children: [],
+        selectionRange: selectionRange ?? range,
+      );
+
+      symbolScope.addSymbol(symbol);
+    }
+  }
+
+  Scope? _addScope({required int offset, required int length}) {
+    var currentScope = scope.findScope(offset: offset, length: length);
+    if (currentScope != null) {
+      var isKnownScope =
+          currentScope.offset == offset && currentScope.length == length;
+      if (!isKnownScope) {
+        var newScope = Scope(length: length, offset: offset);
+        currentScope.addChild(newScope);
+        return newScope;
+      }
+      return currentScope;
+    }
+    return null;
+  }
+
+  ({int offset, int length})? _scopeRange(
+      sass.ParentStatement<List<sass.Statement>?> node) {
+    if (node.children case var children?) {
+      if (children.isEmpty) {
+        return null;
+      }
+
+      var totalLength = node.children!
+          .map<int>((n) => n.span.length)
+          .reduce((value, element) => value + element);
+
+      return (offset: children.first.span.start.offset, length: totalLength);
+    }
+
+    return null;
+  }
+
+  @override
+  void visitAtRule(node) {
+    if (node.name.isPlain) {
+      if (node.name.asPlain == 'font-face') {
+        _addSymbol(
+          name: node.name.span.text,
+          kind: ReferenceKind.atRule,
+          symbolRange: toRange(node.span),
+          nameRange: toRange(node.name.span),
+          offset: node.span.start.offset,
+          length: node.span.length,
+        );
+      } else if (node.name.asPlain!.startsWith('keyframes')) {
+        var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
+        if (keyframesName != null) {
+          var keyframesNameRange = lsp.Range(
+              start: lsp.Position(
+                  line: node.name.span.start.line,
+                  character: node.name.span.end.column + 1),
+              end: lsp.Position(
+                  line: node.name.span.end.line,
+                  character:
+                      node.name.span.end.column + 1 + keyframesName.length));
+
+          _addSymbol(
+            name: keyframesName,
+            kind: ReferenceKind.keyframe,
+            symbolRange: toRange(node.span),
+            nameRange: keyframesNameRange,
+            offset: node.span.start.offset,
+            length: node.span.length,
+          );
+        }
+      }
+    }
+
+    super.visitAtRule(node);
+  }
+
+  @override
+  void visitDeclaration(node) {
+    if (node.name.isPlain && node.name.asPlain!.startsWith("--")) {
+      _addSymbol(
+        name: node.name.span.text,
+        kind: ReferenceKind.variable,
+        symbolRange: toRange(node.span),
+        nameRange: toRange(node.name.span),
+        offset: node.span.start.offset,
+        length: node.span.length,
+      );
+    }
+
+    super.visitDeclaration(node);
+  }
+
+  @override
+  void visitEachRule(sass.EachRule node) {
+    var scopeRange = _scopeRange(node);
+    if (scopeRange != null) {
+      var scope = _addScope(
+        offset: scopeRange.offset,
+        length: scopeRange.length,
+      );
+
+      if (scope != null) {
+        for (var variable in node.variables) {
+          var variableIndex = node.span.text.indexOf(variable);
+
+          var range = toRange(node.span);
+          var selectionRange = lsp.Range(
+            start: lsp.Position(
+                line: node.span.start.line,
+                character: node.span.start.column + variableIndex),
+            end: lsp.Position(
+              line: node.span.start.line,
+              character: node.span.start.column + variable.length,
+            ),
+          );
+
+          var symbol = ScopedDocumentSymbol(
+            name: variable,
+            referenceKind: ReferenceKind.variable,
+            range: range,
+            children: [],
+            selectionRange: selectionRange,
+          );
+          scope.addSymbol(symbol);
+        }
+      }
+    }
+
+    super.visitEachRule(node);
+  }
+
+  @override
+  void visitForRule(sass.ForRule node) {
+    var scopeRange = _scopeRange(node);
+    if (scopeRange != null) {
+      var scope = _addScope(
+        offset: scopeRange.offset,
+        length: scopeRange.length,
+      );
+
+      if (scope != null) {
+        var variableIndex = node.span.text.indexOf(node.variable);
+
+        var range = toRange(node.span);
+        var selectionRange = lsp.Range(
+          start: lsp.Position(
+              line: node.span.start.line,
+              character: node.span.start.column + variableIndex),
+          end: lsp.Position(
+            line: node.span.start.line,
+            character: node.span.start.column + node.variable.length,
+          ),
+        );
+
+        var symbol = ScopedDocumentSymbol(
+          name: node.variable,
+          referenceKind: ReferenceKind.variable,
+          range: range,
+          children: [],
+          selectionRange: selectionRange,
+        );
+        scope.addSymbol(symbol);
+      }
+    }
+
+    super.visitForRule(node);
+  }
+
+  @override
+  void visitFunctionRule(node) {
+    _addSymbol(
+      name: node.name,
+      kind: ReferenceKind.function,
+      symbolRange: toRange(node.span),
+      nameRange: toRange(node.nameSpan),
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+
+    var scopeRange = _scopeRange(node);
+    if (scopeRange != null) {
+      var scope = _addScope(
+        offset: scopeRange.offset,
+        length: scopeRange.length,
+      );
+
+      if (scope != null) {
+        for (var arg in node.arguments.arguments) {
+          var range = toRange(arg.span);
+          var selectionRange = toRange(arg.nameSpan);
+          var symbol = ScopedDocumentSymbol(
+            name: arg.name,
+            referenceKind: ReferenceKind.variable,
+            range: range,
+            children: [],
+            selectionRange: selectionRange,
+          );
+          scope.addSymbol(symbol);
+        }
+      }
+    }
+
+    super.visitFunctionRule(node);
+  }
+
+  @override
+  void visitIfRule(sass.IfRule node) {
+    _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+    super.visitIfRule(node);
+  }
+
+  @override
+  void visitMixinRule(node) {
+    _addSymbol(
+      name: node.name,
+      kind: ReferenceKind.mixin,
+      symbolRange: toRange(node.span),
+      nameRange: toRange(node.nameSpan),
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+
+    var scopeRange = _scopeRange(node);
+    if (scopeRange != null) {
+      var scope = _addScope(
+        offset: scopeRange.offset,
+        length: scopeRange.length,
+      );
+
+      if (scope != null) {
+        for (var arg in node.arguments.arguments) {
+          var range = toRange(arg.span);
+          var selectionRange = toRange(arg.nameSpan);
+          var symbol = ScopedDocumentSymbol(
+            name: arg.name,
+            referenceKind: ReferenceKind.variable,
+            range: range,
+            children: [],
+            selectionRange: selectionRange,
+          );
+          scope.addSymbol(symbol);
+        }
+      }
+    }
+
+    super.visitMixinRule(node);
+  }
+
+  @override
+  void visitStyleRule(sass.StyleRule node) {
+    if (node.selector.isPlain) {
+      try {
+        var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
+        for (var complexSelector in selectorList.components) {
+          String? name;
+          lsp.Range? nameRange;
+          lsp.Range? symbolRange;
+
+          for (var component in complexSelector.components) {
+            var selector = component.selector;
+
+            if (name == null) {
+              name = selector.span.text;
+            } else {
+              name = '$name ${selector.span.text}';
+            }
+
+            if (nameRange == null) {
+              // The selector span seems to be relative to node, not to the file.
+              nameRange = lsp.Range(
+                  start: lsp.Position(
+                      line: node.span.start.line + selector.span.start.line,
+                      character:
+                          node.span.start.column + selector.span.start.column),
+                  end: lsp.Position(
+                      line: node.span.start.line + selector.span.end.line,
+                      character:
+                          node.span.start.column + selector.span.end.column));
+
+              // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
+              symbolRange = lsp.Range(
+                  start: lsp.Position(
+                      line: nameRange.start.line,
+                      character: nameRange.start.character),
+                  end: lsp.Position(
+                      line: node.span.end.line,
+                      character: node.span.end.column));
+            } else {
+              // Move the end of the name range down to include this selector component
+              nameRange = lsp.Range(
+                  start: nameRange.start,
+                  end: lsp.Position(
+                      line: node.span.start.line + selector.span.end.line,
+                      character:
+                          node.span.start.column + selector.span.end.column));
+            }
+          }
+
+          _addSymbol(
+            name: name!,
+            kind: ReferenceKind.styleRule,
+            symbolRange: symbolRange!,
+            nameRange: nameRange,
+            offset: node.span.start.offset,
+            length: node.span.length,
+          );
+        }
+
+        var scopeRange = _scopeRange(node);
+        if (scopeRange != null) {
+          _addScope(
+            offset: scopeRange.offset,
+            length: scopeRange.length,
+          );
+        }
+      } on sass.SassFormatException catch (_) {
+        // Do nothing.
+      }
+    }
+
+    super.visitStyleRule(node);
+  }
+
+  @override
+  void visitVariableDeclaration(node) {
+    _addSymbol(
+      name: node.nameSpan.text,
+      kind: ReferenceKind.variable,
+      symbolRange: toRange(node.span),
+      nameRange: lsp.Range(
+        start: lsp.Position(
+          line: node.nameSpan.start.line,
+          // the span includes $
+          character: node.nameSpan.start.column,
+        ),
+        end: lsp.Position(
+          line: node.nameSpan.end.line,
+          character: node.nameSpan.end.column,
+        ),
+      ),
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+
+    super.visitVariableDeclaration(node);
+  }
+
+  @override
+  void visitWhileRule(sass.WhileRule node) {
+    var scopeRange = _scopeRange(node);
+    if (scopeRange != null) {
+      _addScope(
+        offset: scopeRange.offset,
+        length: scopeRange.length,
+      );
+    }
+
+    super.visitWhileRule(node);
+  }
+}
