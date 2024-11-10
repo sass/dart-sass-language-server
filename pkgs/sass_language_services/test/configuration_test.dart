@@ -30,7 +30,7 @@ void main() {
       var result = LanguageServerConfiguration.create(null);
 
       expect(result.workspace.exclude,
-          equals(["**/.git/**", "**/node_modules/**"]));
+          equals(["/**/.git/**", "/**/node_modules/**"]));
 
       expect(result.workspace.loadPaths, isEmpty);
       expect(result.workspace.importAliases, isEmpty);
@@ -50,7 +50,7 @@ void main() {
       // else defaults
 
       expect(result.workspace.exclude,
-          equals(["**/.git/**", "**/node_modules/**"]));
+          equals(["/**/.git/**", "/**/node_modules/**"]));
       expect(result.workspace.importAliases, isEmpty);
     });
   });
