@@ -6,7 +6,7 @@ See [the list of built-in commands](https://code.visualstudio.com/api/references
 The runner is configured so it can run multiple instances of VS Code (in sequence) using different configurations and workspaces.
 Each subdirectory in `electron/` will run in a separate instance of VS Code.
 
-By convention subdirectories in `electron/` must have:
+By convention subdirectories in `electron/` should have:
 
 - `index.js` as the entrypoint that finds test files and passes them to Mocha
 - at least one `*.test.js` file with some tests
