@@ -19,23 +19,41 @@ void main() {
 .foo {
   color: red;
 }
+
+.bar {
+  color: blue;
+}
 ''');
 
       var result = ls.findDocumentSymbols(document);
-      var nameRange = result.first.selectionRange;
-      var symbolRange = result.first.range;
+      var fooNameRange = result.first.selectionRange;
+      var fooSymbolRange = result.first.range;
+      expect(fooNameRange.start, AtLine(0));
+      expect(fooNameRange.start, AtCharacter(0));
 
-      expect(nameRange.start, AtLine(0));
-      expect(nameRange.start, AtCharacter(0));
+      expect(fooNameRange.end, AtLine(0));
+      expect(fooNameRange.end, AtCharacter(4));
 
-      expect(nameRange.end, AtLine(0));
-      expect(nameRange.end, AtCharacter(4));
+      expect(fooSymbolRange.start, AtLine(0));
+      expect(fooSymbolRange.start, AtCharacter(0));
 
-      expect(symbolRange.start, AtLine(0));
-      expect(symbolRange.start, AtCharacter(0));
+      expect(fooSymbolRange.end, AtLine(2));
+      expect(fooSymbolRange.end, AtCharacter(1));
 
-      expect(symbolRange.end, AtLine(2));
-      expect(symbolRange.end, AtCharacter(1));
+      var barNameRange = result.last.selectionRange;
+      var barSymbolRange = result.last.range;
+
+      expect(barNameRange.start, AtLine(4));
+      expect(barNameRange.start, AtCharacter(0));
+
+      expect(barNameRange.end, AtLine(4));
+      expect(barNameRange.end, AtCharacter(4));
+
+      expect(barSymbolRange.start, AtLine(4));
+      expect(barSymbolRange.start, AtCharacter(0));
+
+      expect(barSymbolRange.end, AtLine(6));
+      expect(barSymbolRange.end, AtCharacter(1));
     });
 
     test('Sass indented selector ranges are correct', () {
