@@ -173,6 +173,7 @@ class LanguageServer {
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
+          workspaceSymbolProvider: Either2.t1(true),
         );
 
         var result = InitializeResult(capabilities: serverCapabilities);
@@ -284,6 +285,22 @@ class LanguageServer {
 
       _connection.peer
           .registerMethod('textDocument/documentSymbol', onDocumentSymbol);
+
+      // TODO: add this handler upstream
+      Future<List<WorkspaceSymbol>> onWorkspaceSymbol(dynamic params) async {
+        try {
+          var query =
+              (params.value as Map<String, Object?>)['query'] as String?;
+
+          var result = _ls.findWorkspaceSymbols(query);
+          return result;
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
+        }
+      }
+
+      _connection.peer.registerMethod('workspace/symbol', onWorkspaceSymbol);
 
       _connection.onShutdown(() async {
         await _socket?.close();
