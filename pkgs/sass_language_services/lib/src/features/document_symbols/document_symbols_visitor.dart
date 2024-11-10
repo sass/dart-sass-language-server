@@ -137,10 +137,11 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
         var keyframesNameRange = lsp.Range(
             start: lsp.Position(
                 line: node.name.span.start.line,
-                character: node.span.end.column + 1),
+                character: node.name.span.end.column + 1),
             end: lsp.Position(
-                line: node.span.end.line,
-                character: node.span.end.column + 1 + keyframesName.length));
+                line: node.name.span.end.line,
+                character:
+                    node.name.span.end.column + 1 + keyframesName.length));
 
         _collect(
             name: keyframesName,
@@ -186,11 +187,22 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
       return;
     }
 
+    // node.query.span includes whitespace, so the range doesn't match node.query.asPlain
+    var nameRange = lsp.Range(
+        start: lsp.Position(
+            line: node.span.start.line + node.query.span.start.line,
+            character: node.span.start.column + node.query.span.start.column),
+        end: lsp.Position(
+            line: node.span.start.line + node.query.span.end.line,
+            character: node.span.start.column +
+                node.query.span.start.column +
+                node.query.asPlain!.length));
+
     _collect(
         name: '@media ${node.query.asPlain}',
         kind: lsp.SymbolKind.Module,
         symbolRange: toRange(node.span),
-        nameRange: toRange(node.query.span),
+        nameRange: nameRange,
         bodyRange: _bodyRange(node));
   }
 
