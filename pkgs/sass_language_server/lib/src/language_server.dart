@@ -292,6 +292,10 @@ class LanguageServer {
           var query =
               (params.value as Map<String, Object?>)['query'] as String?;
 
+          if (initialScan != null) {
+            await initialScan;
+          }
+
           var result = _ls.findWorkspaceSymbols(query);
           return result;
         } on Exception catch (e) {
