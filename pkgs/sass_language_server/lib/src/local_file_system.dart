@@ -9,22 +9,34 @@ class LocalFileSystem extends FileSystemProvider {
   @override
   Future<Iterable<Uri>> findFiles(String pattern,
       {String? root, List<String>? exclude}) async {
-    var list =
-        await Glob(pattern, caseSensitive: false).list(root: root).toList();
+    var list = await Glob(pattern, caseSensitive: false)
+        .list(
+          root: root,
+          // Skip links. We resolve the real path behind links in findDocumentLinks later on.
+          // If we follow links here we can end up with an inflated initial list in
+          // monorepos that use symlinks in node_modules.
+          followLinks: false,
+        )
+        .toList();
 
     var excludeGlobs = <Glob>[];
     if (exclude != null) {
       for (var pattern in exclude) {
-        excludeGlobs.add(Glob(pattern));
+        excludeGlobs.add(Glob(pattern, caseSensitive: false));
       }
     }
 
     var result = <Uri>[];
     for (var match in list) {
+      var excluded = false;
       for (var glob in excludeGlobs) {
         if (glob.matches(match.path)) {
-          continue;
+          excluded = true;
+          break;
         }
+      }
+      if (excluded) {
+        continue;
       }
       result.add(match.uri);
     }

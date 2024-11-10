@@ -234,8 +234,12 @@ class DocumentLinksFeature extends LanguageFeature {
     final modulePath =
         await _resolvePathToModule(moduleName, documentFolder, rootFolder);
     if (modulePath != null) {
-      final pathWithinModule = target.path.substring(moduleName.length + 1);
-      return joinPath(modulePath, [pathWithinModule]);
+      if (target.path.length > moduleName.length + 1) {
+        final pathWithinModule = target.path.substring(moduleName.length + 1);
+        return joinPath(modulePath, [pathWithinModule]);
+      } else {
+        return modulePath;
+      }
     }
 
     return null;
