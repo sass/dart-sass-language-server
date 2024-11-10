@@ -279,16 +279,15 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   void visitVariableDeclaration(node) {
     super.visitVariableDeclaration(node);
     _collect(
-        // Include the $ since this field is user-facing
-        name: '\$${node.name}',
+        name: node.nameSpan.text,
         kind: lsp.SymbolKind.Variable,
         docComment: node.comment?.docComment,
         symbolRange: toRange(node.span),
         nameRange: lsp.Range(
             start: lsp.Position(
                 line: node.nameSpan.start.line,
-                // Include the $ in the range
-                character: node.nameSpan.start.column - 1),
+                // the span includes $
+                character: node.nameSpan.start.column),
             end: lsp.Position(
                 line: node.nameSpan.end.line,
                 character: node.nameSpan.end.column)));
