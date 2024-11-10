@@ -92,10 +92,10 @@
               "type": "string"
             },
             "default": [
-              "**/.git/**",
-              "**/node_modules/**"
+              ".git/**",
+              "node_modules/**"
             ],
-            "description": "List of glob patterns for directories that are excluded when scanning.",
+            "description": "List of glob patterns for files that are excluded when scanning.",
             "order": 1
           },
           "sass.workspace.logLevel": {

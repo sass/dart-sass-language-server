@@ -1,6 +1,6 @@
 class WorkspaceConfiguration {
   /// Exclude paths from the initial workspace scan. Defaults include `.git` and `node_modules`.
-  final List<String> exclude = ['**/.git/**', '**/node_modules/**'];
+  final List<String> exclude = ['/**/.git/**', '/**/node_modules/**'];
   final Map<String, String> importAliases = {};
 
   /// Pass in [load paths](https://sass-lang.com/documentation/cli/dart-sass/#load-path) that will be used in addition to `node_modules`.
@@ -15,7 +15,12 @@ class WorkspaceConfiguration {
       exclude.removeRange(0, exclude.length);
       for (var entry in excludeConfig) {
         if (entry is String) {
-          exclude.add(entry);
+          if (entry.startsWith('/')) {
+            exclude.add(entry);
+          } else {
+            // Paths we match against using Glob are absolute.
+            exclude.add('/**/$entry');
+          }
         }
       }
     }
