@@ -132,6 +132,58 @@ export async function activate(context: ExtensionContext): Promise<void> {
       }
     }
   });
+
+  // TODO: Maybe worth looking into so links to built-ins resolve to something?
+  // workspace.registerFileSystemProvider(
+  //   'sass',
+  //   {
+  //     readFile(uri) {
+  //       return Uint8Array.from(
+  //         '@function hello();'.split('').map((c) => c.charCodeAt(0))
+  //       );
+  //     },
+  //     watch(uri, options) {
+  //       return Disposable.create(() => {
+  //         console.log('hello');
+  //       });
+  //     },
+  //     readDirectory(uri) {
+  //       return [];
+  //     },
+  //     stat(uri) {
+  //       return {
+  //         ctime: 0,
+  //         mtime: 0,
+  //         size: 0,
+  //         type: 1,
+  //       };
+  //     },
+  //     writeFile(uri, content, options) {
+  //       return;
+  //     },
+  //     createDirectory(uri) {
+  //       return;
+  //     },
+  //     delete(uri, options) {
+  //       return;
+  //     },
+  //     rename(oldUri, newUri, options) {
+  //       return;
+  //     },
+  //     copy(source, destination, options) {
+  //       return;
+  //     },
+  //     onDidChangeFile(e) {
+  //       return Disposable.create(() => {
+  //         console.log('hello');
+  //       });
+  //     },
+  //   },
+  //   {
+  //     isCaseSensitive: false,
+  //     isReadonly: true,
+  //   }
+  // );
 }
 
 export async function deactivate(): Promise<void> {
