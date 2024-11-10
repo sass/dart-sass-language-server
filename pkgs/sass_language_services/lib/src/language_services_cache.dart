@@ -5,6 +5,7 @@ class CacheEntry {
   TextDocument document;
   sass.Stylesheet stylesheet;
   List<StylesheetDocumentLink>? links;
+  List<StylesheetDocumentSymbol>? symbols;
 
   CacheEntry({
     required this.document,
@@ -52,9 +53,18 @@ class LanguageServicesCache {
     return _cache[document.uri.toString()]?.links;
   }
 
+  List<StylesheetDocumentSymbol>? getDocumentSymbols(TextDocument document) {
+    return _cache[document.uri.toString()]?.symbols;
+  }
+
   void setDocumentLinks(
       TextDocument document, List<StylesheetDocumentLink> links) {
     _cache[document.uri.toString()]?.links = links;
+  }
+
+  void setDocumentSymbols(
+      TextDocument document, List<StylesheetDocumentSymbol> symbols) {
+    _cache[document.uri.toString()]?.symbols = symbols;
   }
 
   Iterable<TextDocument> getDocuments() {
