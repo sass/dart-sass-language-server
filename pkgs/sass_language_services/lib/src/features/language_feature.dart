@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:sass_api/sass_api.dart' as sass;
-
 import '../../sass_language_services.dart';
 import '../utils/uri_utils.dart';
 
@@ -12,23 +10,36 @@ abstract class LanguageFeature {
 
   /// Helper to do some kind of lookup for the import tree of [initialDocument].
   ///
-  /// Starting with [initialDocument], the [visitor] is run on each document in
-  /// the link tree. Keeps internal track of prefixes, show and hide on `@forward`.
-  /// `@use` is only followed in the initial document.
-  Future<List<T>?> findInWorkspace<T extends List<T>>(
-      {required sass.AstSearchVisitor<T> visitor,
+  /// The [callback] is called for each document in the import tree. Documents will only get visited once.
+  Future<List<T>?> findInWorkspace<T>(
+      {required Future<List<T>?> Function({
+        required TextDocument document,
+        required String prefix,
+        required List<String> hiddenMixinsAndFunctions,
+        required List<String> hiddenVariables,
+        required List<String> shownMixinsAndFunctions,
+        required List<String> shownVariables,
+      }) callback,
       required TextDocument initialDocument,
       bool lazy = false,
       int depth = 0}) async {
     return _findInWorkspace(
-        visitor: visitor,
+        callback: callback,
         initialDocument: initialDocument,
         currentDocument: initialDocument,
-        depth: depth);
+        depth: depth,
+        lazy: lazy);
   }
 
-  Future<List<T>?> _findInWorkspace<T extends List<T>>(
-      {required sass.AstSearchVisitor<T> visitor,
+  Future<List<T>?> _findInWorkspace<T>(
+      {required Future<List<T>?> Function({
+        required TextDocument document,
+        required String prefix,
+        required List<String> hiddenMixinsAndFunctions,
+        required List<String> hiddenVariables,
+        required List<String> shownMixinsAndFunctions,
+        required List<String> shownVariables,
+      }) callback,
       required TextDocument initialDocument,
       required TextDocument currentDocument,
       String accumulatedPrefix = '',
@@ -37,18 +48,25 @@ abstract class LanguageFeature {
       List<String> shownMixinsAndFunctions = const [],
       List<String> shownVariables = const [],
       Set<String> visited = const {},
+      bool lazy = false,
       int depth = 0}) async {
     if (visited.contains(currentDocument.uri.toString())) {
       return Future.value([]);
     }
 
-    var document = ls.parseStylesheet(currentDocument);
-    var result = document.accept(visitor);
-    if (result != null) {
+    var result = await callback(
+        document: currentDocument,
+        prefix: accumulatedPrefix,
+        hiddenMixinsAndFunctions: hiddenMixinsAndFunctions,
+        hiddenVariables: hiddenVariables,
+        shownMixinsAndFunctions: shownMixinsAndFunctions,
+        shownVariables: shownVariables);
+
+    if (lazy && result != null) {
       return result;
-    } else {
-      result = <T>[] as T?;
     }
+
+    result ??= [];
 
     visited.add(currentDocument.uri.toString());
 
@@ -106,7 +124,7 @@ abstract class LanguageFeature {
       }
 
       var linkResult = await _findInWorkspace(
-        visitor: visitor,
+        callback: callback,
         initialDocument: initialDocument,
         currentDocument: currentDocument,
         accumulatedPrefix: prefix,
@@ -114,12 +132,13 @@ abstract class LanguageFeature {
         hiddenVariables: hiddenVariables,
         shownMixinsAndFunctions: shownMixinsAndFunctions,
         shownVariables: shownVariables,
+        lazy: lazy,
         visited: visited,
         depth: depth + 1,
       );
 
       if (linkResult != null) {
-        result!.addAll(linkResult);
+        result.addAll(linkResult);
       }
     }
 

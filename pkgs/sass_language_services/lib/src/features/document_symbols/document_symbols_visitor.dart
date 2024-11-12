@@ -20,7 +20,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   /// other symbols, and if so adds them as children.
   void _collect(
       {required String name,
-      required lsp.SymbolKind kind,
+      required ReferenceKind referenceKind,
       required lsp.Range symbolRange,
       lsp.Range? nameRange,
       String? docComment,
@@ -33,15 +33,16 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     }
 
     var symbol = StylesheetDocumentSymbol(
-        name: name,
-        kind: kind,
-        range: range,
-        children: [],
-        selectionRange: selectionRange,
-        docComment: docComment,
-        detail: detail,
-        tags: tags,
-        deprecated: _isDeprecated(docComment));
+      name: name,
+      referenceKind: referenceKind,
+      range: range,
+      children: [],
+      selectionRange: selectionRange,
+      docComment: docComment,
+      detail: detail,
+      tags: tags,
+      deprecated: _isDeprecated(docComment),
+    );
 
     // Look to see if this symbol contains other symbols.
 
@@ -105,27 +106,31 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
 
     if (node.name.asPlain == 'font-face') {
       _collect(
-          name: node.name.span.text,
-          kind: lsp.SymbolKind.Class,
-          symbolRange: toRange(node.span),
-          nameRange: toRange(node.name.span));
+        name: node.name.span.text,
+        referenceKind: ReferenceKind.fontFace,
+        symbolRange: toRange(node.span),
+        nameRange: toRange(node.name.span),
+      );
     } else if (node.name.asPlain!.startsWith('keyframes')) {
       var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
       if (keyframesName != null) {
         var keyframesNameRange = lsp.Range(
-            start: lsp.Position(
-                line: node.name.span.start.line,
-                character: node.name.span.end.column + 1),
-            end: lsp.Position(
-                line: node.name.span.end.line,
-                character:
-                    node.name.span.end.column + 1 + keyframesName.length));
+          start: lsp.Position(
+            line: node.name.span.start.line,
+            character: node.name.span.end.column + 1,
+          ),
+          end: lsp.Position(
+            line: node.name.span.end.line,
+            character: node.name.span.end.column + 1 + keyframesName.length,
+          ),
+        );
 
         _collect(
-            name: keyframesName,
-            kind: lsp.SymbolKind.Class,
-            symbolRange: toRange(node.span),
-            nameRange: keyframesNameRange);
+          name: keyframesName,
+          referenceKind: ReferenceKind.keyframe,
+          symbolRange: toRange(node.span),
+          nameRange: keyframesNameRange,
+        );
       }
     }
   }
@@ -133,12 +138,15 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitDeclaration(node) {
     super.visitDeclaration(node);
-    if (node.name.isPlain && node.name.asPlain!.startsWith("--")) {
+    var isCustomProperty =
+        node.name.isPlain && node.name.asPlain!.startsWith("--");
+    if (isCustomProperty) {
       _collect(
-          name: node.name.span.text,
-          kind: lsp.SymbolKind.Variable,
-          symbolRange: toRange(node.span),
-          nameRange: toRange(node.name.span));
+        name: node.name.span.text,
+        referenceKind: ReferenceKind.customProperty,
+        symbolRange: toRange(node.span),
+        nameRange: toRange(node.name.span),
+      );
     }
   }
 
@@ -147,12 +155,13 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     super.visitFunctionRule(node);
 
     _collect(
-        name: node.name,
-        detail: _detail(node),
-        kind: lsp.SymbolKind.Function,
-        docComment: node.comment?.docComment,
-        symbolRange: toRange(node.span),
-        nameRange: toRange(node.nameSpan));
+      name: node.name,
+      detail: _detail(node),
+      referenceKind: ReferenceKind.function,
+      docComment: node.comment?.docComment,
+      symbolRange: toRange(node.span),
+      nameRange: toRange(node.nameSpan),
+    );
   }
 
   @override
@@ -164,20 +173,24 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
 
     // node.query.span includes whitespace, so the range doesn't match node.query.asPlain
     var nameRange = lsp.Range(
-        start: lsp.Position(
-            line: node.span.start.line + node.query.span.start.line,
-            character: node.span.start.column + node.query.span.start.column),
-        end: lsp.Position(
-            line: node.span.start.line + node.query.span.end.line,
-            character: node.span.start.column +
-                node.query.span.start.column +
-                node.query.asPlain!.length));
+      start: lsp.Position(
+        line: node.span.start.line + node.query.span.start.line,
+        character: node.span.start.column + node.query.span.start.column,
+      ),
+      end: lsp.Position(
+        line: node.span.start.line + node.query.span.end.line,
+        character: node.span.start.column +
+            node.query.span.start.column +
+            node.query.asPlain!.length,
+      ),
+    );
 
     _collect(
-        name: '@media ${node.query.asPlain}',
-        kind: lsp.SymbolKind.Module,
-        symbolRange: toRange(node.span),
-        nameRange: nameRange);
+      name: '@media ${node.query.asPlain}',
+      referenceKind: ReferenceKind.media,
+      symbolRange: toRange(node.span),
+      nameRange: nameRange,
+    );
   }
 
   @override
@@ -185,12 +198,13 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     super.visitMixinRule(node);
 
     _collect(
-        name: node.name,
-        detail: _detail(node),
-        kind: lsp.SymbolKind.Method,
-        docComment: node.comment?.docComment,
-        symbolRange: toRange(node.span),
-        nameRange: toRange(node.nameSpan));
+      name: node.name,
+      detail: _detail(node),
+      referenceKind: ReferenceKind.mixin,
+      docComment: node.comment?.docComment,
+      symbolRange: toRange(node.span),
+      nameRange: toRange(node.nameSpan),
+    );
   }
 
   @override
@@ -221,38 +235,45 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
           if (nameRange == null) {
             // The selector span seems to be relative to node, not to the file.
             nameRange = lsp.Range(
-                start: lsp.Position(
-                    line: node.span.start.line + selector.span.start.line,
-                    character:
-                        node.span.start.column + selector.span.start.column),
-                end: lsp.Position(
-                    line: node.span.start.line + selector.span.end.line,
-                    character:
-                        node.span.start.column + selector.span.end.column));
+              start: lsp.Position(
+                line: node.span.start.line + selector.span.start.line,
+                character: node.span.start.column + selector.span.start.column,
+              ),
+              end: lsp.Position(
+                line: node.span.start.line + selector.span.end.line,
+                character: node.span.start.column + selector.span.end.column,
+              ),
+            );
 
             // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
             symbolRange = lsp.Range(
-                start: lsp.Position(
-                    line: nameRange.start.line,
-                    character: nameRange.start.character),
-                end: lsp.Position(
-                    line: node.span.end.line, character: node.span.end.column));
+              start: lsp.Position(
+                line: nameRange.start.line,
+                character: nameRange.start.character,
+              ),
+              end: lsp.Position(
+                line: node.span.end.line,
+                character: node.span.end.column,
+              ),
+            );
           } else {
             // Move the end of the name range down to include this selector component
             nameRange = lsp.Range(
-                start: nameRange.start,
-                end: lsp.Position(
-                    line: node.span.start.line + selector.span.end.line,
-                    character:
-                        node.span.start.column + selector.span.end.column));
+              start: nameRange.start,
+              end: lsp.Position(
+                line: node.span.start.line + selector.span.end.line,
+                character: node.span.start.column + selector.span.end.column,
+              ),
+            );
           }
         }
 
         _collect(
-            name: name!,
-            kind: lsp.SymbolKind.Class,
-            symbolRange: symbolRange!,
-            nameRange: nameRange);
+          name: name!,
+          referenceKind: ReferenceKind.selector,
+          symbolRange: symbolRange!,
+          nameRange: nameRange,
+        );
       }
     } on sass.SassFormatException catch (_) {
       // Do nothing.
@@ -263,17 +284,21 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
   void visitVariableDeclaration(node) {
     super.visitVariableDeclaration(node);
     _collect(
-        name: node.nameSpan.text,
-        kind: lsp.SymbolKind.Variable,
-        docComment: node.comment?.docComment,
-        symbolRange: toRange(node.span),
-        nameRange: lsp.Range(
-            start: lsp.Position(
-                line: node.nameSpan.start.line,
-                // the span includes $
-                character: node.nameSpan.start.column),
-            end: lsp.Position(
-                line: node.nameSpan.end.line,
-                character: node.nameSpan.end.column)));
+      name: node.nameSpan.text,
+      referenceKind: ReferenceKind.variable,
+      docComment: node.comment?.docComment,
+      symbolRange: toRange(node.span),
+      nameRange: lsp.Range(
+        start: lsp.Position(
+          line: node.nameSpan.start.line,
+          // the span includes $
+          character: node.nameSpan.start.column,
+        ),
+        end: lsp.Position(
+          line: node.nameSpan.end.line,
+          character: node.nameSpan.end.column,
+        ),
+      ),
+    );
   }
 }

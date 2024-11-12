@@ -1,5 +1,6 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
 import '../language_feature.dart';
@@ -9,27 +10,43 @@ class GoToDefinitionFeature extends LanguageFeature {
 
   /// Find the definition of whatever is at [position] in [document] if possible.
   ///
-  /// At the end of this method we want to end up with two values:
+  /// Returns a Location with:
   ///
   ///   1. The URI of the document containing the definition.
   ///   2. The selectionRange (or "nameRange") of the definition.
   ///
-  /// To get that we compare the symbol at [position] in [document] with all
-  /// symbols in all other documents.
-  ///
-  /// In order to support prefixes, show and hide we use links to traverse
-  /// the workspace from [document]. If we find no match that way we fall
-  /// back to "@import-style" and check all documents in the workspace for
-  /// a match.
   Future<lsp.Location?> findDefinition(
       TextDocument document, lsp.Position position) async {
     var stylesheet = ls.parseStylesheet(document);
 
-
+    // Find the node whose definition we're looking for.
     var offset = document.offsetAt(position);
-    var nodeAtOffset = stylesheet.accept(NodeAtOffsetVisitor(offset));
+    var node = stylesheet.accept(NodeAtOffsetVisitor(offset));
+    if (node == null) {
+      return null;
+    }
 
-    var definition = findInWorkspace<lsp.Location>(
+    // Get the node's ReferenceKind and name so we can compare it to other symbols.
+    var kind = getNodeReferenceKind(node);
+    if (kind == null) {
+      return null;
+    }
+    var name = getNodeName(node);
+    if (name == null) {
+      return null;
+    }
+
+    // Look for the symbol in the current document.
+    // It may be a scoped symbol.
+    var symbols = ScopedSymbols(stylesheet);
+    var symbol = symbols.findSymbolFromNode(node);
+    if (symbol != null) {
+      // Found the definition in the same document.
+      return lsp.Location(uri: document.uri, range: symbol.selectionRange);
+    }
+
+    // If not, look for it elsewhere in the workspace.
+    var definition = await findInWorkspace<lsp.Location>(
       lazy: true,
       initialDocument: document,
       callback: ({
@@ -40,19 +57,42 @@ class GoToDefinitionFeature extends LanguageFeature {
         required List<String> shownMixinsAndFunctions,
         required List<String> shownVariables,
       }) async {
-        var symbols = ls.findDocumentSymbols(document);
-        for (var symbol in symbols) {
-          if (symbol.kind == lsp.SymbolKind.Class) {
-            // Placeholder selectors are not prefixed the same way other symbols are.
-            if (nodeAtOffset != null && nodeAtOffset.span)
-          }
+        // Some symbols may change names in `@forward`.
+        var prefixedName = kind == ReferenceKind.function ||
+                kind == ReferenceKind.mixin ||
+                kind == ReferenceKind.variable
+            ? '$prefix$name'
+            : name;
+
+        var symbols = ScopedSymbols(stylesheet);
+        var symbol = symbols.globalScope.getSymbol(
+          name: prefixedName,
+          referenceKind: kind,
+        );
+
+        if (symbol != null) {
+          return [
+            lsp.Location(uri: document.uri, range: symbol.selectionRange)
+          ];
         }
+
+        return null;
       },
     );
 
-    // If we can't essentially do what we do in workspace symbols
+    if (definition != null) {
+      return definition.first;
+    }
 
-    // Remember to include upstream
+    // Fall back to "@import-style" lookup on the whole workspace.
+    for (var document in ls.cache.getDocuments()) {
+      var symbols = ls.findDocumentSymbols(document);
+      for (var symbol in symbols) {
+        if (symbol.name == name && symbol.referenceKind == kind) {
+          return lsp.Location(uri: document.uri, range: symbol.range);
+        }
+      }
+    }
 
     return null;
   }

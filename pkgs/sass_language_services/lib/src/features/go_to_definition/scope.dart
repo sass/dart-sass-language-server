@@ -1,4 +1,4 @@
-import 'scoped_document_symbol.dart';
+import '../document_symbols/stylesheet_document_symbol.dart';
 
 class Scope {
   Scope? parent;
@@ -6,7 +6,7 @@ class Scope {
   final int offset;
   final int length;
 
-  final _symbols = <ScopedDocumentSymbol>[];
+  final _symbols = <StylesheetDocumentSymbol>[];
 
   Scope({required this.offset, required this.length});
 
@@ -46,11 +46,11 @@ class Scope {
     return this;
   }
 
-  void addSymbol(ScopedDocumentSymbol symbol) {
+  void addSymbol(StylesheetDocumentSymbol symbol) {
     _symbols.add(symbol);
   }
 
-  ScopedDocumentSymbol? getSymbol(
+  StylesheetDocumentSymbol? getSymbol(
       {required String name, required ReferenceKind referenceKind}) {
     for (var symbol in _symbols) {
       if (symbol.referenceKind == referenceKind && symbol.name == name) {
@@ -60,7 +60,7 @@ class Scope {
     return null;
   }
 
-  List<ScopedDocumentSymbol> getSymbols() {
+  List<StylesheetDocumentSymbol> getSymbols() {
     return _symbols;
   }
 }
