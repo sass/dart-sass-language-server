@@ -12,7 +12,7 @@ class Scope {
 
   void addChild(Scope scope) {
     children.add(scope);
-    scope.setParent(scope);
+    scope.setParent(this);
   }
 
   void setParent(Scope scope) {
@@ -29,21 +29,17 @@ class Scope {
   }
 
   Scope findInScope({required int offset, int length = 0}) {
-    var limit = offset + length;
-    var index = children.indexWhere((scope) => scope.offset > limit);
-    if (index == 0) {
+    var scopeAtOffset = children.firstWhere(
+        (scope) =>
+            scope.offset <= offset &&
+            scope.offset + scope.length > offset + length,
+        orElse: () => this);
+
+    if (scopeAtOffset == this) {
       return this;
     }
 
-    var childScope = children.elementAt(index - 1);
-    var childScopeHasOffset = childScope.offset <= offset &&
-        childScope.offset + childScope.length >= offset + length;
-
-    if (childScopeHasOffset) {
-      return childScope.findInScope(offset: offset, length: length);
-    }
-
-    return this;
+    return scopeAtOffset.findInScope(offset: offset, length: length);
   }
 
   void addSymbol(StylesheetDocumentSymbol symbol) {
