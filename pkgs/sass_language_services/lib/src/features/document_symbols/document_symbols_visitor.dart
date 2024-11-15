@@ -174,14 +174,12 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
     // node.query.span includes whitespace, so the range doesn't match node.query.asPlain
     var nameRange = lsp.Range(
       start: lsp.Position(
-        line: node.span.start.line + node.query.span.start.line,
-        character: node.span.start.column + node.query.span.start.column,
+        line: node.query.span.start.line,
+        character: node.query.span.start.column,
       ),
       end: lsp.Position(
-        line: node.span.start.line + node.query.span.end.line,
-        character: node.span.start.column +
-            node.query.span.start.column +
-            node.query.asPlain!.length,
+        line: node.query.span.end.line,
+        character: node.query.span.start.column + node.query.asPlain!.length,
       ),
     );
 
