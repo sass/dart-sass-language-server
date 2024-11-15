@@ -69,14 +69,21 @@ void main() {
 @each $i in 1, 2, 3 {
   @debug $i;
 }
+
+@each $y in 3, 2, 1 {
+  @debug $y;
+}
 ''');
       var symbols = getSymbols(document);
 
-      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children, hasLength(2));
 
-      var [first] = symbols.globalScope.children;
+      var [first, second] = symbols.globalScope.children;
       expect(first.offset, equals(20));
       expect(first.length, equals(16));
+
+      expect(second.offset, equals(58));
+      expect(second.length, equals(16));
     });
 
     test('for rules', () {
@@ -86,14 +93,23 @@ void main() {
     width: 2em * $i;
   }
 }
+
+@for $y from 5 to 10 {
+  .item-#{$y} {
+    width: 1em * $y;
+  }
+}
 ''');
       var symbols = getSymbols(document);
 
-      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children, hasLength(2));
 
-      var [first] = symbols.globalScope.children;
+      var [first, second] = symbols.globalScope.children;
       expect(first.offset, equals(20));
       expect(first.length, equals(44));
+
+      expect(second.offset, equals(87));
+      expect(second.length, equals(44));
     });
 
     test('function rules', () {
@@ -105,14 +121,25 @@ void main() {
     @return false;
   }
 }
+
+@function is-odd($int) {
+  @if $int % 2 != 0 {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
 ''');
       var symbols = getSymbols(document);
 
-      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children, hasLength(2));
 
-      var [first] = symbols.globalScope.children;
+      var [first, second] = symbols.globalScope.children;
       expect(first.offset, equals(24));
-      expect(first.length, equals(62));
+      expect(first.length, equals(78));
+
+      expect(second.offset, equals(127));
+      expect(second.length, equals(78));
     });
 
     test('if else rules', () {
@@ -142,14 +169,21 @@ void main() {
 @mixin large-text {
   font-size: 20px;
 }
+
+@mixin small-text {
+  font-size: 12px;
+}
 ''');
       var symbols = getSymbols(document);
 
-      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children, hasLength(2));
 
-      var [first] = symbols.globalScope.children;
+      var [first, second] = symbols.globalScope.children;
       expect(first.offset, equals(18));
       expect(first.length, equals(22));
+
+      expect(second.offset, equals(60));
+      expect(second.length, equals(22));
     });
 
     test('while rules', () {

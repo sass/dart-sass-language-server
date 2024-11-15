@@ -6,6 +6,7 @@ import '../document_symbols/stylesheet_document_symbol.dart';
 import 'scope.dart';
 
 final deprecated = RegExp(r'///\s*@deprecated');
+final scopeStart = RegExp(r'[\{\n]');
 
 /// Builds scopes and a list of symbols in those scopes starting at [scope] (typically the global scope).
 class ScopeVisitor with sass.RecursiveStatementVisitor {
@@ -55,39 +56,38 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitAtRule(node) {
-    if (node.name.isPlain) {
-      if (node.name.asPlain == 'font-face') {
+    if (node.children != null) {
+      var nameEndIndex = node.name.span.end.offset - node.span.start.offset;
+      var scopeIndex = node.span.text.indexOf(scopeStart, nameEndIndex);
+
+      _addScope(
+        offset: node.span.start.offset + scopeIndex,
+        length: node.span.length - scopeIndex,
+      );
+    }
+
+    if (node.name.isPlain && node.name.asPlain!.startsWith('keyframes')) {
+      var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
+      if (keyframesName != null) {
+        var keyframesNameRange = lsp.Range(
+          start: lsp.Position(
+            line: node.name.span.start.line,
+            character: node.name.span.end.column + 1,
+          ),
+          end: lsp.Position(
+            line: node.name.span.end.line,
+            character: node.name.span.end.column + 1 + keyframesName.length,
+          ),
+        );
+
         _addSymbol(
-          name: node.name.span.text,
-          kind: ReferenceKind.atRule,
+          name: keyframesName,
+          kind: ReferenceKind.keyframe,
           symbolRange: toRange(node.span),
-          nameRange: toRange(node.name.span),
+          nameRange: keyframesNameRange,
           offset: node.span.start.offset,
           length: node.span.length,
         );
-      } else if (node.name.asPlain!.startsWith('keyframes')) {
-        var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
-        if (keyframesName != null) {
-          var keyframesNameRange = lsp.Range(
-            start: lsp.Position(
-              line: node.name.span.start.line,
-              character: node.name.span.end.column + 1,
-            ),
-            end: lsp.Position(
-              line: node.name.span.end.line,
-              character: node.name.span.end.column + 1 + keyframesName.length,
-            ),
-          );
-
-          _addSymbol(
-            name: keyframesName,
-            kind: ReferenceKind.keyframe,
-            symbolRange: toRange(node.span),
-            nameRange: keyframesNameRange,
-            offset: node.span.start.offset,
-            length: node.span.length,
-          );
-        }
       }
     }
 
@@ -114,9 +114,10 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitEachRule(sass.EachRule node) {
+    var lengthSubtract = node.list.span.end.offset - node.span.start.offset;
     var scope = _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: node.list.span.end.offset,
+      length: node.span.length - lengthSubtract,
     );
 
     if (scope != null) {
@@ -150,9 +151,11 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitForRule(sass.ForRule node) {
+    var toEndIndex = node.to.span.end.offset - node.span.start.offset;
+    var scopeIndex = node.span.text.indexOf(scopeStart, toEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: node.span.start.offset + scopeIndex,
+      length: node.span.length - scopeIndex,
     );
 
     if (scope != null) {
@@ -193,9 +196,11 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       length: node.span.length,
     );
 
+    var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
+    var scopeIndex = node.span.text.indexOf(scopeStart, argsEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: node.span.start.offset + scopeIndex,
+      length: node.span.length - scopeIndex,
     );
 
     if (scope != null) {
@@ -236,10 +241,13 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       length: node.span.length,
     );
 
+    var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
+    var scopeIndex = node.span.text.indexOf(scopeStart, argsEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: node.span.start.offset + scopeIndex,
+      length: node.span.length - scopeIndex,
     );
+
     if (scope != null) {
       for (var arg in node.arguments.arguments) {
         var range = toRange(arg.span);
@@ -341,9 +349,11 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitWhileRule(sass.WhileRule node) {
+    var lengthSubtract =
+        node.condition.span.end.offset - node.span.start.offset;
     _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: node.condition.span.end.offset,
+      length: node.span.length - lengthSubtract,
     );
 
     super.visitWhileRule(node);
