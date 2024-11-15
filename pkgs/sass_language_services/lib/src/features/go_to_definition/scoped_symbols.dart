@@ -75,8 +75,8 @@ String? getNodeName(sass.AstNode node) {
 class ScopedSymbols {
   final globalScope = Scope(length: double.maxFinite.floor(), offset: 0);
 
-  ScopedSymbols(sass.Stylesheet stylesheet) {
-    stylesheet.accept(ScopeVisitor(globalScope));
+  ScopedSymbols(sass.Stylesheet stylesheet, Dialect dialect) {
+    stylesheet.accept(ScopeVisitor(globalScope, dialect));
   }
 
   StylesheetDocumentSymbol? findSymbolFromNode(sass.AstNode node) {

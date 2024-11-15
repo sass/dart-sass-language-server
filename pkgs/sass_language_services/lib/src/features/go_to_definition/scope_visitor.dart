@@ -6,13 +6,19 @@ import '../document_symbols/stylesheet_document_symbol.dart';
 import 'scope.dart';
 
 final deprecated = RegExp(r'///\s*@deprecated');
-final scopeStart = RegExp(r'[\{\n]');
+final openBracketOrNewline = RegExp(r'[\{\n]');
+
+enum Dialect { scss, indented }
 
 /// Builds scopes and a list of symbols in those scopes starting at [scope] (typically the global scope).
 class ScopeVisitor with sass.RecursiveStatementVisitor {
   final Scope scope;
+  final Dialect dialect;
 
-  ScopeVisitor(this.scope);
+  ScopeVisitor(
+    this.scope,
+    this.dialect,
+  );
 
   void _addSymbol({
     required String name,
@@ -58,7 +64,8 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   void visitAtRule(node) {
     if (node.children != null) {
       var nameEndIndex = node.name.span.end.offset - node.span.start.offset;
-      var scopeIndex = node.span.text.indexOf(scopeStart, nameEndIndex);
+      var scopeIndex =
+          node.span.text.indexOf(openBracketOrNewline, nameEndIndex);
 
       _addScope(
         offset: node.span.start.offset + scopeIndex,
@@ -152,7 +159,7 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitForRule(sass.ForRule node) {
     var toEndIndex = node.to.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(scopeStart, toEndIndex);
+    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, toEndIndex);
     var scope = _addScope(
       offset: node.span.start.offset + scopeIndex,
       length: node.span.length - scopeIndex,
@@ -197,7 +204,7 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     );
 
     var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(scopeStart, argsEndIndex);
+    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
     var scope = _addScope(
       offset: node.span.start.offset + scopeIndex,
       length: node.span.length - scopeIndex,
@@ -223,10 +230,43 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitIfRule(sass.IfRule node) {
-    _addScope(
-      offset: node.span.start.offset,
-      length: node.span.length,
-    );
+    // TODO: would be nice to have the spans for clauses from sass_api.
+    Scope? previousClause;
+    for (var clause in node.clauses) {
+      var argsEndIndex =
+          clause.expression.span.end.offset - node.span.start.offset;
+      var scopeStartIndex =
+          node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
+
+      var clauseChildrenLength = clause.children
+          .map<int>((e) => e.span.context.length)
+          .reduce((value, element) => value + element);
+
+      var toMatch = dialect == Dialect.indented ? '\n' : '}';
+
+      var scopeEndIndex = node.span.text
+          .indexOf(toMatch, scopeStartIndex + clauseChildrenLength);
+
+      previousClause = _addScope(
+        offset: node.span.start.offset + scopeStartIndex,
+        length: scopeEndIndex - scopeStartIndex + 1,
+      );
+    }
+
+    if (previousClause != null && node.lastClause != null) {
+      var scopeIndex = node.span.text.indexOf(
+          openBracketOrNewline,
+          previousClause.offset -
+              node.span.start.offset +
+              previousClause.length +
+              "@else".length);
+
+      _addScope(
+        offset: node.span.start.offset + scopeIndex,
+        length: node.span.length - scopeIndex,
+      );
+    }
+
     super.visitIfRule(node);
   }
 
@@ -242,7 +282,7 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     );
 
     var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(scopeStart, argsEndIndex);
+    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
     var scope = _addScope(
       offset: node.span.start.offset + scopeIndex,
       length: node.span.length - scopeIndex,
@@ -349,11 +389,14 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitWhileRule(sass.WhileRule node) {
-    var lengthSubtract =
+    var conditionEndIndex =
         node.condition.span.end.offset - node.span.start.offset;
+    var scopeIndex =
+        node.span.text.indexOf(openBracketOrNewline, conditionEndIndex);
+
     _addScope(
-      offset: node.condition.span.end.offset,
-      length: node.span.length - lengthSubtract,
+      offset: node.span.start.offset + scopeIndex,
+      length: node.span.length - scopeIndex,
     );
 
     super.visitWhileRule(node);
