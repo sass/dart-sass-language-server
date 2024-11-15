@@ -4,6 +4,7 @@ import 'package:sass_language_services/src/features/go_to_definition/scoped_symb
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
 import '../language_feature.dart';
+import 'scope_visitor.dart';
 
 class GoToDefinitionFeature extends LanguageFeature {
   GoToDefinitionFeature({required super.ls});
@@ -38,7 +39,8 @@ class GoToDefinitionFeature extends LanguageFeature {
 
     // Look for the symbol in the current document.
     // It may be a scoped symbol.
-    var symbols = ScopedSymbols(stylesheet);
+    var symbols = ScopedSymbols(stylesheet,
+        document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
     var symbol = symbols.findSymbolFromNode(node);
     if (symbol != null) {
       // Found the definition in the same document.
@@ -64,7 +66,8 @@ class GoToDefinitionFeature extends LanguageFeature {
             ? '$prefix$name'
             : name;
 
-        var symbols = ScopedSymbols(stylesheet);
+        var symbols = ScopedSymbols(stylesheet,
+            document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
         var symbol = symbols.globalScope.getSymbol(
           name: prefixedName,
           referenceKind: kind,

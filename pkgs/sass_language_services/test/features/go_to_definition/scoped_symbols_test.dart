@@ -1,4 +1,5 @@
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/go_to_definition/scope_visitor.dart';
 import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:test/test.dart';
 
@@ -10,7 +11,8 @@ final ls = LanguageServices(fs: fs, clientCapabilities: getCapabilities());
 
 ScopedSymbols getSymbols(TextDocument document) {
   var stylesheet = ls.parseStylesheet(document);
-  var symbols = ScopedSymbols(stylesheet);
+  var symbols = ScopedSymbols(stylesheet,
+      document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
   return symbols;
 }
 
@@ -151,17 +153,33 @@ void main() {
     @return false;
   }
 }
+
+@function is-odd($int) {
+  @if $int % 2 != 0 {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
 ''');
       var symbols = getSymbols(document);
 
+      expect(symbols.globalScope.children, hasLength(2));
       expect(symbols.globalScope.children.first.children, hasLength(2));
 
       var [first, second] = symbols.globalScope.children.first.children;
-      expect(first.offset, equals(18));
-      expect(first.length, equals(19));
+      expect(first.offset, equals(46));
+      expect(first.length, equals(23));
 
-      expect(second.offset, equals(44));
-      expect(second.length, equals(20));
+      expect(second.offset, equals(76));
+      expect(second.length, equals(24));
+
+      var [third, fourth] = symbols.globalScope.children.last.children;
+      expect(third.offset, equals(149));
+      expect(third.length, equals(23));
+
+      expect(fourth.offset, equals(179));
+      expect(fourth.length, equals(24));
     });
 
     test('mixin rules', () {
@@ -194,14 +212,24 @@ void main() {
   }
   $i: $i - 2;
 }
+
+@while $y < 0 {
+  .item-#{$y} {
+    width: 1em * $y;
+  }
+  $y: $y - 1;
+}
 ''');
       var symbols = getSymbols(document);
 
-      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children, hasLength(2));
 
-      var [first] = symbols.globalScope.children;
+      var [first, second] = symbols.globalScope.children;
       expect(first.offset, equals(14));
       expect(first.length, equals(58));
+
+      expect(second.offset, equals(88));
+      expect(second.length, equals(58));
     });
   });
 }
