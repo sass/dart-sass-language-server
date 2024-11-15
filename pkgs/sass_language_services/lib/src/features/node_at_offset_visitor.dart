@@ -18,7 +18,7 @@ class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
       }
     }
 
-    if (node.span.end.offset > _offset) {
+    if (node.span.start.offset > _offset) {
       return _candidate;
     }
 

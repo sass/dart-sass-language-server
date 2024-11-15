@@ -1,6 +1,7 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
 
 import 'features/document_links/document_links_feature.dart';
 import 'features/document_symbols/document_symbols_feature.dart';
@@ -17,6 +18,7 @@ class LanguageServices {
 
   late final DocumentLinksFeature _documentLinks;
   late final DocumentSymbolsFeature _documentSymbols;
+  late final GoToDefinitionFeature _goToDefinitionFeature;
   late final WorkspaceSymbolsFeature _workspaceSymbols;
 
   LanguageServices({
@@ -25,6 +27,7 @@ class LanguageServices {
   }) : cache = LanguageServicesCache() {
     _documentLinks = DocumentLinksFeature(ls: this);
     _documentSymbols = DocumentSymbolsFeature(ls: this);
+    _goToDefinitionFeature = GoToDefinitionFeature(ls: this);
     _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
   }
 
@@ -43,6 +46,11 @@ class LanguageServices {
 
   List<lsp.WorkspaceSymbol> findWorkspaceSymbols(String? query) {
     return _workspaceSymbols.findWorkspaceSymbols(query);
+  }
+
+  Future<lsp.Location?> goToDefinition(
+      TextDocument document, lsp.Position position) {
+    return _goToDefinitionFeature.goToDefinition(document, position);
   }
 
   sass.Stylesheet parseStylesheet(TextDocument document) {
