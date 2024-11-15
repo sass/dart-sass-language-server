@@ -53,23 +53,6 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     return null;
   }
 
-  ({int offset, int length})? _scopeRange(
-      sass.ParentStatement<List<sass.Statement>?> node) {
-    if (node.children case var children?) {
-      if (children.isEmpty) {
-        return null;
-      }
-
-      var totalLength = node.children!
-          .map<int>((n) => n.span.length)
-          .reduce((value, element) => value + element);
-
-      return (offset: children.first.span.start.offset, length: totalLength);
-    }
-
-    return null;
-  }
-
   @override
   void visitAtRule(node) {
     if (node.name.isPlain) {
@@ -131,54 +114,14 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitEachRule(sass.EachRule node) {
-    var scopeRange = _scopeRange(node);
-    if (scopeRange != null) {
-      var scope = _addScope(
-        offset: scopeRange.offset,
-        length: scopeRange.length,
-      );
+    var scope = _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
 
-      if (scope != null) {
-        for (var variable in node.variables) {
-          var variableIndex = node.span.text.indexOf(variable);
-
-          var range = toRange(node.span);
-          var selectionRange = lsp.Range(
-            start: lsp.Position(
-                line: node.span.start.line,
-                character: node.span.start.column + variableIndex),
-            end: lsp.Position(
-              line: node.span.start.line,
-              character: node.span.start.column + variable.length,
-            ),
-          );
-
-          var symbol = StylesheetDocumentSymbol(
-            name: variable,
-            referenceKind: ReferenceKind.variable,
-            range: range,
-            children: [],
-            selectionRange: selectionRange,
-          );
-          scope.addSymbol(symbol);
-        }
-      }
-    }
-
-    super.visitEachRule(node);
-  }
-
-  @override
-  void visitForRule(sass.ForRule node) {
-    var scopeRange = _scopeRange(node);
-    if (scopeRange != null) {
-      var scope = _addScope(
-        offset: scopeRange.offset,
-        length: scopeRange.length,
-      );
-
-      if (scope != null) {
-        var variableIndex = node.span.text.indexOf(node.variable);
+    if (scope != null) {
+      for (var variable in node.variables) {
+        var variableIndex = node.span.text.indexOf(variable);
 
         var range = toRange(node.span);
         var selectionRange = lsp.Range(
@@ -187,12 +130,12 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
               character: node.span.start.column + variableIndex),
           end: lsp.Position(
             line: node.span.start.line,
-            character: node.span.start.column + node.variable.length,
+            character: node.span.start.column + variable.length,
           ),
         );
 
         var symbol = StylesheetDocumentSymbol(
-          name: node.variable,
+          name: variable,
           referenceKind: ReferenceKind.variable,
           range: range,
           children: [],
@@ -200,6 +143,40 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
         );
         scope.addSymbol(symbol);
       }
+    }
+
+    super.visitEachRule(node);
+  }
+
+  @override
+  void visitForRule(sass.ForRule node) {
+    var scope = _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+
+    if (scope != null) {
+      var variableIndex = node.span.text.indexOf(node.variable);
+
+      var range = toRange(node.span);
+      var selectionRange = lsp.Range(
+        start: lsp.Position(
+            line: node.span.start.line,
+            character: node.span.start.column + variableIndex),
+        end: lsp.Position(
+          line: node.span.start.line,
+          character: node.span.start.column + node.variable.length,
+        ),
+      );
+
+      var symbol = StylesheetDocumentSymbol(
+        name: node.variable,
+        referenceKind: ReferenceKind.variable,
+        range: range,
+        children: [],
+        selectionRange: selectionRange,
+      );
+      scope.addSymbol(symbol);
     }
 
     super.visitForRule(node);
@@ -216,26 +193,23 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       length: node.span.length,
     );
 
-    var scopeRange = _scopeRange(node);
-    if (scopeRange != null) {
-      var scope = _addScope(
-        offset: scopeRange.offset,
-        length: scopeRange.length,
-      );
+    var scope = _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
 
-      if (scope != null) {
-        for (var arg in node.arguments.arguments) {
-          var range = toRange(arg.span);
-          var selectionRange = toRange(arg.nameSpan);
-          var symbol = StylesheetDocumentSymbol(
-            name: arg.name,
-            referenceKind: ReferenceKind.variable,
-            range: range,
-            children: [],
-            selectionRange: selectionRange,
-          );
-          scope.addSymbol(symbol);
-        }
+    if (scope != null) {
+      for (var arg in node.arguments.arguments) {
+        var range = toRange(arg.span);
+        var selectionRange = toRange(arg.nameSpan);
+        var symbol = StylesheetDocumentSymbol(
+          name: arg.name,
+          referenceKind: ReferenceKind.variable,
+          range: range,
+          children: [],
+          selectionRange: selectionRange,
+        );
+        scope.addSymbol(symbol);
       }
     }
 
@@ -262,26 +236,22 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       length: node.span.length,
     );
 
-    var scopeRange = _scopeRange(node);
-    if (scopeRange != null) {
-      var scope = _addScope(
-        offset: scopeRange.offset,
-        length: scopeRange.length,
-      );
-
-      if (scope != null) {
-        for (var arg in node.arguments.arguments) {
-          var range = toRange(arg.span);
-          var selectionRange = toRange(arg.nameSpan);
-          var symbol = StylesheetDocumentSymbol(
-            name: arg.name,
-            referenceKind: ReferenceKind.variable,
-            range: range,
-            children: [],
-            selectionRange: selectionRange,
-          );
-          scope.addSymbol(symbol);
-        }
+    var scope = _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
+    if (scope != null) {
+      for (var arg in node.arguments.arguments) {
+        var range = toRange(arg.span);
+        var selectionRange = toRange(arg.nameSpan);
+        var symbol = StylesheetDocumentSymbol(
+          name: arg.name,
+          referenceKind: ReferenceKind.variable,
+          range: range,
+          children: [],
+          selectionRange: selectionRange,
+        );
+        scope.addSymbol(symbol);
       }
     }
 
@@ -333,13 +303,10 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
           }
         }
 
-        var scopeRange = _scopeRange(node);
-        if (scopeRange != null) {
-          _addScope(
-            offset: scopeRange.offset,
-            length: scopeRange.length,
-          );
-        }
+        _addScope(
+          offset: node.span.start.offset + node.selector.span.length,
+          length: node.span.length - node.selector.span.length,
+        );
       } on sass.SassFormatException catch (_) {
         // Do nothing.
       }
@@ -374,13 +341,10 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitWhileRule(sass.WhileRule node) {
-    var scopeRange = _scopeRange(node);
-    if (scopeRange != null) {
-      _addScope(
-        offset: scopeRange.offset,
-        length: scopeRange.length,
-      );
-    }
+    _addScope(
+      offset: node.span.start.offset,
+      length: node.span.length,
+    );
 
     super.visitWhileRule(node);
   }
