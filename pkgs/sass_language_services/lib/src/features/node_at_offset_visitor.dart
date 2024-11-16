@@ -61,17 +61,6 @@ class NodeAtOffsetVisitor
   }
 
   @override
-  sass.AstNode? visitChildren(List<sass.Statement> children) {
-    for (var node in children) {
-      var result = _process(node);
-      if (result != null) {
-        return result;
-      }
-    }
-    return super.visitChildren(children);
-  }
-
-  @override
   sass.AstNode? visitColorExpression(sass.ColorExpression node) {
     return super.visitColorExpression(node) ?? _process(node);
   }

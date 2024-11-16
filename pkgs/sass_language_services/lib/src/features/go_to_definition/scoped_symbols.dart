@@ -30,6 +30,8 @@ ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
     return ReferenceKind.placeholderSelector;
   } else if (node is sass.MixinRule) {
     return ReferenceKind.mixin;
+  } else if (node is sass.IncludeRule) {
+    return ReferenceKind.mixin;
   } else if (node is sass.FunctionExpression) {
     return ReferenceKind.function;
   } else if (node is sass.FunctionRule) {
@@ -67,6 +69,9 @@ String? getNodeName(sass.AstNode node) {
     var placeholder = node;
     return placeholder.name;
   } else if (node is sass.MixinRule) {
+    var mixin = node;
+    return mixin.name;
+  } else if (node is sass.IncludeRule) {
     var mixin = node;
     return mixin.name;
   } else if (node is sass.FunctionExpression) {
