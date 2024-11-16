@@ -1,6 +1,9 @@
 import 'package:sass_api/sass_api.dart' as sass;
 
-class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
+class NodeAtOffsetVisitor
+    with
+        sass.StatementSearchVisitor<sass.AstNode>,
+        sass.AstSearchVisitor<sass.AstNode> {
   sass.AstNode? _candidate;
   final int _offset;
 
@@ -10,6 +13,7 @@ class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
   sass.AstNode? _process(sass.AstNode node) {
     var spanContainsOffset =
         node.span.start.offset <= _offset && node.span.end.offset >= _offset;
+
     if (spanContainsOffset) {
       if (_candidate == null) {
         _candidate = node;
@@ -18,7 +22,7 @@ class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
       }
     }
 
-    if (node.span.start.offset > _offset) {
+    if (node.span.start.offset > _offset || node is sass.Stylesheet) {
       return _candidate;
     }
 
@@ -27,33 +31,33 @@ class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
 
   @override
   sass.AstNode? visitArgumentInvocation(sass.ArgumentInvocation invocation) {
-    return _process(invocation);
+    return super.visitArgumentInvocation(invocation) ?? _process(invocation);
   }
 
   @override
   sass.AstNode? visitAtRootRule(sass.AtRootRule node) {
-    return _process(node);
+    return super.visitAtRootRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitAtRule(sass.AtRule node) {
-    return _process(node);
+    return super.visitAtRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitBinaryOperationExpression(
       sass.BinaryOperationExpression node) {
-    return _process(node);
+    return super.visitBinaryOperationExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitBooleanExpression(sass.BooleanExpression node) {
-    return _process(node);
+    return super.visitBooleanExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitCallableDeclaration(sass.CallableDeclaration node) {
-    return _process(node);
+    return super.visitCallableDeclaration(node) ?? _process(node);
   }
 
   @override
@@ -64,224 +68,224 @@ class NodeAtOffsetVisitor implements sass.AstSearchVisitor<sass.AstNode> {
         return result;
       }
     }
-    return null;
+    return super.visitChildren(children);
   }
 
   @override
   sass.AstNode? visitColorExpression(sass.ColorExpression node) {
-    return _process(node);
+    return super.visitColorExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitContentBlock(sass.ContentBlock node) {
-    return _process(node);
+    return super.visitContentBlock(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitContentRule(sass.ContentRule node) {
-    return _process(node);
+    return super.visitContentRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitDebugRule(sass.DebugRule node) {
-    return _process(node);
+    return super.visitDebugRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitDeclaration(sass.Declaration node) {
-    return _process(node);
+    return super.visitDeclaration(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitEachRule(sass.EachRule node) {
-    return _process(node);
+    return super.visitEachRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitErrorRule(sass.ErrorRule node) {
-    return _process(node);
+    return super.visitErrorRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitExpression(sass.Expression expression) {
-    return _process(expression);
+    return super.visitExpression(expression) ?? _process(expression);
   }
 
   @override
   sass.AstNode? visitExtendRule(sass.ExtendRule node) {
-    return _process(node);
+    return super.visitExtendRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitForRule(sass.ForRule node) {
-    return _process(node);
+    return super.visitForRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitForwardRule(sass.ForwardRule node) {
-    return _process(node);
+    return super.visitForwardRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitFunctionExpression(sass.FunctionExpression node) {
-    return _process(node);
+    return super.visitFunctionExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitFunctionRule(sass.FunctionRule node) {
-    return _process(node);
+    return super.visitFunctionRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitIfExpression(sass.IfExpression node) {
-    return _process(node);
+    return super.visitIfExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitIfRule(sass.IfRule node) {
-    return _process(node);
+    return super.visitIfRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitImportRule(sass.ImportRule node) {
-    return _process(node);
+    return super.visitImportRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitIncludeRule(sass.IncludeRule node) {
-    return _process(node);
+    return super.visitIncludeRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitInterpolatedFunctionExpression(
       sass.InterpolatedFunctionExpression node) {
-    return _process(node);
+    return super.visitInterpolatedFunctionExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitInterpolation(sass.Interpolation interpolation) {
-    return _process(interpolation);
+    return super.visitInterpolation(interpolation) ?? _process(interpolation);
   }
 
   @override
   sass.AstNode? visitListExpression(sass.ListExpression node) {
-    return _process(node);
+    return super.visitListExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitLoudComment(sass.LoudComment node) {
-    return _process(node);
+    return super.visitLoudComment(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitMapExpression(sass.MapExpression node) {
-    return _process(node);
+    return super.visitMapExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitMediaRule(sass.MediaRule node) {
-    return _process(node);
+    return super.visitMediaRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitMixinRule(sass.MixinRule node) {
-    return _process(node);
+    return super.visitMixinRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitNullExpression(sass.NullExpression node) {
-    return _process(node);
+    return super.visitNullExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitNumberExpression(sass.NumberExpression node) {
-    return _process(node);
+    return super.visitNumberExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitParenthesizedExpression(
       sass.ParenthesizedExpression node) {
-    return _process(node);
+    return super.visitParenthesizedExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitReturnRule(sass.ReturnRule node) {
-    return _process(node);
+    return super.visitReturnRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitSelectorExpression(sass.SelectorExpression node) {
-    return _process(node);
+    return super.visitSelectorExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitSilentComment(sass.SilentComment node) {
-    return _process(node);
+    return super.visitSilentComment(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitStringExpression(sass.StringExpression node) {
-    return _process(node);
+    return super.visitStringExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitStyleRule(sass.StyleRule node) {
-    return _process(node);
+    return super.visitStyleRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitStylesheet(sass.Stylesheet node) {
-    return _process(node);
+    return super.visitStylesheet(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitSupportsCondition(sass.SupportsCondition condition) {
-    return _process(condition);
+    return super.visitSupportsCondition(condition) ?? _process(condition);
   }
 
   @override
   sass.AstNode? visitSupportsExpression(sass.SupportsExpression node) {
-    return _process(node);
+    return super.visitSupportsExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitSupportsRule(sass.SupportsRule node) {
-    return _process(node);
+    return super.visitSupportsRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitUnaryOperationExpression(
       sass.UnaryOperationExpression node) {
-    return _process(node);
+    return super.visitUnaryOperationExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitUseRule(sass.UseRule node) {
-    return _process(node);
+    return super.visitUseRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitValueExpression(sass.ValueExpression node) {
-    return _process(node);
+    return super.visitValueExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitVariableDeclaration(sass.VariableDeclaration node) {
-    return _process(node);
+    return super.visitVariableDeclaration(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitVariableExpression(sass.VariableExpression node) {
-    return _process(node);
+    return super.visitVariableExpression(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitWarnRule(sass.WarnRule node) {
-    return _process(node);
+    return super.visitWarnRule(node) ?? _process(node);
   }
 
   @override
   sass.AstNode? visitWhileRule(sass.WhileRule node) {
-    return _process(node);
+    return super.visitWhileRule(node) ?? _process(node);
   }
 }

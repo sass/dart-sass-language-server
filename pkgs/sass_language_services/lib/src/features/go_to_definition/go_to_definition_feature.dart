@@ -20,8 +20,8 @@ class GoToDefinitionFeature extends LanguageFeature {
 
     // Find the node whose definition we're looking for.
     var offset = document.offsetAt(position);
-    // TODO: you are here. Figure out why the search isn't working the way you think.
-    var node = stylesheet.accept(NodeAtOffsetVisitor(offset));
+    var visitor = NodeAtOffsetVisitor(offset);
+    var node = stylesheet.accept(visitor);
     if (node == null) {
       return null;
     }
