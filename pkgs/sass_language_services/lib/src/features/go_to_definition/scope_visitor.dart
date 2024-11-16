@@ -61,47 +61,6 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   }
 
   @override
-  void visitAtRule(node) {
-    if (node.children != null) {
-      var nameEndIndex = node.name.span.end.offset - node.span.start.offset;
-      var scopeIndex =
-          node.span.text.indexOf(openBracketOrNewline, nameEndIndex);
-
-      _addScope(
-        offset: node.span.start.offset + scopeIndex,
-        length: node.span.length - scopeIndex,
-      );
-    }
-
-    if (node.name.isPlain && node.name.asPlain!.startsWith('keyframes')) {
-      var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
-      if (keyframesName != null) {
-        var keyframesNameRange = lsp.Range(
-          start: lsp.Position(
-            line: node.name.span.start.line,
-            character: node.name.span.end.column + 1,
-          ),
-          end: lsp.Position(
-            line: node.name.span.end.line,
-            character: node.name.span.end.column + 1 + keyframesName.length,
-          ),
-        );
-
-        _addSymbol(
-          name: keyframesName,
-          kind: ReferenceKind.keyframe,
-          symbolRange: toRange(node.span),
-          nameRange: keyframesNameRange,
-          offset: node.span.start.offset,
-          length: node.span.length,
-        );
-      }
-    }
-
-    super.visitAtRule(node);
-  }
-
-  @override
   void visitDeclaration(node) {
     var isCustomProperty =
         node.name.isPlain && node.name.asPlain!.startsWith("--");
@@ -312,43 +271,48 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       try {
         var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
         for (var complexSelector in selectorList.components) {
-          for (var component in complexSelector.components) {
-            var selector = component.selector;
-            var name = selector.span.text;
-
-            // The selector span seems to be relative to node, not to the file.
-            var nameRange = lsp.Range(
-              start: lsp.Position(
-                line: node.span.start.line + selector.span.start.line,
-                character: node.span.start.column + selector.span.start.column,
-              ),
-              end: lsp.Position(
-                line: node.span.start.line + selector.span.end.line,
-                character: node.span.start.column + selector.span.end.column,
-              ),
-            );
-
-            // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
-            var symbolRange = lsp.Range(
-              start: lsp.Position(
-                line: nameRange.start.line,
-                character: nameRange.start.character,
-              ),
-              end: lsp.Position(
-                line: node.span.end.line,
-                character: node.span.end.column,
-              ),
-            );
-
-            _addSymbol(
-              name: name,
-              kind: ReferenceKind.selector,
-              symbolRange: symbolRange,
-              nameRange: nameRange,
-              offset: node.span.start.offset,
-              length: node.span.length,
-            );
+          // we only want selectors that can be used in @extend
+          if (complexSelector.components.isEmpty ||
+              complexSelector.components.length > 1) {
+            continue;
           }
+          var component = complexSelector.components.first;
+
+          var selector = component.selector;
+          var name = selector.span.text;
+
+          // The selector span seems to be relative to node, not to the file.
+          var nameRange = lsp.Range(
+            start: lsp.Position(
+              line: node.span.start.line + selector.span.start.line,
+              character: node.span.start.column + selector.span.start.column,
+            ),
+            end: lsp.Position(
+              line: node.span.start.line + selector.span.end.line,
+              character: node.span.start.column + selector.span.end.column,
+            ),
+          );
+
+          // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
+          var symbolRange = lsp.Range(
+            start: lsp.Position(
+              line: nameRange.start.line,
+              character: nameRange.start.character,
+            ),
+            end: lsp.Position(
+              line: node.span.end.line,
+              character: node.span.end.column,
+            ),
+          );
+
+          _addSymbol(
+            name: name,
+            kind: ReferenceKind.selector,
+            symbolRange: symbolRange,
+            nameRange: nameRange,
+            offset: node.span.start.offset,
+            length: node.span.length,
+          );
         }
 
         _addScope(

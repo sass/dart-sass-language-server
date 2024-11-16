@@ -92,4 +92,100 @@ $b: blue
       expect(result, isNull);
     });
   });
+
+  group('mixins', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('in the same document', () async {
+      var document = fs.createDocument(r'''
+=reset-list
+  margin: 0
+  padding: 0
+  list-style: none
+
+=horizontal-list
+  +reset-list
+
+  li
+    display: inline-block
+    margin:
+      left: -2px
+      right: 2em
+
+nav ul
+  +horizontal-list
+
+''', uri: 'styles.sass');
+      var result = await ls.goToDefinition(document, at(line: 6, char: 4));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(1));
+      expect(result.range, EndsAtCharacter(11));
+
+      expect(result.uri.toString(), endsWith('styles.sass'));
+    });
+
+    test('in a different document', () async {
+      fs.createDocument(r'''
+=reset-list
+  margin: 0
+  padding: 0
+  list-style: none
+
+=horizontal-list
+  +reset-list
+
+  li
+    display: inline-block
+    margin:
+      left: -2px
+      right: 2em
+''', uri: 'list.sass');
+
+      var document = fs.createDocument(r'''
+@use "list";
+
+nav ul {
+  @include horizontal-list;
+}
+''');
+      var result = await ls.goToDefinition(document, at(line: 3, char: 12));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(5));
+      expect(result.range, EndsAtLine(5));
+      expect(result.range, StartsAtCharacter(1));
+      expect(result.range, EndsAtCharacter(16));
+
+      expect(result.uri.toString(), endsWith('list.sass'));
+    });
+  });
+
+  group('sass functions', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+  });
+
+  group('css variables', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+  });
+
+  group('@extended CSS class', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+  });
+
+  group('@extended placeholder selector', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+  });
 }
