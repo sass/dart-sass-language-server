@@ -65,6 +65,7 @@ class GoToDefinitionFeature extends LanguageFeature {
             ? '$prefix$name'
             : name;
 
+        var stylesheet = ls.parseStylesheet(document);
         var symbols = ScopedSymbols(stylesheet,
             document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
         var symbol = symbols.globalScope.getSymbol(
@@ -82,7 +83,7 @@ class GoToDefinitionFeature extends LanguageFeature {
       },
     );
 
-    if (definition != null) {
+    if (definition != null && definition.isNotEmpty) {
       return definition.first;
     }
 

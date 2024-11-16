@@ -366,7 +366,7 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitVariableDeclaration(node) {
     _addSymbol(
-      name: node.nameSpan.text,
+      name: node.name,
       kind: ReferenceKind.variable,
       symbolRange: toRange(node.span),
       nameRange: lsp.Range(
