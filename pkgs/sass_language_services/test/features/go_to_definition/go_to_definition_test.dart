@@ -15,7 +15,26 @@ void main() {
       ls.cache.clear();
     });
 
-    test('in a different document', () async {
+    test('global in the same document', () async {
+      var document = fs.createDocument(r'''
+$b: blue
+
+.a
+  color: $b
+
+''', uri: 'styles.sass');
+      var result = await ls.goToDefinition(document, at(line: 3, char: 10));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtCharacter(2));
+
+      expect(result.uri.toString(), endsWith('styles.sass'));
+    });
+
+    test('global in a different document', () async {
       fs.createDocument(r'$b: #000;', uri: 'colors.scss');
 
       var document = fs.createDocument(r'''
@@ -34,6 +53,43 @@ void main() {
       expect(result.range, EndsAtCharacter(2));
 
       expect(result.uri.toString(), endsWith('colors.scss'));
+    });
+
+    test('scoped in the same document', () async {
+      var document = fs.createDocument(r'''
+.a
+  $b: blue
+  color: $b
+
+''', uri: 'styles.sass');
+      var result = await ls.goToDefinition(document, at(line: 2, char: 10));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(1));
+      expect(result.range, EndsAtLine(01));
+      expect(result.range, StartsAtCharacter(2));
+      expect(result.range, EndsAtCharacter(4));
+
+      expect(result.uri.toString(), endsWith('styles.sass'));
+    });
+
+    test('no scoped in a different document', () async {
+      fs.createDocument(r'''
+.a
+  $b: blue
+  color: $b
+''', uri: 'links.sass');
+
+      var document = fs.createDocument(r'''
+@use "links";
+
+.a {
+  color: $b;
+}
+''');
+      var result = await ls.goToDefinition(document, at(line: 3, char: 10));
+
+      expect(result, isNull);
     });
   });
 }
