@@ -107,14 +107,15 @@ class LanguageServer {
           if (document == null) {
             var text = await fileSystemProvider.readFile(uri);
             document = TextDocument(
-                uri,
-                uri.path.endsWith('.sass')
-                    ? 'sass'
-                    : uri.path.endsWith('.css')
-                        ? 'css'
-                        : 'scss',
-                1,
-                text);
+              uri,
+              uri.path.endsWith('.sass')
+                  ? 'sass'
+                  : uri.path.endsWith('.css')
+                      ? 'css'
+                      : 'scss',
+              1,
+              text,
+            );
 
             _ls.parseStylesheet(document);
           }

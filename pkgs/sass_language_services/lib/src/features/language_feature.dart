@@ -24,11 +24,17 @@ abstract class LanguageFeature {
       bool lazy = false,
       int depth = 0}) async {
     return _findInWorkspace(
-        callback: callback,
-        initialDocument: initialDocument,
-        currentDocument: initialDocument,
-        depth: depth,
-        lazy: lazy);
+      callback: callback,
+      initialDocument: initialDocument,
+      currentDocument: initialDocument,
+      depth: depth,
+      lazy: lazy,
+      hiddenMixinsAndFunctions: [],
+      hiddenVariables: [],
+      shownMixinsAndFunctions: [],
+      shownVariables: [],
+      visited: {},
+    );
   }
 
   Future<List<T>?> _findInWorkspace<T>(
@@ -42,12 +48,12 @@ abstract class LanguageFeature {
       }) callback,
       required TextDocument initialDocument,
       required TextDocument currentDocument,
+      required List<String> hiddenMixinsAndFunctions,
+      required List<String> hiddenVariables,
+      required List<String> shownMixinsAndFunctions,
+      required List<String> shownVariables,
+      required Set<String> visited,
       String accumulatedPrefix = '',
-      List<String> hiddenMixinsAndFunctions = const [],
-      List<String> hiddenVariables = const [],
-      List<String> shownMixinsAndFunctions = const [],
-      List<String> shownVariables = const [],
-      Set<String> visited = const {},
       bool lazy = false,
       int depth = 0}) async {
     if (visited.contains(currentDocument.uri.toString())) {
@@ -95,11 +101,24 @@ abstract class LanguageFeature {
         continue;
       }
 
-      var next = ls.cache.getDocument(link.target!);
+      var uri = link.target!;
+      var next = ls.cache.getDocument(uri);
       if (next == null) {
-        // We shouldn't really end up here. If so, the feature's handler in
-        // the server should await the initial scan.
-        continue;
+        // We shouldn't really end up here outside of unit tests.
+        // The language server's initial scan should have put all
+        // linked documents in the cache already.
+        var text = await ls.fs.readFile(uri);
+        next = TextDocument(
+          uri,
+          uri.path.endsWith('.sass')
+              ? 'sass'
+              : uri.path.endsWith('.css')
+                  ? 'css'
+                  : 'scss',
+          1,
+          text,
+        );
+        ls.parseStylesheet(next);
       }
 
       var prefix = accumulatedPrefix;
@@ -126,7 +145,7 @@ abstract class LanguageFeature {
       var linkResult = await _findInWorkspace(
         callback: callback,
         initialDocument: initialDocument,
-        currentDocument: currentDocument,
+        currentDocument: next,
         accumulatedPrefix: prefix,
         hiddenMixinsAndFunctions: hiddenMixinsAndFunctions,
         hiddenVariables: hiddenVariables,

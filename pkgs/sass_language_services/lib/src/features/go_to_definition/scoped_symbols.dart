@@ -5,30 +5,34 @@ import 'scope.dart';
 import 'scope_visitor.dart';
 
 ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
-  if (node.runtimeType is sass.VariableDeclaration) {
+  if (node is sass.VariableDeclaration) {
     return ReferenceKind.variable;
-  } else if (node.runtimeType is sass.Declaration) {
-    var name = (node as sass.Declaration).name;
+  } else if (node is sass.VariableExpression) {
+    return ReferenceKind.variable;
+  } else if (node is sass.Declaration) {
+    var name = node.name;
     var isCustomProperty = name.isPlain && name.asPlain!.startsWith("--");
 
     if (isCustomProperty) {
       return ReferenceKind.customProperty;
     }
-  } else if (node.runtimeType is sass.AtRule) {
-    var name = (node as sass.AtRule).name;
+  } else if (node is sass.AtRule) {
+    var name = node.name;
     var isKeyframe = name.isPlain && name.asPlain!.startsWith('keyframes');
     if (isKeyframe) {
       return ReferenceKind.keyframe;
     }
-  } else if (node.runtimeType is sass.ComplexSelectorComponent) {
+  } else if (node is sass.ComplexSelectorComponent) {
     return ReferenceKind.selector;
-  } else if (node.runtimeType is sass.SimpleSelector) {
+  } else if (node is sass.SimpleSelector) {
     return ReferenceKind.selector;
-  } else if (node.runtimeType is sass.PlaceholderSelector) {
+  } else if (node is sass.PlaceholderSelector) {
     return ReferenceKind.placeholderSelector;
-  } else if (node.runtimeType is sass.MixinRule) {
+  } else if (node is sass.MixinRule) {
     return ReferenceKind.mixin;
-  } else if (node.runtimeType is sass.FunctionExpression) {
+  } else if (node is sass.FunctionExpression) {
+    return ReferenceKind.function;
+  } else if (node is sass.FunctionRule) {
     return ReferenceKind.function;
   }
 
@@ -36,35 +40,40 @@ ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
 }
 
 String? getNodeName(sass.AstNode node) {
-  if (node.runtimeType is sass.VariableDeclaration) {
-    return (node as sass.VariableDeclaration).name;
-  } else if (node.runtimeType is sass.Declaration) {
-    var name = (node as sass.Declaration).name;
+  if (node is sass.VariableDeclaration) {
+    return node.name;
+  } else if (node is sass.VariableExpression) {
+    return node.name;
+  } else if (node is sass.Declaration) {
+    var name = node.name;
     var isCustomProperty = name.isPlain && name.asPlain!.startsWith("--");
     if (isCustomProperty) {
       return node.name.span.text;
     }
-  } else if (node.runtimeType is sass.AtRule) {
-    var name = (node as sass.AtRule).name;
+  } else if (node is sass.AtRule) {
+    var name = node.name;
     var isKeyframe = name.isPlain && name.asPlain!.startsWith('keyframes');
     if (isKeyframe) {
       var keyframesName = node.span.context.split(' ').elementAtOrNull(1);
       return keyframesName;
     }
-  } else if (node.runtimeType is sass.ComplexSelectorComponent) {
+  } else if (node is sass.ComplexSelectorComponent) {
     var rule = node as sass.ComplexSelectorComponent;
     return rule.span.text;
-  } else if (node.runtimeType is sass.SimpleSelector) {
-    var rule = node as sass.SimpleSelector;
+  } else if (node is sass.SimpleSelector) {
+    var rule = node;
     return rule.span.text;
-  } else if (node.runtimeType is sass.PlaceholderSelector) {
-    var placeholder = node as sass.PlaceholderSelector;
+  } else if (node is sass.PlaceholderSelector) {
+    var placeholder = node;
     return placeholder.name;
-  } else if (node.runtimeType is sass.MixinRule) {
-    var mixin = node as sass.MixinRule;
+  } else if (node is sass.MixinRule) {
+    var mixin = node;
     return mixin.name;
-  } else if (node.runtimeType is sass.FunctionExpression) {
-    var function = node as sass.FunctionExpression;
+  } else if (node is sass.FunctionExpression) {
+    var function = node;
+    return function.name;
+  } else if (node is sass.FunctionRule) {
+    var function = node;
     return function.name;
   }
 
