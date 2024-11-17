@@ -102,24 +102,7 @@ abstract class LanguageFeature {
       }
 
       var uri = link.target!;
-      var next = ls.cache.getDocument(uri);
-      if (next == null) {
-        // We shouldn't really end up here outside of unit tests.
-        // The language server's initial scan should have put all
-        // linked documents in the cache already.
-        var text = await ls.fs.readFile(uri);
-        next = TextDocument(
-          uri,
-          uri.path.endsWith('.sass')
-              ? 'sass'
-              : uri.path.endsWith('.css')
-                  ? 'css'
-                  : 'scss',
-          1,
-          text,
-        );
-        ls.parseStylesheet(next);
-      }
+      var next = await getTextDocument(uri);
 
       var prefix = accumulatedPrefix;
       if (link.type == LinkType.forward) {
@@ -162,6 +145,28 @@ abstract class LanguageFeature {
     }
 
     return result;
+  }
+
+  Future<TextDocument> getTextDocument(Uri uri) async {
+    var textDocument = ls.cache.getDocument(uri);
+    if (textDocument == null) {
+      // We shouldn't really end up here outside of unit tests.
+      // The language server's initial scan should have put all
+      // linked documents in the cache already.
+      var text = await ls.fs.readFile(uri);
+      textDocument = TextDocument(
+        uri,
+        uri.path.endsWith('.sass')
+            ? 'sass'
+            : uri.path.endsWith('.css')
+                ? 'css'
+                : 'scss',
+        1,
+        text,
+      );
+      ls.parseStylesheet(textDocument);
+    }
+    return textDocument;
   }
 
   DocumentContext getDocumentContext() {
