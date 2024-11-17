@@ -9,10 +9,9 @@ ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
     return ReferenceKind.variable;
   } else if (node is sass.VariableExpression) {
     return ReferenceKind.variable;
-  } else if (node is sass.Declaration) {
-    var name = node.name;
-    var isCustomProperty = name.isPlain && name.asPlain!.startsWith("--");
-
+  } else if (node is sass.StringExpression) {
+    var isCustomProperty =
+        node.text.isPlain && node.text.asPlain!.startsWith("--");
     if (isCustomProperty) {
       return ReferenceKind.customProperty;
     }
@@ -46,11 +45,11 @@ String? getNodeName(sass.AstNode node) {
     return node.name;
   } else if (node is sass.VariableExpression) {
     return node.name;
-  } else if (node is sass.Declaration) {
-    var name = node.name;
-    var isCustomProperty = name.isPlain && name.asPlain!.startsWith("--");
+  } else if (node is sass.StringExpression) {
+    var isCustomProperty =
+        node.text.isPlain && node.text.asPlain!.startsWith("--");
     if (isCustomProperty) {
-      return node.name.span.text;
+      return node.text.asPlain;
     }
   } else if (node is sass.AtRule) {
     var name = node.name;

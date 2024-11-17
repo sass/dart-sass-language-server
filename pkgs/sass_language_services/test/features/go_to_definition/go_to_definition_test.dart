@@ -264,9 +264,29 @@ nav ul {
     });
   });
 
-  group('css variables', () {
+  group('css', () {
     setUp(() {
       ls.cache.clear();
+    });
+
+    test('custom properties', () async {
+      var document = fs.createDocument(r'''
+:root
+  --color-text: #000
+
+.a
+  color: var(--color-text)
+''', uri: 'styles.sass');
+
+      var result = await ls.goToDefinition(document, at(line: 4, char: 16));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(1));
+      expect(result.range, EndsAtLine(1));
+      expect(result.range, StartsAtCharacter(2));
+      expect(result.range, EndsAtCharacter(14));
+
+      expect(result.uri.toString(), endsWith('styles.sass'));
     });
   });
 

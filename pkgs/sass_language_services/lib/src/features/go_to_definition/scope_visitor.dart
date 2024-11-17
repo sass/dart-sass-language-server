@@ -65,14 +65,20 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     var isCustomProperty =
         node.name.isPlain && node.name.asPlain!.startsWith("--");
     if (isCustomProperty) {
-      _addSymbol(
+      // Add all custom properties to the global scope.
+
+      var range = toRange(node.span);
+      var selectionRange = toRange(node.name.span);
+
+      var symbol = StylesheetDocumentSymbol(
         name: node.name.span.text,
-        kind: ReferenceKind.variable,
-        symbolRange: toRange(node.span),
-        nameRange: toRange(node.name.span),
-        offset: node.span.start.offset,
-        length: node.span.length,
+        referenceKind: ReferenceKind.customProperty,
+        range: range,
+        children: [],
+        selectionRange: selectionRange,
       );
+
+      scope.addSymbol(symbol);
     }
 
     super.visitDeclaration(node);

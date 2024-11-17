@@ -39,12 +39,12 @@ void main() {
       expect(global.findScope(offset: -1), isNull);
 
       expect(global.findScope(offset: 0), equals(global));
-      expect(global.findScope(offset: 20), equals(global));
+      expect(global.findScope(offset: 21), equals(global));
 
       expect(global.findScope(offset: 10), equals(first));
-      expect(global.findScope(offset: 14), equals(first));
-      expect(global.findScope(offset: 15), equals(second));
-      expect(global.findScope(offset: 19), equals(second));
+      expect(global.findScope(offset: 15), equals(first));
+      expect(global.findScope(offset: 16), equals(second));
+      expect(global.findScope(offset: 20), equals(second));
     });
   });
 }
