@@ -285,17 +285,7 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
           var selector = component.selector;
           var name = selector.span.text;
 
-          // The selector span seems to be relative to node, not to the file.
-          var nameRange = lsp.Range(
-            start: lsp.Position(
-              line: node.span.start.line + selector.span.start.line,
-              character: node.span.start.column + selector.span.start.column,
-            ),
-            end: lsp.Position(
-              line: node.span.start.line + selector.span.end.line,
-              character: node.span.start.column + selector.span.end.column,
-            ),
-          );
+          var nameRange = selectorNameRange(node, selector);
 
           // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
           var symbolRange = lsp.Range(

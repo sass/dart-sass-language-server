@@ -404,9 +404,9 @@ class SassData {
         reference:
             Uri.parse("https://sass-lang.com/documentation/modules/math"),
         variables: [
-          SassModuleVariable(r"$e",
+          SassModuleVariable(r"e",
               description: "The value of the mathematical constant **e**."),
-          SassModuleVariable(r"$pi",
+          SassModuleVariable(r"pi",
               description: "The value of the mathematical constant **π**."),
         ],
         functions: [

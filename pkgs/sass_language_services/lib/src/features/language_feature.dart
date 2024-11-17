@@ -95,10 +95,15 @@ abstract class LanguageFeature {
 
     var linksResult = <T>[];
     for (var link in links) {
-      if (link.target == null ||
-          link.target.toString() == currentDocument.uri.toString()) {
+      if (link.target == null) {
         continue;
       }
+
+      var target = link.target.toString();
+      if (target == currentDocument.uri.toString()) continue;
+      if (target.contains('#{')) continue;
+      if (target.endsWith('.css')) continue;
+      if (target.startsWith('sass:')) continue;
 
       var uri = link.target!;
       var next = await getTextDocument(uri);
