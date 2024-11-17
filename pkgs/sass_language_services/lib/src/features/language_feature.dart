@@ -72,8 +72,6 @@ abstract class LanguageFeature {
       return result;
     }
 
-    result ??= [];
-
     visited.add(currentDocument.uri.toString());
 
     var allLinks = await ls.findDocumentLinks(currentDocument);
@@ -92,9 +90,10 @@ abstract class LanguageFeature {
     });
 
     if (links.isEmpty) {
-      return result;
+      return null;
     }
 
+    var linksResult = <T>[];
     for (var link in links) {
       if (link.target == null ||
           link.target.toString() == currentDocument.uri.toString()) {
@@ -140,11 +139,11 @@ abstract class LanguageFeature {
       );
 
       if (linkResult != null) {
-        result.addAll(linkResult);
+        linksResult.addAll(linkResult);
       }
     }
 
-    return result;
+    return linksResult;
   }
 
   Future<TextDocument> getTextDocument(Uri uri) async {

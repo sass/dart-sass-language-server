@@ -171,6 +171,7 @@ class LanguageServer {
             clientCapabilities: _clientCapabilities, fs: fileSystemProvider);
 
         var serverCapabilities = ServerCapabilities(
+          definitionProvider: Either2.t1(true),
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
@@ -233,6 +234,31 @@ class LanguageServer {
           _log.debug('Finished initial scan of workspace');
         } on Exception catch (e) {
           _log.error(e.toString());
+        }
+      });
+
+      _connection.onDefinition((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) return null;
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.definition.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+            var result = await _ls.goToDefinition(document, params.position);
+            if (result is Location) {
+              return Either3.t1(result);
+            } else {
+              return null;
+            }
+          } else {
+            return null;
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return null;
         }
       });
 
