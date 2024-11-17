@@ -1,4 +1,5 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
+import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
@@ -46,10 +47,35 @@ class GoToDefinitionFeature extends LanguageFeature {
       return lsp.Location(uri: document.uri, range: symbol.selectionRange);
     }
 
-    // If not, look for it elsewhere in the workspace.
+    // Start looking from the linked document In case of a namespace
+    // so we don't accidentally match with a symbol of the same kind
+    // and name, but in a different module.
+    String? namespace;
+    if (node is sass.VariableExpression) {
+      namespace = node.namespace;
+    } else if (node is sass.IncludeRule) {
+      namespace = node.namespace;
+    } else if (node is sass.FunctionExpression) {
+      namespace = node.namespace;
+    }
+
+    var initialDocument = document;
+    if (namespace != null) {
+      var links = await ls.findDocumentLinks(document);
+      try {
+        var link = links.firstWhere((l) => l.namespace == namespace);
+        if (link.target case var target?) {
+          initialDocument = await getTextDocument(target);
+        }
+      } on StateError {
+        return null;
+      }
+    }
+
     var definition = await findInWorkspace<lsp.Location>(
       lazy: true,
-      initialDocument: document,
+      initialDocument: initialDocument,
+      depth: initialDocument.uri != document.uri ? 1 : 0,
       callback: ({
         required TextDocument document,
         required String prefix,
@@ -58,18 +84,19 @@ class GoToDefinitionFeature extends LanguageFeature {
         required List<String> shownMixinsAndFunctions,
         required List<String> shownVariables,
       }) async {
-        // Some symbols may change names in `@forward`.
-        var prefixedName = kind == ReferenceKind.function ||
+        // `@forward` may add a prefix to [name],
+        // but we're comparing it to symbols without that prefix.
+        var unprefixedName = kind == ReferenceKind.function ||
                 kind == ReferenceKind.mixin ||
                 kind == ReferenceKind.variable
-            ? '$prefix$name'
+            ? name.replaceFirst(prefix, '')
             : name;
 
         var stylesheet = ls.parseStylesheet(document);
         var symbols = ScopedSymbols(stylesheet,
             document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
         var symbol = symbols.globalScope.getSymbol(
-          name: prefixedName,
+          name: unprefixedName,
           referenceKind: kind,
         );
 

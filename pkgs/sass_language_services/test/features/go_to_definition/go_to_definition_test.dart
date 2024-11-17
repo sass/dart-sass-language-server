@@ -36,15 +36,18 @@ $b: blue
 
     test('global in a different document', () async {
       fs.createDocument(r'$b: #000;', uri: 'colors.scss');
+      fs.createDocument(r'$b: 800;', uri: 'weights.scss');
 
       var document = fs.createDocument(r'''
 @use "colors";
+@use "weights" as w;
 
 .a {
-  color: $b;
+  color: colors.$b;
+  font-weight: w.$b;
 }
 ''');
-      var result = await ls.goToDefinition(document, at(line: 3, char: 10));
+      var result = await ls.goToDefinition(document, at(line: 4, char: 17));
 
       expect(result, isNotNull);
       expect(result!.range, StartsAtLine(0));
@@ -53,6 +56,15 @@ $b: blue
       expect(result.range, EndsAtCharacter(2));
 
       expect(result.uri.toString(), endsWith('colors.scss'));
+
+      result = await ls.goToDefinition(document, at(line: 5, char: 18));
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtCharacter(2));
+
+      expect(result.uri.toString(), endsWith('weights.scss'));
     });
 
     test('scoped in the same document', () async {
@@ -84,10 +96,10 @@ $b: blue
 @use "links";
 
 .a {
-  color: $b;
+  color: links.$b;
 }
 ''');
-      var result = await ls.goToDefinition(document, at(line: 3, char: 10));
+      var result = await ls.goToDefinition(document, at(line: 3, char: 16));
 
       expect(result, isNull);
     });
@@ -150,7 +162,7 @@ nav ul
 @use "list";
 
 nav ul {
-  @include horizontal-list;
+  @include list.horizontal-list;
 }
 ''');
       var result = await ls.goToDefinition(document, at(line: 3, char: 12));
@@ -162,6 +174,45 @@ nav ul {
       expect(result.range, EndsAtCharacter(16));
 
       expect(result.uri.toString(), endsWith('list.sass'));
+    });
+
+    test('behind a prefix', () async {
+      fs.createDocument(r'''
+=reset-list
+  margin: 0
+  padding: 0
+  list-style: none
+
+=horizontal-list
+  +reset-list
+
+  li
+    display: inline-block
+    margin:
+      left: -2px
+      right: 2em
+''', uri: '_list.sass');
+
+      fs.createDocument(r'''
+@forward "list" as list-*
+''', uri: 'shared.sass');
+
+      var document = fs.createDocument(r'''
+@use "shared";
+
+nav ul {
+  @include shared.list-horizontal-list;
+}
+''');
+      var result = await ls.goToDefinition(document, at(line: 3, char: 24));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(5));
+      expect(result.range, EndsAtLine(5));
+      expect(result.range, StartsAtCharacter(1));
+      expect(result.range, EndsAtCharacter(16));
+
+      expect(result.uri.toString(), endsWith('_list.sass'));
     });
   });
 

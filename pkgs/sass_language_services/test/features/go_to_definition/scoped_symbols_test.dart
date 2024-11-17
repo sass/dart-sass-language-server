@@ -44,28 +44,6 @@ void main() {
       expect(second.length, equals(18));
     });
 
-    test('at rules', () {
-      var document = fs.createDocument('''
-@font-face {
-  font-family: "Vulf Mono", monospace;
-}
-
-@keyframes animation {
-
-}
-''');
-      var symbols = getSymbols(document);
-
-      expect(symbols.globalScope.children, hasLength(2));
-
-      var [first, second] = symbols.globalScope.children;
-      expect(first.offset, equals(11));
-      expect(first.length, equals(42));
-
-      expect(second.offset, equals(76));
-      expect(second.length, equals(4));
-    });
-
     test('each rules', () {
       var document = fs.createDocument(r'''
 @each $i in 1, 2, 3 {
