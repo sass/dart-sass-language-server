@@ -220,6 +220,48 @@ nav ul {
     setUp(() {
       ls.cache.clear();
     });
+
+    test('in the same document', () async {
+      var document = fs.createDocument(r'''
+@function multiply($a, $b)
+  @return $a * $b
+
+.a
+  font-size: #{multiply(16, 1)}px
+''', uri: 'styles.sass');
+      var result = await ls.goToDefinition(document, at(line: 4, char: 16));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(10));
+      expect(result.range, EndsAtCharacter(18));
+
+      expect(result.uri.toString(), endsWith('styles.sass'));
+    });
+
+    test('in a different document', () async {
+      fs.createDocument(r'''
+@function multiply($a, $b)
+  @return $a * $b
+''', uri: '_utils.sass');
+
+      var document = fs.createDocument(r'''
+@use "utils"
+
+.a
+  font-size: #{utils.multiply(16, 1)}px
+''', uri: 'styles.sass');
+      var result = await ls.goToDefinition(document, at(line: 3, char: 22));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(10));
+      expect(result.range, EndsAtCharacter(18));
+
+      expect(result.uri.toString(), endsWith('_utils.sass'));
+    });
   });
 
   group('css variables', () {
