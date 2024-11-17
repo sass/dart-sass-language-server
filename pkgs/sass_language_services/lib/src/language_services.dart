@@ -1,6 +1,7 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/find_references/find_references_feature.dart';
 import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
 
 import 'features/document_links/document_links_feature.dart';
@@ -18,7 +19,8 @@ class LanguageServices {
 
   late final DocumentLinksFeature _documentLinks;
   late final DocumentSymbolsFeature _documentSymbols;
-  late final GoToDefinitionFeature _goToDefinitionFeature;
+  late final GoToDefinitionFeature _goToDefinition;
+  late final FindReferencesFeature _findReferences;
   late final WorkspaceSymbolsFeature _workspaceSymbols;
 
   LanguageServices({
@@ -27,7 +29,8 @@ class LanguageServices {
   }) : cache = LanguageServicesCache() {
     _documentLinks = DocumentLinksFeature(ls: this);
     _documentSymbols = DocumentSymbolsFeature(ls: this);
-    _goToDefinitionFeature = GoToDefinitionFeature(ls: this);
+    _goToDefinition = GoToDefinitionFeature(ls: this);
+    _findReferences = FindReferencesFeature(ls: this);
     _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
   }
 
@@ -44,13 +47,18 @@ class LanguageServices {
     return _documentSymbols.findDocumentSymbols(document);
   }
 
+  Future<List<lsp.Location>> findReferences(TextDocument document,
+      lsp.Position position, lsp.ReferenceContext context) {
+    return _findReferences.findReferences(document, position, context);
+  }
+
   List<lsp.WorkspaceSymbol> findWorkspaceSymbols(String? query) {
     return _workspaceSymbols.findWorkspaceSymbols(query);
   }
 
   Future<lsp.Location?> goToDefinition(
       TextDocument document, lsp.Position position) {
-    return _goToDefinitionFeature.goToDefinition(document, position);
+    return _goToDefinition.goToDefinition(document, position);
   }
 
   sass.Stylesheet parseStylesheet(TextDocument document) {

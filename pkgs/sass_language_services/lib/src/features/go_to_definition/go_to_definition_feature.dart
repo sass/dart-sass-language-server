@@ -5,6 +5,7 @@ import 'package:sass_language_services/src/features/go_to_definition/scoped_symb
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
 import '../language_feature.dart';
+import 'definition.dart';
 import 'scope_visitor.dart';
 
 class GoToDefinitionFeature extends LanguageFeature {
@@ -16,6 +17,12 @@ class GoToDefinitionFeature extends LanguageFeature {
   ///   2. The selectionRange (or "nameRange") of the definition.
   ///
   Future<lsp.Location?> goToDefinition(
+      TextDocument document, lsp.Position position) async {
+    var definition = await internalGoToDefinition(document, position);
+    return definition?.location;
+  }
+
+  Future<Definition?> internalGoToDefinition(
       TextDocument document, lsp.Position position) async {
     var stylesheet = ls.parseStylesheet(document);
 
@@ -44,7 +51,11 @@ class GoToDefinitionFeature extends LanguageFeature {
     var symbol = symbols.findSymbolFromNode(node);
     if (symbol != null) {
       // Found the definition in the same document.
-      return lsp.Location(uri: document.uri, range: symbol.selectionRange);
+      return Definition(
+        name,
+        kind,
+        lsp.Location(uri: document.uri, range: symbol.selectionRange),
+      );
     }
 
     // Start looking from the linked document In case of a namespace
@@ -72,7 +83,7 @@ class GoToDefinitionFeature extends LanguageFeature {
       }
     }
 
-    var definition = await findInWorkspace<lsp.Location>(
+    var definition = await findInWorkspace<StylesheetDocumentSymbol>(
       lazy: true,
       initialDocument: initialDocument,
       depth: initialDocument.uri != document.uri ? 1 : 0,
@@ -101,9 +112,7 @@ class GoToDefinitionFeature extends LanguageFeature {
         );
 
         if (symbol != null) {
-          return [
-            lsp.Location(uri: document.uri, range: symbol.selectionRange)
-          ];
+          return [symbol];
         }
 
         return null;
@@ -111,7 +120,12 @@ class GoToDefinitionFeature extends LanguageFeature {
     );
 
     if (definition != null && definition.isNotEmpty) {
-      return definition.first;
+      var symbol = definition.first;
+      return Definition(
+        name,
+        kind,
+        lsp.Location(uri: document.uri, range: symbol.selectionRange),
+      );
     }
 
     // Fall back to "@import-style" lookup on the whole workspace.
@@ -119,11 +133,16 @@ class GoToDefinitionFeature extends LanguageFeature {
       var symbols = ls.findDocumentSymbols(document);
       for (var symbol in symbols) {
         if (symbol.name == name && symbol.referenceKind == kind) {
-          return lsp.Location(uri: document.uri, range: symbol.range);
+          return Definition(
+            name,
+            kind,
+            lsp.Location(uri: document.uri, range: symbol.selectionRange),
+          );
         }
       }
     }
 
-    return null;
+    // Could be a Sass built-in module.
+    return Definition(name, kind, null);
   }
 }

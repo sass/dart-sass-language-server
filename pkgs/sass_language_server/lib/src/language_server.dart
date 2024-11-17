@@ -174,6 +174,7 @@ class LanguageServer {
           definitionProvider: Either2.t1(true),
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
+          referencesProvider: Either2.t1(true),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
           workspaceSymbolProvider: Either2.t1(true),
         );
@@ -312,6 +313,32 @@ class LanguageServer {
 
       _connection.peer
           .registerMethod('textDocument/documentSymbol', onDocumentSymbol);
+
+      _connection.onReferences((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) return [];
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.references.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+
+            var result = await _ls.findReferences(
+              document,
+              params.position,
+              params.context,
+            );
+            return result;
+          } else {
+            return [];
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
+        }
+      });
 
       // TODO: add this handler upstream
       Future<List<WorkspaceSymbol>> onWorkspaceSymbol(dynamic params) async {

@@ -231,17 +231,7 @@ class DocumentSymbolsVisitor with sass.RecursiveStatementVisitor {
           }
 
           if (nameRange == null) {
-            // The selector span seems to be relative to node, not to the file.
-            nameRange = lsp.Range(
-              start: lsp.Position(
-                line: node.span.start.line + selector.span.start.line,
-                character: node.span.start.column + selector.span.start.column,
-              ),
-              end: lsp.Position(
-                line: node.span.start.line + selector.span.end.line,
-                character: node.span.start.column + selector.span.end.column,
-              ),
-            );
+            nameRange = selectorNameRange(node, selector);
 
             // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
             symbolRange = lsp.Range(

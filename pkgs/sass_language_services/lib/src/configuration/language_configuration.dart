@@ -16,6 +16,10 @@ class DocumentLinksConfiguration extends FeatureConfiguration {
   DocumentLinksConfiguration({required super.enabled});
 }
 
+class ReferencesConfiguration extends FeatureConfiguration {
+  ReferencesConfiguration({required super.enabled});
+}
+
 class WorkspaceSymbolsConfiguration extends FeatureConfiguration {
   WorkspaceSymbolsConfiguration({required super.enabled});
 }
@@ -24,6 +28,7 @@ class LanguageConfiguration {
   late final DefinitionConfiguration definition;
   late final DocumentSymbolsConfiguration documentSymbols;
   late final DocumentLinksConfiguration documentLinks;
+  late final ReferencesConfiguration references;
   late final WorkspaceSymbolsConfiguration workspaceSymbols;
 
   LanguageConfiguration.from(dynamic config) {
@@ -33,6 +38,8 @@ class LanguageConfiguration {
         enabled: config?['documentSymbols']?['enabled'] as bool? ?? true);
     documentLinks = DocumentLinksConfiguration(
         enabled: config?['documentLinks']?['enabled'] as bool? ?? true);
+    references = ReferencesConfiguration(
+        enabled: config?['references']?['enabled'] as bool? ?? true);
     workspaceSymbols = WorkspaceSymbolsConfiguration(
         enabled: config?['workspaceSymbols']?['enabled'] as bool? ?? true);
   }
