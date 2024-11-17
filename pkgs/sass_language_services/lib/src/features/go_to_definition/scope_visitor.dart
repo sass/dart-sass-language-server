@@ -203,14 +203,12 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
       var scopeStartIndex =
           node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
 
-      var clauseChildrenLength = clause.children
-          .map<int>((e) => e.span.context.length)
-          .reduce((value, element) => value + element);
-
       var toMatch = dialect == Dialect.indented ? '\n' : '}';
 
-      var scopeEndIndex = node.span.text
-          .indexOf(toMatch, scopeStartIndex + clauseChildrenLength);
+      var lastChildIndex =
+          node.span.text.indexOf(clause.children.last.span.text);
+      var scopeEndIndex = node.span.text.indexOf(
+          toMatch, lastChildIndex + clause.children.last.span.text.length);
 
       previousClause = _addScope(
         offset: node.span.start.offset + scopeStartIndex,

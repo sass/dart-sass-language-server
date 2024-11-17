@@ -1,0 +1,5 @@
+@use 'theme';
+
+.a {
+  @extend %brand;
+}

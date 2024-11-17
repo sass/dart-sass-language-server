@@ -160,6 +160,38 @@ void main() {
       expect(fourth.length, equals(24));
     });
 
+    test('if rule with multiple child nodes', () {
+      var document = fs.createDocument(r'''
+@mixin _single-spacing($spacing-step, $position) {
+    @if $position and list.index($positions, $position) {
+        // Add dash before position to ease interpolation
+        $position: "-#{$position}";
+    }
+
+    @if map.has-key($spacing, $spacing-step) {
+        margin#{$position}: map.get($spacing, $spacing-step);
+    } @else {
+        @error "Could not find \"#{$spacing-step}\" in the list of spacing values";
+    }
+}
+''');
+      var symbols = getSymbols(document);
+
+      expect(symbols.globalScope.children, hasLength(1));
+      expect(symbols.globalScope.children.first.children, hasLength(3));
+
+      var [first, second, third] = symbols.globalScope.children.first.children;
+
+      expect(first.offset, equals(107));
+      expect(first.length, equals(101));
+
+      expect(second.offset, equals(255));
+      expect(second.length, equals(69));
+
+      expect(third.offset, equals(331));
+      expect(third.length, equals(91));
+    });
+
     test('mixin rules', () {
       var document = fs.createDocument('''
 @mixin large-text {
