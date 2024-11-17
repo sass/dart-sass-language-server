@@ -8,6 +8,7 @@ class Scope {
 
   final _symbols = <StylesheetDocumentSymbol>[];
 
+  /// Starting at [offset] and going for [lenght] characters, inclusive.
   Scope({required this.offset, required this.length});
 
   void addChild(Scope scope) {
@@ -32,7 +33,7 @@ class Scope {
     var scopeAtOffset = children.firstWhere(
         (scope) =>
             scope.offset <= offset &&
-            scope.offset + scope.length > offset + length,
+            scope.offset + scope.length >= offset + length,
         orElse: () => this);
 
     if (scopeAtOffset == this) {
