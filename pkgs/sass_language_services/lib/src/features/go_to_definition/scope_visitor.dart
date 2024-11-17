@@ -313,7 +313,9 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
           _addSymbol(
             name: name,
-            kind: ReferenceKind.selector,
+            kind: name.startsWith('%')
+                ? ReferenceKind.placeholderSelector
+                : ReferenceKind.selector,
             symbolRange: symbolRange,
             nameRange: nameRange,
             offset: node.span.start.offset,

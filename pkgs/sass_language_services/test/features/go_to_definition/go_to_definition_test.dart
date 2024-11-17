@@ -294,11 +294,101 @@ nav ul {
     setUp(() {
       ls.cache.clear();
     });
+
+    test('same document', () async {
+      var document = fs.createDocument(r'''
+.theme {
+  color: purple;
+}
+
+.body {
+  @extend .theme;
+}
+''', uri: 'styles.scss');
+
+      var result = await ls.goToDefinition(document, at(line: 5, char: 12));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, EndsAtCharacter(6));
+    });
+
+    test('different document', () async {
+      fs.createDocument(r'''
+.theme
+  color: purple
+''', uri: 'theme.sass');
+
+      var document = fs.createDocument(r'''
+@use "theme";
+
+.body {
+  @extend .theme;
+}
+''');
+
+      var result = await ls.goToDefinition(document, at(line: 3, char: 12));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, EndsAtCharacter(6));
+
+      expect(result.uri.toString(), endsWith('theme.sass'));
+    });
   });
 
   group('@extended placeholder selector', () {
     setUp(() {
       ls.cache.clear();
+    });
+
+    test('same document', () async {
+      var document = fs.createDocument(r'''
+%theme {
+  color: purple;
+}
+
+.body {
+  @extend %theme;
+}
+''', uri: 'styles.scss');
+
+      var result = await ls.goToDefinition(document, at(line: 5, char: 12));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, EndsAtCharacter(6));
+    });
+
+    test('different document', () async {
+      fs.createDocument(r'''
+%theme
+  color: purple
+''', uri: '_theme.sass');
+
+      var document = fs.createDocument(r'''
+@use "theme";
+
+.body {
+  @extend %theme;
+}
+''');
+
+      var result = await ls.goToDefinition(document, at(line: 3, char: 12));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, EndsAtCharacter(6));
+
+      expect(result.uri.toString(), endsWith('_theme.sass'));
     });
   });
 }

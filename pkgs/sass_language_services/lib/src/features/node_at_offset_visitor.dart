@@ -146,17 +146,6 @@ class NodeAtOffsetVisitor
   }
 
   @override
-  sass.AstNode? visitInterpolatedFunctionExpression(
-      sass.InterpolatedFunctionExpression node) {
-    return super.visitInterpolatedFunctionExpression(node) ?? _process(node);
-  }
-
-  @override
-  sass.AstNode? visitInterpolation(sass.Interpolation interpolation) {
-    return super.visitInterpolation(interpolation) ?? _process(interpolation);
-  }
-
-  @override
   sass.AstNode? visitListExpression(sass.ListExpression node) {
     return super.visitListExpression(node) ?? _process(node);
   }

@@ -35,6 +35,13 @@ ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
     return ReferenceKind.function;
   } else if (node is sass.FunctionRule) {
     return ReferenceKind.function;
+  } else if (node is sass.ExtendRule) {
+    var selector = node.selector.asPlain;
+    if (selector != null) {
+      return selector.startsWith('%')
+          ? ReferenceKind.placeholderSelector
+          : ReferenceKind.selector;
+    }
   }
 
   return null;
@@ -68,17 +75,15 @@ String? getNodeName(sass.AstNode node) {
     var placeholder = node;
     return placeholder.name;
   } else if (node is sass.MixinRule) {
-    var mixin = node;
-    return mixin.name;
+    return node.name;
   } else if (node is sass.IncludeRule) {
-    var mixin = node;
-    return mixin.name;
+    return node.name;
   } else if (node is sass.FunctionExpression) {
-    var function = node;
-    return function.name;
+    return node.name;
   } else if (node is sass.FunctionRule) {
-    var function = node;
-    return function.name;
+    return node.name;
+  } else if (node is sass.ExtendRule) {
+    return node.selector.asPlain;
   }
 
   return null;
