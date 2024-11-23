@@ -224,14 +224,14 @@
             "order": 60,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable folding ranges."
           },
           "sass.scss.highlights.enabled": {
             "order": 70,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable highlights."
           },
           "sass.scss.hover.enabled": {
@@ -245,7 +245,7 @@
             "order": 81,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Show property and value documentation in CSS hovers."
           },
           "sass.scss.hover.references": {
@@ -280,7 +280,7 @@
             "order": 120,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable selection ranges."
           },
           "sass.scss.signatureHelp.enabled": {
@@ -471,21 +471,21 @@
             "order": 10,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable all code actions."
           },
           "sass.css.colors.enabled": {
             "order": 20,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable all color decorators."
           },
           "sass.css.completion.enabled": {
             "order": 30,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable all completions (IntelliSense)."
           },
           "sass.css.completion.triggerPropertyValueCompletion": {
@@ -506,14 +506,14 @@
             "order": 40,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable Go to Definition."
           },
           "sass.css.diagnostics.enabled": {
             "order": 50,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable all diagnostics."
           },
           "sass.css.documentSymbols.enabled": {
@@ -527,21 +527,21 @@
             "order": 60,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable folding ranges."
           },
           "sass.css.highlights.enabled": {
             "order": 70,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable highlights."
           },
           "sass.css.hover.enabled": {
             "order": 80,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable all hover information."
           },
           "sass.css.hover.documentation": {
@@ -562,42 +562,42 @@
             "order": 90,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable the link provider that lets you click an import and open the file."
           },
           "sass.css.references.enabled": {
             "order": 100,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable Find all references."
           },
           "sass.css.rename.enabled": {
             "order": 110,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable Rename."
           },
           "sass.css.selectionRanges.enabled": {
             "order": 120,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable selection ranges."
           },
           "sass.css.signatureHelp.enabled": {
             "order": 130,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable signature help."
           },
           "sass.css.workspaceSymbols.enabled": {
             "order": 140,
             "type": "boolean",
             "scope": "resource",
-            "default": false,
+            "default": true,
             "description": "Enable or disable workspace symbols."
           }
         }
