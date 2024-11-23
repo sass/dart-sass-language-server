@@ -54,10 +54,10 @@ class FindReferencesFeature extends GoToDefinitionFeature {
 
     var name = builtin ?? definition.name;
 
-    var candidates = <Reference>[];
+    var documents = ls.cache.getDocuments();
     // Go through all documents with a visitor.
     // For each document, collect candidates that match the definition name.
-    for (var document in ls.cache.getDocuments()) {
+    for (var document in documents) {
       var stylesheet = ls.parseStylesheet(document);
       var visitor = FindReferencesVisitor(
         document,
@@ -65,12 +65,12 @@ class FindReferencesFeature extends GoToDefinitionFeature {
         includeDeclaration: context.includeDeclaration,
       );
       stylesheet.accept(visitor);
-      candidates.addAll(visitor.candidates);
 
       // Go through all candidates and add matches to references.
       // A match is a candidate with the same name, referenceKind,
       // and whose definition is the same as the definition of the
       // symbol at [position].
+      var candidates = visitor.candidates;
       for (var candidate in candidates) {
         if (builtin case var name?) {
           if (name.contains(candidate.name)) {
@@ -105,7 +105,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
           // the two definitions are the same, we have a reference.
           var candidateDefinition = await internalGoToDefinition(
             document,
-            position,
+            candidate.location.range.start,
           );
 
           if (candidateDefinition != null &&
@@ -117,6 +117,8 @@ class FindReferencesFeature extends GoToDefinitionFeature {
               references.add(candidate);
               continue;
             }
+          } else {
+            continue;
           }
         }
       }
