@@ -42,8 +42,8 @@ void main() {
       expect(global.findScope(offset: 21), equals(global));
 
       expect(global.findScope(offset: 10), equals(first));
-      expect(global.findScope(offset: 15), equals(first));
-      expect(global.findScope(offset: 16), equals(second));
+      expect(global.findScope(offset: 14), equals(first));
+      expect(global.findScope(offset: 15), equals(second));
       expect(global.findScope(offset: 20), equals(second));
     });
   });

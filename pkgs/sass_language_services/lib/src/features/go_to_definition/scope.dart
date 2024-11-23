@@ -21,26 +21,59 @@ class Scope {
   }
 
   Scope? findScope({required int offset, int length = 0}) {
-    if ((this.offset <= offset &&
+    var scopeContainsOffset = (this.offset <= offset &&
             this.offset + this.length > offset + length) ||
-        (this.offset == offset && this.length == length)) {
+        (this.offset == offset && this.length == length);
+
+    if (scopeContainsOffset) {
       return findInScope(offset: offset, length: length);
     }
+
     return null;
   }
 
-  Scope findInScope({required int offset, int length = 0}) {
-    var scopeAtOffset = children.firstWhere(
-        (scope) =>
-            scope.offset <= offset &&
-            scope.offset + scope.length >= offset + length,
-        orElse: () => this);
+  /// Assumes a sorted [list], where [matcher] would return false
+  /// for all elements before it returns true. This lets us do a bisect
+  /// to quickly find the first element, as opposed to a linear firstWhere.
+  int _first<T>(List<T> list, bool Function(T item) matcher) {
+    if (list.isEmpty) {
+      return 0;
+    }
 
-    if (scopeAtOffset == this) {
+    var low = 0;
+    var high = list.length;
+
+    while (low < high) {
+      var half = ((low + high) / 2).floor();
+      if (matcher(list[half])) {
+        high = half;
+      } else {
+        low = half + 1;
+      }
+    }
+
+    return low;
+  }
+
+  Scope findInScope({required int offset, int length = 0}) {
+    var end = offset + length;
+    var scopeIndex = _first(
+      children,
+      (scope) => scope.offset > end,
+    );
+
+    if (scopeIndex == 0) {
       return this;
     }
 
-    return scopeAtOffset.findInScope(offset: offset, length: length);
+    var candidate = children.elementAt(scopeIndex - 1);
+    var containsOffset = candidate.offset <= offset &&
+        candidate.offset + candidate.length >= offset + length;
+    if (containsOffset) {
+      return candidate.findInScope(offset: offset, length: length);
+    }
+
+    return this;
   }
 
   void addSymbol(StylesheetDocumentSymbol symbol) {
