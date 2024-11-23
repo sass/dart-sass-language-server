@@ -51,3 +51,14 @@ bool isInRange({required lsp.Position position, required lsp.Range range}) {
       range.end.line >= position.line &&
       range.end.character >= position.character;
 }
+
+bool isSameLocation(lsp.Location a, lsp.Location b) {
+  return a.uri.toString() == b.uri.toString() && isSameRange(a.range, b.range);
+}
+
+bool isSameRange(lsp.Range a, lsp.Range b) {
+  return a.start.line == b.start.line &&
+      a.start.character == b.start.character &&
+      a.end.line == b.end.line &&
+      a.end.character == b.end.character;
+}

@@ -4,6 +4,7 @@ import 'package:sass_language_services/src/features/find_references/find_referen
 import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
 
 import '../../sass/sass_data.dart';
+import '../../utils/sass_lsp_utils.dart';
 import '../go_to_definition/definition.dart';
 import 'reference.dart';
 
@@ -89,7 +90,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
             continue;
           }
 
-          var candidateIsDefinition = _isSameLocation(
+          var candidateIsDefinition = isSameLocation(
             candidate.location,
             definition.location!,
           );
@@ -109,7 +110,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
 
           if (candidateDefinition != null &&
               candidateDefinition.location != null) {
-            if (_isSameLocation(
+            if (isSameLocation(
               candidateDefinition.location!,
               definition.location!,
             )) {
@@ -124,13 +125,5 @@ class FindReferencesFeature extends GoToDefinitionFeature {
     }
 
     return (definition: definition, references: references);
-  }
-
-  bool _isSameLocation(lsp.Location a, lsp.Location b) {
-    return a.uri.toString() == b.uri.toString() &&
-        a.range.start.line == b.range.start.line &&
-        a.range.start.character == b.range.start.character &&
-        a.range.end.line == b.range.end.line &&
-        a.range.end.character == b.range.end.character;
   }
 }
