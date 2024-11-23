@@ -41,28 +41,9 @@ class FindReferencesVisitor
     super.visitExtendRule(node);
   }
 
-  lsp.Range _getForwardVisibilityRange(sass.ForwardRule node, String name) {
-    var nameIndex = node.span.text.indexOf(
-      name,
-      node.span.start.offset - node.urlSpan.end.offset,
-    );
-
-    var selectionRange = lsp.Range(
-      start: lsp.Position(
-        line: node.span.start.line,
-        character: node.span.start.column + nameIndex,
-      ),
-      end: lsp.Position(
-        line: node.span.start.line,
-        character: node.span.start.column + nameIndex + name.length,
-      ),
-    );
-    return selectionRange;
-  }
-
   @override
   void visitForwardRule(sass.ForwardRule node) {
-    // TODO: would be nice to have span information for forward visibility from sass_api.
+    // TODO: would be nice to have span information for forward visibility from sass_api. Even nicer if we could tell at this point wheter something is a mixin or a function.
 
     if (node.hiddenMixinsAndFunctions case var hiddenMixinsAndFunctions?) {
       for (var name in hiddenMixinsAndFunctions) {
@@ -70,7 +51,7 @@ class FindReferencesVisitor
           continue;
         }
 
-        var selectionRange = _getForwardVisibilityRange(node, name);
+        var selectionRange = forwardVisibilityRange(node, name);
         var location = lsp.Location(range: selectionRange, uri: _document.uri);
 
         // We can't tell if this is a mixin or a function, so add a candidate for both.
@@ -97,7 +78,7 @@ class FindReferencesVisitor
           continue;
         }
 
-        var selectionRange = _getForwardVisibilityRange(node, name);
+        var selectionRange = forwardVisibilityRange(node, '\$$name');
         var location = lsp.Location(range: selectionRange, uri: _document.uri);
 
         candidates.add(
@@ -116,7 +97,7 @@ class FindReferencesVisitor
           continue;
         }
 
-        var selectionRange = _getForwardVisibilityRange(node, name);
+        var selectionRange = forwardVisibilityRange(node, name);
         var location = lsp.Location(range: selectionRange, uri: _document.uri);
 
         // We can't tell if this is a mixin or a function, so add a candidate for both.
@@ -143,7 +124,7 @@ class FindReferencesVisitor
           continue;
         }
 
-        var selectionRange = _getForwardVisibilityRange(node, name);
+        var selectionRange = forwardVisibilityRange(node, '\$$name');
         var location = lsp.Location(range: selectionRange, uri: _document.uri);
 
         candidates.add(
@@ -163,6 +144,7 @@ class FindReferencesVisitor
   void visitFunctionExpression(sass.FunctionExpression node) {
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitFunctionExpression(node);
       return;
     }
     var location = lsp.Location(
@@ -182,10 +164,12 @@ class FindReferencesVisitor
   @override
   void visitFunctionRule(sass.FunctionRule node) {
     if (!_includeDeclaration) {
+      super.visitFunctionRule(node);
       return;
     }
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitFunctionRule(node);
       return;
     }
     var location = lsp.Location(
@@ -206,6 +190,7 @@ class FindReferencesVisitor
   void visitIncludeRule(sass.IncludeRule node) {
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitIncludeRule(node);
       return;
     }
     var location = lsp.Location(
@@ -225,10 +210,12 @@ class FindReferencesVisitor
   @override
   void visitMixinRule(sass.MixinRule node) {
     if (!_includeDeclaration) {
+      super.visitMixinRule(node);
       return;
     }
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitMixinRule(node);
       return;
     }
     var location = lsp.Location(
@@ -248,6 +235,7 @@ class FindReferencesVisitor
   @override
   void visitStyleRule(sass.StyleRule node) {
     if (!_includeDeclaration) {
+      super.visitStyleRule(node);
       return;
     }
 
@@ -289,10 +277,12 @@ class FindReferencesVisitor
   @override
   void visitVariableDeclaration(sass.VariableDeclaration node) {
     if (!_includeDeclaration) {
+      super.visitVariableDeclaration(node);
       return;
     }
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitVariableDeclaration(node);
       return;
     }
     var location = lsp.Location(
@@ -313,6 +303,7 @@ class FindReferencesVisitor
   void visitVariableExpression(sass.VariableExpression node) {
     var name = node.name;
     if (!name.contains(_name)) {
+      super.visitVariableExpression(node);
       return;
     }
     var location = lsp.Location(

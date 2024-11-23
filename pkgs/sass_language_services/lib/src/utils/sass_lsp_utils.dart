@@ -25,3 +25,29 @@ lsp.Range selectorNameRange(
     ),
   );
 }
+
+lsp.Range forwardVisibilityRange(sass.ForwardRule node, String name) {
+  var nameIndex = node.span.text.indexOf(
+    name,
+    node.span.start.offset + node.urlSpan.end.offset,
+  );
+
+  var selectionRange = lsp.Range(
+    start: lsp.Position(
+      line: node.span.start.line,
+      character: node.span.start.column + nameIndex,
+    ),
+    end: lsp.Position(
+      line: node.span.start.line,
+      character: node.span.start.column + nameIndex + name.length,
+    ),
+  );
+  return selectionRange;
+}
+
+bool isInRange({required lsp.Position position, required lsp.Range range}) {
+  return range.start.line <= position.line &&
+      range.start.character <= position.character &&
+      range.end.line >= position.line &&
+      range.end.character >= position.character;
+}

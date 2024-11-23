@@ -1,9 +1,11 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/find_references/reference.dart';
 import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
+import '../../utils/sass_lsp_utils.dart';
 import '../language_feature.dart';
 import 'definition.dart';
 import 'scope_visitor.dart';
@@ -34,28 +36,49 @@ class GoToDefinitionFeature extends LanguageFeature {
       return null;
     }
 
-    // Get the node's ReferenceKind and name so we can compare it to other symbols.
-    var kind = getNodeReferenceKind(node);
-    if (kind == null) {
-      return null;
-    }
-    var name = getNodeName(node);
-    if (name == null) {
-      return null;
+    // The visibility configuration needs special handling.
+    // We don't always know if something refers to a function or mixin, so
+    // we check for both kinds. Only relevant for the workspace traversal though.
+    String? name;
+    var kinds = <ReferenceKind>[];
+    if (node is sass.ForwardRule) {
+      var result = _getForwardVisibilityCandidates(node, position);
+      if (result != null) {
+        (name, kinds) = result;
+      }
+    } else {
+      // Get the node's ReferenceKind and name so we can compare it to other symbols.
+      var kind = getNodeReferenceKind(node);
+      if (kind == null) {
+        return null;
+      }
+      kinds = [kind];
+
+      name = getNodeName(node);
+      if (name == null) {
+        return null;
+      }
+
+      // Look for the symbol in the current document.
+      // It may be a scoped symbol.
+      var symbols = ScopedSymbols(stylesheet,
+          document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+      var symbol = symbols.findSymbolFromNode(node);
+      if (symbol != null) {
+        // Found the definition in the same document.
+        return Definition(
+          name,
+          kind,
+          lsp.Location(uri: document.uri, range: symbol.selectionRange),
+        );
+      }
     }
 
-    // Look for the symbol in the current document.
-    // It may be a scoped symbol.
-    var symbols = ScopedSymbols(stylesheet,
-        document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
-    var symbol = symbols.findSymbolFromNode(node);
-    if (symbol != null) {
-      // Found the definition in the same document.
-      return Definition(
-        name,
-        kind,
-        lsp.Location(uri: document.uri, range: symbol.selectionRange),
-      );
+    if (kinds.isEmpty) {
+      return null;
+    }
+    if (name == null) {
+      return null;
     }
 
     // Start looking from the linked document In case of a namespace
@@ -96,31 +119,32 @@ class GoToDefinitionFeature extends LanguageFeature {
         required List<String> shownMixinsAndFunctions,
         required List<String> shownVariables,
       }) async {
-        // `@forward` may add a prefix to [name],
-        // but we're comparing it to symbols without that prefix.
-        var unprefixedName = kind == ReferenceKind.function ||
-                kind == ReferenceKind.mixin ||
-                kind == ReferenceKind.variable
-            ? name.replaceFirst(prefix, '')
-            : name;
+        for (var kind in kinds) {
+          // `@forward` may add a prefix to [name],
+          // but we're comparing it to symbols without that prefix.
+          var unprefixedName = kind == ReferenceKind.function ||
+                  kind == ReferenceKind.mixin ||
+                  kind == ReferenceKind.variable
+              ? name!.replaceFirst(prefix, '')
+              : name!;
 
-        var stylesheet = ls.parseStylesheet(document);
-        var symbols = ScopedSymbols(stylesheet,
-            document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
-        var symbol = symbols.globalScope.getSymbol(
-          name: unprefixedName,
-          referenceKind: kind,
-        );
+          var stylesheet = ls.parseStylesheet(document);
+          var symbols = ScopedSymbols(stylesheet,
+              document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+          var symbol = symbols.globalScope.getSymbol(
+            name: unprefixedName,
+            referenceKind: kind,
+          );
 
-        if (symbol != null) {
-          return [
-            (
-              symbol,
-              lsp.Location(uri: document.uri, range: symbol.selectionRange)
-            )
-          ];
+          if (symbol != null) {
+            return [
+              (
+                symbol,
+                lsp.Location(uri: document.uri, range: symbol.selectionRange)
+              )
+            ];
+          }
         }
-
         return null;
       },
     );
@@ -139,17 +163,59 @@ class GoToDefinitionFeature extends LanguageFeature {
     for (var document in ls.cache.getDocuments()) {
       var symbols = ls.findDocumentSymbols(document);
       for (var symbol in symbols) {
-        if (symbol.name == name && symbol.referenceKind == kind) {
-          return Definition(
-            name,
-            kind,
-            lsp.Location(uri: document.uri, range: symbol.selectionRange),
-          );
+        for (var kind in kinds) {
+          if (symbol.name == name && symbol.referenceKind == kind) {
+            return Definition(
+              name,
+              kind,
+              lsp.Location(uri: document.uri, range: symbol.selectionRange),
+            );
+          }
         }
       }
     }
 
     // Could be a Sass built-in module.
-    return Definition(name, kind, null);
+    return Definition(name, kinds.first, null);
+  }
+
+  (String, List<ReferenceKind>)? _getForwardVisibilityCandidates(
+      sass.ForwardRule node, lsp.Position position) {
+    if (node.hiddenMixinsAndFunctions case var hiddenMixinsAndFunctions?) {
+      for (var name in hiddenMixinsAndFunctions) {
+        var selectionRange = forwardVisibilityRange(node, name);
+        if (isInRange(position: position, range: selectionRange)) {
+          return (name, [ReferenceKind.function, ReferenceKind.mixin]);
+        }
+      }
+    }
+
+    if (node.hiddenVariables case var hiddenVariables?) {
+      for (var name in hiddenVariables) {
+        var selectionRange = forwardVisibilityRange(node, '\$$name');
+        if (isInRange(position: position, range: selectionRange)) {
+          return (name, [ReferenceKind.variable]);
+        }
+      }
+    }
+
+    if (node.shownMixinsAndFunctions case var shownMixinsAndFunctions?) {
+      for (var name in shownMixinsAndFunctions) {
+        var selectionRange = forwardVisibilityRange(node, name);
+        if (isInRange(position: position, range: selectionRange)) {
+          return (name, [ReferenceKind.function, ReferenceKind.mixin]);
+        }
+      }
+    }
+
+    if (node.shownVariables case var shownVariables?) {
+      for (var name in shownVariables) {
+        var selectionRange = forwardVisibilityRange(node, '\$$name');
+        if (isInRange(position: position, range: selectionRange)) {
+          return (name, [ReferenceKind.variable]);
+        }
+      }
+    }
+    return null;
   }
 }

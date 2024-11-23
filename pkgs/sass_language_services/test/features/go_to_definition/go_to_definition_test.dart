@@ -103,6 +103,24 @@ $b: blue
 
       expect(result, isNull);
     });
+
+    test('forward visibility', () async {
+      fs.createDocument(r'''
+$day: "monday";
+''', uri: 'ki.scss');
+      var dev = fs.createDocument(r'''
+@forward "ki" as ki-* show $day;
+''', uri: 'dev.scss');
+
+      var result = await ls.goToDefinition(dev, at(line: 0, char: 28));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(0));
+      expect(result.range, EndsAtCharacter(4));
+      expect(result.uri.toString(), endsWith('ki.scss'));
+    });
   });
 
   group('mixins', () {
@@ -212,6 +230,37 @@ nav ul {
       expect(result.range, StartsAtCharacter(1));
       expect(result.range, EndsAtCharacter(16));
 
+      expect(result.uri.toString(), endsWith('_list.sass'));
+    });
+
+    test('forward visibility', () async {
+      fs.createDocument(r'''
+=reset-list
+  margin: 0
+  padding: 0
+  list-style: none
+
+=horizontal-list
+  +reset-list
+
+  li
+    display: inline-block
+    margin:
+      left: -2px
+      right: 2em
+''', uri: '_list.sass');
+
+      var document = fs.createDocument(r'''
+@forward "list" as list-* hide reset-list
+''', uri: 'shared.sass');
+
+      var result = await ls.goToDefinition(document, at(line: 0, char: 32));
+
+      expect(result, isNotNull);
+      expect(result!.range, StartsAtLine(0));
+      expect(result.range, EndsAtLine(0));
+      expect(result.range, StartsAtCharacter(1));
+      expect(result.range, EndsAtCharacter(11));
       expect(result.uri.toString(), endsWith('_list.sass'));
     });
   });
