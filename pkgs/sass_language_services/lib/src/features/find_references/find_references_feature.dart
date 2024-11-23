@@ -63,6 +63,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
         document,
         name,
         includeDeclaration: context.includeDeclaration,
+        isBuiltin: builtin != null,
       );
       stylesheet.accept(visitor);
 

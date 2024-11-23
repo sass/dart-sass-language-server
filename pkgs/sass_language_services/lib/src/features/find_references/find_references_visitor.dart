@@ -12,10 +12,12 @@ class FindReferencesVisitor
   final TextDocument _document;
   final String _name;
   final bool _includeDeclaration;
+  final bool _isBuiltin;
 
   FindReferencesVisitor(this._document, this._name,
-      {bool includeDeclaration = false})
-      : _includeDeclaration = includeDeclaration;
+      {bool includeDeclaration = false, bool isBuiltin = false})
+      : _includeDeclaration = includeDeclaration,
+        _isBuiltin = isBuiltin;
 
   @override
   void visitDeclaration(sass.Declaration node) {
@@ -189,7 +191,12 @@ class FindReferencesVisitor
       }
     } else {
       var name = node.name;
-      if (!name.contains(_name)) {
+
+      // We don't have any good way to avoid name
+      // collisions with CSS functions, so only include
+      // builtins when used from a namespace.
+      var unsafeBuiltin = _isBuiltin && node.namespace == null;
+      if (!name.contains(_name) || unsafeBuiltin) {
         super.visitFunctionExpression(node);
         return;
       }

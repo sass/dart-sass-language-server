@@ -506,23 +506,42 @@ $map: (
     });
   });
 
-  group('sass mixins', () {
-    setUp(() {
-      ls.cache.clear();
-    });
-
-    test('finds placeholder selectors', () async {
-      // TODO: test with declaration and @extend usage.
-    });
-  });
-
   group('placeholder selectors', () {
     setUp(() {
       ls.cache.clear();
     });
 
     test('finds placeholder selectors', () async {
-      // TODO: test with declaration and @extend usage.
+      fs.createDocument(r'''
+%theme {
+  color: var(--color-text);
+}
+''', uri: '_place.scss');
+      var document = fs.createDocument(r'''
+@use "place";
+
+.a {
+  @extend %theme;
+}
+''', uri: 'styles.scss');
+
+      var result =
+          await ls.findReferences(document, at(line: 3, char: 12), context);
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('styles.scss'));
+      expect(first.range, StartsAtLine(3));
+      expect(first.range, EndsAtLine(3));
+      expect(first.range, StartsAtCharacter(10));
+      expect(first.range, EndsAtCharacter(16));
+
+      expect(second.uri.toString(), endsWith('_place.scss'));
+
+      expect(second.range, StartsAtLine(0));
+      expect(second.range, EndsAtLine(0));
+      expect(second.range, StartsAtCharacter(0));
+      expect(second.range, EndsAtCharacter(6));
     });
   });
 
@@ -532,7 +551,32 @@ $map: (
     });
 
     test('finds sass built-in modules', () async {
-      // TODO
+      var particle = fs.createDocument(r'''
+@use "sass:color";
+
+$_color: color.scale($color: "#1b1917", $alpha: -75%);
+
+.a {
+  color: $_color;
+  transform: scale(1.1); // Does not confuse color.scale for the transform function
+}
+''', uri: 'particle.scss');
+      var wave = fs.createDocument(r'''
+@use "sass:color";
+
+$_other: color.scale($color: "#1b1917", $alpha: -75%);
+''', uri: 'wave.scss');
+
+      // Emulate the language server's initial scan.
+      // Needed since the stylesheets don't all have eachother in their
+      // module tree, but they all reference the same variable.
+      ls.parseStylesheet(particle);
+      ls.parseStylesheet(wave);
+
+      var result =
+          await ls.findReferences(wave, at(line: 2, char: 16), context);
+
+      expect(result, hasLength(2));
     });
   });
 }
