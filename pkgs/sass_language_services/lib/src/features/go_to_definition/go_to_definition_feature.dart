@@ -179,7 +179,6 @@ class GoToDefinitionFeature extends LanguageFeature {
       }
     }
 
-    // Could be a Sass built-in module.
     return Definition(name, kinds.first, null);
   }
 
