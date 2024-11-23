@@ -174,5 +174,93 @@ $day: "monday";
       expect(fourth.range, StartsAtCharacter(14));
       expect(fourth.range, EndsAtCharacter(18));
     });
+
+    test('finds variables in maps', () async {
+      // TODO
+    });
+  });
+
+  group('CSS variables', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds references in the same document', () async {
+      // TODO
+    });
+
+    test('finds references across workspace', () async {
+      // TODO
+    });
+  });
+
+  group('sass functions', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds references in the same document', () async {
+      // TODO
+    });
+
+    test('finds references across workspace', () async {
+      // TODO
+    });
+
+    test('finds references in visibility modifier', () async {
+      // TODO
+    });
+
+    test('finds references in visibility map', () async {
+      // TODO
+    });
+  });
+
+  group('sass mixins', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds references in the same document', () async {
+      // TODO
+    });
+
+    test('finds references across workspace', () async {
+      // TODO
+    });
+
+    test('finds references in visibility modifier', () async {
+      // TODO
+    });
+  });
+
+  group('sass mixins', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds placeholder selectors', () async {
+      // TODO: test with declaration and @extend usage.
+    });
+  });
+
+  group('placeholder selectors', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds placeholder selectors', () async {
+      // TODO: test with declaration and @extend usage.
+    });
+  });
+
+  group('sass built-in modules', () {
+    setUp(() {
+      ls.cache.clear();
+    });
+
+    test('finds sass built-in modules', () async {
+      // TODO
+    });
   });
 }
