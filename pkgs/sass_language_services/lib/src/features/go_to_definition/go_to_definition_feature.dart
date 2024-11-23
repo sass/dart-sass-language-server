@@ -83,7 +83,8 @@ class GoToDefinitionFeature extends LanguageFeature {
       }
     }
 
-    var definition = await findInWorkspace<StylesheetDocumentSymbol>(
+    var definition =
+        await findInWorkspace<(StylesheetDocumentSymbol, lsp.Location)>(
       lazy: true,
       initialDocument: initialDocument,
       depth: initialDocument.uri != document.uri ? 1 : 0,
@@ -112,7 +113,12 @@ class GoToDefinitionFeature extends LanguageFeature {
         );
 
         if (symbol != null) {
-          return [symbol];
+          return [
+            (
+              symbol,
+              lsp.Location(uri: document.uri, range: symbol.selectionRange)
+            )
+          ];
         }
 
         return null;
@@ -120,11 +126,12 @@ class GoToDefinitionFeature extends LanguageFeature {
     );
 
     if (definition != null && definition.isNotEmpty) {
-      var symbol = definition.first;
+      var symbol = definition.first.$1;
+      var location = definition.first.$2;
       return Definition(
-        name,
-        kind,
-        lsp.Location(uri: document.uri, range: symbol.selectionRange),
+        symbol.name,
+        symbol.referenceKind,
+        location,
       );
     }
 
