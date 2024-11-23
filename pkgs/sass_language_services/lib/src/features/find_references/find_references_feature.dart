@@ -93,9 +93,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
             definition.location!,
           );
 
-          if (!context.includeDeclaration && candidateIsDefinition) {
-            continue;
-          } else if (candidateIsDefinition) {
+          if (candidateIsDefinition) {
             references.add(candidate);
             continue;
           }
