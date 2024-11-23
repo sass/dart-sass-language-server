@@ -18,6 +18,31 @@ class FindReferencesVisitor
       : _includeDeclaration = includeDeclaration;
 
   @override
+  void visitDeclaration(sass.Declaration node) {
+    var isCustomPropertyDeclaration =
+        node.name.isPlain && node.name.asPlain!.startsWith('--');
+
+    if (isCustomPropertyDeclaration && _includeDeclaration) {
+      var name = node.name.asPlain!;
+      if (!name.contains(_name)) {
+        return;
+      }
+      var location = lsp.Location(
+        range: toRange(node.name.span),
+        uri: _document.uri,
+      );
+      candidates.add(
+        Reference(
+          name: name,
+          location: location,
+          kind: ReferenceKind.customProperty,
+        ),
+      );
+    }
+    super.visitDeclaration(node);
+  }
+
+  @override
   void visitExtendRule(sass.ExtendRule node) {
     var isPlaceholderSelector =
         node.selector.isPlain && node.selector.asPlain!.startsWith('%');
@@ -142,22 +167,45 @@ class FindReferencesVisitor
 
   @override
   void visitFunctionExpression(sass.FunctionExpression node) {
-    var name = node.name;
-    if (!name.contains(_name)) {
-      super.visitFunctionExpression(node);
-      return;
+    var isCustomProperty =
+        node.name == 'var' && node.arguments.positional.isNotEmpty;
+    if (isCustomProperty) {
+      var expression = node.arguments.positional.first;
+      if (expression is sass.StringExpression &&
+          !expression.hasQuotes &&
+          expression.text.isPlain) {
+        var name = expression.text.asPlain!;
+        var location = lsp.Location(
+          range: toRange(expression.text.span),
+          uri: _document.uri,
+        );
+        candidates.add(
+          Reference(
+            name: name,
+            location: location,
+            kind: ReferenceKind.customProperty,
+          ),
+        );
+      }
+    } else {
+      var name = node.name;
+      if (!name.contains(_name)) {
+        super.visitFunctionExpression(node);
+        return;
+      }
+      var location = lsp.Location(
+        range: toRange(node.nameSpan),
+        uri: _document.uri,
+      );
+      candidates.add(
+        Reference(
+          name: name,
+          location: location,
+          kind: ReferenceKind.function,
+        ),
+      );
     }
-    var location = lsp.Location(
-      range: toRange(node.nameSpan),
-      uri: _document.uri,
-    );
-    candidates.add(
-      Reference(
-        name: name,
-        location: location,
-        kind: ReferenceKind.function,
-      ),
-    );
+
     super.visitFunctionExpression(node);
   }
 
@@ -231,6 +279,9 @@ class FindReferencesVisitor
     );
     super.visitMixinRule(node);
   }
+
+  @override
+  void visitStringExpression(sass.StringExpression node) {}
 
   @override
   void visitStyleRule(sass.StyleRule node) {

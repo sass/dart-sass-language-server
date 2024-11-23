@@ -160,16 +160,21 @@ class GoToDefinitionFeature extends LanguageFeature {
 
     // Fall back to "@import-style" lookup on the whole workspace.
     for (var document in ls.cache.getDocuments()) {
-      var symbols = ls.findDocumentSymbols(document);
-      for (var symbol in symbols) {
-        for (var kind in kinds) {
-          if (symbol.name == name && symbol.referenceKind == kind) {
-            return Definition(
-              name,
-              kind,
-              lsp.Location(uri: document.uri, range: symbol.selectionRange),
-            );
-          }
+      var stylesheet = ls.parseStylesheet(document);
+      var symbols = ScopedSymbols(stylesheet,
+          document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+
+      for (var kind in kinds) {
+        var symbol = symbols.globalScope.getSymbol(
+          name: name,
+          referenceKind: kind,
+        );
+        if (symbol != null) {
+          return Definition(
+            name,
+            kind,
+            lsp.Location(uri: document.uri, range: symbol.selectionRange),
+          );
         }
       }
     }

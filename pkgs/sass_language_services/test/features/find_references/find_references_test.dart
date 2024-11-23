@@ -17,6 +17,29 @@ void main() {
       ls.cache.clear();
     });
 
+    test('finds global variable references', () async {
+      var document = fs.createDocument(r'''
+$b: blue
+.a
+  color: $b
+''', uri: 'styles.sass');
+      var result =
+          await ls.findReferences(document, at(line: 2, char: 10), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(0));
+      expect(first.range, EndsAtCharacter(2));
+
+      expect(second.range, StartsAtLine(2));
+      expect(second.range, EndsAtLine(2));
+      expect(second.range, StartsAtCharacter(9));
+      expect(second.range, EndsAtCharacter(11));
+    });
+
     test('finds variable references in scope', () async {
       var document = fs.createDocument(r'''
 .a
@@ -175,8 +198,30 @@ $day: "monday";
       expect(fourth.range, EndsAtCharacter(18));
     });
 
-    test('finds variables in maps', () async {
-      // TODO
+    test('finds references in maps', () async {
+      var document = fs.createDocument(r'''
+$message: "Hello, World!";
+
+$map: (
+  "var": $message,
+);
+''');
+
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 1), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(0));
+      expect(first.range, EndsAtCharacter(8));
+
+      expect(second.range, StartsAtLine(3));
+      expect(second.range, EndsAtLine(3));
+      expect(second.range, StartsAtCharacter(9));
+      expect(second.range, EndsAtCharacter(17));
     });
   });
 
@@ -186,11 +231,70 @@ $day: "monday";
     });
 
     test('finds references in the same document', () async {
-      // TODO
+      var document = fs.createDocument(r'''
+:root {
+  --color-text: #000;
+}
+
+body {
+  color: var(--color-text);
+}
+''', uri: 'styles.css');
+
+      var result =
+          await ls.findReferences(document, at(line: 1, char: 5), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.range, StartsAtLine(1));
+      expect(first.range, EndsAtLine(1));
+      expect(first.range, StartsAtCharacter(2));
+      expect(first.range, EndsAtCharacter(14));
+
+      expect(second.range, StartsAtLine(5));
+      expect(second.range, EndsAtLine(5));
+      expect(second.range, StartsAtCharacter(13));
+      expect(second.range, EndsAtCharacter(25));
     });
 
     test('finds references across workspace', () async {
-      // TODO
+      var root = fs.createDocument(r'''
+:root {
+  --color-text: #000;
+}
+''', uri: 'root.css');
+      var styles = fs.createDocument(r'''
+body {
+  color: var(--color-text);
+}
+''', uri: 'styles.css');
+
+      // Emulate the language server's initial scan.
+      // Needed since the stylesheets don't all have eachother in their
+      // module tree, but they all reference the same variable.
+      ls.parseStylesheet(root);
+      ls.parseStylesheet(styles);
+
+      var result =
+          await ls.findReferences(styles, at(line: 1, char: 16), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('root.css'));
+      expect(first.range, StartsAtLine(1));
+      expect(first.range, EndsAtLine(1));
+      expect(first.range, StartsAtCharacter(2));
+      expect(first.range, EndsAtCharacter(14));
+
+      expect(second.uri.toString(), endsWith('styles.css'));
+      expect(second.range, StartsAtLine(1));
+      expect(second.range, EndsAtLine(1));
+      expect(second.range, StartsAtCharacter(13));
+      expect(second.range, EndsAtCharacter(25));
     });
   });
 
@@ -199,20 +303,116 @@ $day: "monday";
       ls.cache.clear();
     });
 
-    test('finds references in the same document', () async {
-      // TODO
+    test('finds global references', () async {
+      var document = fs.createDocument(r'''
+@function hello()
+  @return "world"
+
+.a::after
+  content: hello()
+''', uri: 'styles.sass');
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 11), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(10));
+      expect(first.range, EndsAtCharacter(15));
+
+      expect(second.range, StartsAtLine(4));
+      expect(second.range, EndsAtLine(4));
+      expect(second.range, StartsAtCharacter(11));
+      expect(second.range, EndsAtCharacter(16));
     });
 
     test('finds references across workspace', () async {
-      // TODO
+      fs.createDocument(r'''
+@function hello()
+  @return "world"
+''', uri: 'shared.sass');
+      var document = fs.createDocument(r'''
+@use "shared"
+
+.a::after
+  content: shared.hello()
+''', uri: 'styles.sass');
+      var result =
+          await ls.findReferences(document, at(line: 3, char: 19), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('styles.sass'));
+      expect(first.range, StartsAtLine(3));
+      expect(first.range, EndsAtLine(3));
+      expect(first.range, StartsAtCharacter(18));
+      expect(first.range, EndsAtCharacter(23));
+
+      expect(second.uri.toString(), endsWith('shared.sass'));
+      expect(second.range, StartsAtLine(0));
+      expect(second.range, EndsAtLine(0));
+      expect(second.range, StartsAtCharacter(10));
+      expect(second.range, EndsAtCharacter(15));
     });
 
     test('finds references in visibility modifier', () async {
-      // TODO
+      fs.createDocument(r'''
+@function hello()
+  @return "world"
+''', uri: 'shared.sass');
+      var document = fs.createDocument(r'''
+@forward "shared" hide hello;
+''', uri: 'styles.scss');
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 24), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('styles.scss'));
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(23));
+      expect(first.range, EndsAtCharacter(28));
+
+      expect(second.uri.toString(), endsWith('shared.sass'));
+      expect(second.range, StartsAtLine(0));
+      expect(second.range, EndsAtLine(0));
+      expect(second.range, StartsAtCharacter(10));
+      expect(second.range, EndsAtCharacter(15));
     });
 
-    test('finds references in visibility map', () async {
-      // TODO
+    test('finds references in maps', () async {
+      var document = fs.createDocument(r'''
+@function hello() {
+  @return "world";
+}
+
+$map: (
+  "fun": hello(),
+);
+''');
+
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 11), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(10));
+      expect(first.range, EndsAtCharacter(15));
+
+      expect(second.range, StartsAtLine(5));
+      expect(second.range, EndsAtLine(5));
+      expect(second.range, StartsAtCharacter(9));
+      expect(second.range, EndsAtCharacter(14));
     });
   });
 
