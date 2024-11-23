@@ -29,14 +29,22 @@ class DocumentHighlightsFeature extends LanguageFeature {
     }
     var kind = getNodeReferenceKind(node);
 
-    var symbols = ScopedSymbols(
-      stylesheet,
-      document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-    );
+    var symbols = ls.cache.getDocumentSymbols(document) ??
+        ScopedSymbols(
+          stylesheet,
+          document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
+        );
+    ls.cache.setDocumentSymbols(document, symbols);
+
     var symbol = symbols.findSymbolFromNode(node);
 
     var result = <lsp.DocumentHighlight>[];
-    var references = FindReferencesVisitor(document, name);
+    var references = FindReferencesVisitor(
+      document,
+      name,
+      includeDeclaration: true,
+    );
+
     for (var reference in references.candidates) {
       if (symbol != null) {
         if (symbol.referenceKind == reference.kind &&
