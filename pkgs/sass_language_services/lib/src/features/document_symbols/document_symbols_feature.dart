@@ -7,17 +7,10 @@ class DocumentSymbolsFeature extends LanguageFeature {
   DocumentSymbolsFeature({required super.ls});
 
   List<StylesheetDocumentSymbol> findDocumentSymbols(TextDocument document) {
-    final cached = ls.cache.getDocumentSymbols(document);
-    if (cached != null) {
-      return cached;
-    }
-
     var stylesheet = ls.parseStylesheet(document);
 
     var symbolsVisitor = DocumentSymbolsVisitor();
     stylesheet.accept(symbolsVisitor);
-
-    ls.cache.setDocumentSymbols(document, symbolsVisitor.symbols);
 
     return symbolsVisitor.symbols;
   }

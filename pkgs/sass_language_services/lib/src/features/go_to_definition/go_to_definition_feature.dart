@@ -60,8 +60,12 @@ class GoToDefinitionFeature extends LanguageFeature {
 
       // Look for the symbol in the current document.
       // It may be a scoped symbol.
-      var symbols = ScopedSymbols(stylesheet,
-          document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+      var symbols = ls.cache.getDocumentSymbols(document) ??
+          ScopedSymbols(
+            stylesheet,
+            document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
+          );
+      ls.cache.setDocumentSymbols(document, symbols);
       var symbol = symbols.findSymbolFromNode(node);
       if (symbol != null) {
         // Found the definition in the same document.
@@ -128,8 +132,14 @@ class GoToDefinitionFeature extends LanguageFeature {
               : name!;
 
           var stylesheet = ls.parseStylesheet(document);
-          var symbols = ScopedSymbols(stylesheet,
-              document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+
+          var symbols = ls.cache.getDocumentSymbols(document) ??
+              ScopedSymbols(
+                stylesheet,
+                document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
+              );
+          ls.cache.setDocumentSymbols(document, symbols);
+
           var symbol = symbols.globalScope.getSymbol(
             name: unprefixedName,
             referenceKind: kind,

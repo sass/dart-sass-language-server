@@ -11,13 +11,14 @@ ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
     return ReferenceKind.variable;
   } else if (node is sass.Declaration) {
     var isCustomProperty =
-        node.name.isPlain && node.name.asPlain!.startsWith("--");
+        node.name.isPlain && node.name.asPlain!.startsWith('--');
     if (isCustomProperty) {
       return ReferenceKind.customProperty;
     }
   } else if (node is sass.StringExpression) {
-    var isCustomProperty =
-        node.text.isPlain && node.text.asPlain!.startsWith("--");
+    var isCustomProperty = node.text.isPlain &&
+        (node.text.asPlain!.startsWith('--') ||
+            node.text.asPlain!.startsWith('var(--'));
     if (isCustomProperty) {
       return ReferenceKind.customProperty;
     }
@@ -60,15 +61,21 @@ String? getNodeName(sass.AstNode node) {
     return node.name;
   } else if (node is sass.Declaration) {
     var isCustomProperty =
-        node.name.isPlain && node.name.asPlain!.startsWith("--");
+        node.name.isPlain && node.name.asPlain!.startsWith('--');
     if (isCustomProperty) {
       return node.name.asPlain;
     }
   } else if (node is sass.StringExpression) {
-    var isCustomProperty =
-        node.text.isPlain && node.text.asPlain!.startsWith("--");
+    var isCustomProperty = node.text.isPlain &&
+        (node.text.asPlain!.startsWith('--') ||
+            node.text.asPlain!.startsWith('var(--'));
     if (isCustomProperty) {
-      return node.text.asPlain;
+      var name = node.text.asPlain!;
+      if (name.startsWith('var(')) {
+        name = name.replaceAll('var(', '');
+        name = name.replaceAll(')', '');
+      }
+      return name;
     }
   } else if (node is sass.AtRule) {
     var name = node.name;

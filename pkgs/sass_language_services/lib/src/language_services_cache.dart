@@ -1,11 +1,12 @@
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 
 class CacheEntry {
   TextDocument document;
   sass.Stylesheet stylesheet;
   List<StylesheetDocumentLink>? links;
-  List<StylesheetDocumentSymbol>? symbols;
+  ScopedSymbols? symbols;
 
   CacheEntry({
     required this.document,
@@ -53,7 +54,7 @@ class LanguageServicesCache {
     return _cache[document.uri.toString()]?.links;
   }
 
-  List<StylesheetDocumentSymbol>? getDocumentSymbols(TextDocument document) {
+  ScopedSymbols? getDocumentSymbols(TextDocument document) {
     return _cache[document.uri.toString()]?.symbols;
   }
 
@@ -62,8 +63,7 @@ class LanguageServicesCache {
     _cache[document.uri.toString()]?.links = links;
   }
 
-  void setDocumentSymbols(
-      TextDocument document, List<StylesheetDocumentSymbol> symbols) {
+  void setDocumentSymbols(TextDocument document, ScopedSymbols symbols) {
     _cache[document.uri.toString()]?.symbols = symbols;
   }
 
