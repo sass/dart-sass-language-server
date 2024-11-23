@@ -421,16 +421,88 @@ $map: (
       ls.cache.clear();
     });
 
-    test('finds references in the same document', () async {
-      // TODO
+    test('finds global references', () async {
+      var document = fs.createDocument(r'''
+@mixin hello()
+  content: 'hello'
+
+.a::after
+  @include hello
+''', uri: 'styles.sass');
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 8), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(7));
+      expect(first.range, EndsAtCharacter(12));
+
+      expect(second.range, StartsAtLine(4));
+      expect(second.range, EndsAtLine(4));
+      expect(second.range, StartsAtCharacter(11));
+      expect(second.range, EndsAtCharacter(16));
     });
 
     test('finds references across workspace', () async {
-      // TODO
+      fs.createDocument(r'''
+@mixin hello()
+  content: 'hello'
+''', uri: 'shared.sass');
+      var document = fs.createDocument(r'''
+@use "shared"
+
+.a::after
+  @include shared.hello()
+''', uri: 'styles.sass');
+      var result =
+          await ls.findReferences(document, at(line: 3, char: 19), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('styles.sass'));
+      expect(first.range, StartsAtLine(3));
+      expect(first.range, EndsAtLine(3));
+      expect(first.range, StartsAtCharacter(18));
+      expect(first.range, EndsAtCharacter(23));
+
+      expect(second.uri.toString(), endsWith('shared.sass'));
+      expect(second.range, StartsAtLine(0));
+      expect(second.range, EndsAtLine(0));
+      expect(second.range, StartsAtCharacter(7));
+      expect(second.range, EndsAtCharacter(12));
     });
 
     test('finds references in visibility modifier', () async {
-      // TODO
+      fs.createDocument(r'''
+@mixin hello()
+  content: 'hello'
+''', uri: 'shared.sass');
+      var document = fs.createDocument(r'''
+@forward "shared" hide hello;
+''', uri: 'styles.scss');
+      var result =
+          await ls.findReferences(document, at(line: 0, char: 24), context);
+
+      expect(result, hasLength(2));
+
+      var [first, second] = result;
+
+      expect(first.uri.toString(), endsWith('styles.scss'));
+      expect(first.range, StartsAtLine(0));
+      expect(first.range, EndsAtLine(0));
+      expect(first.range, StartsAtCharacter(23));
+      expect(first.range, EndsAtCharacter(28));
+
+      expect(second.uri.toString(), endsWith('shared.sass'));
+      expect(second.range, StartsAtLine(0));
+      expect(second.range, EndsAtLine(0));
+      expect(second.range, StartsAtCharacter(7));
+      expect(second.range, EndsAtCharacter(12));
     });
   });
 
