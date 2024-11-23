@@ -4,43 +4,26 @@ class FeatureConfiguration {
   FeatureConfiguration({required this.enabled});
 }
 
-class DefinitionConfiguration extends FeatureConfiguration {
-  DefinitionConfiguration({required super.enabled});
-}
-
-class DocumentSymbolsConfiguration extends FeatureConfiguration {
-  DocumentSymbolsConfiguration({required super.enabled});
-}
-
-class DocumentLinksConfiguration extends FeatureConfiguration {
-  DocumentLinksConfiguration({required super.enabled});
-}
-
-class ReferencesConfiguration extends FeatureConfiguration {
-  ReferencesConfiguration({required super.enabled});
-}
-
-class WorkspaceSymbolsConfiguration extends FeatureConfiguration {
-  WorkspaceSymbolsConfiguration({required super.enabled});
-}
-
 class LanguageConfiguration {
-  late final DefinitionConfiguration definition;
-  late final DocumentSymbolsConfiguration documentSymbols;
-  late final DocumentLinksConfiguration documentLinks;
-  late final ReferencesConfiguration references;
-  late final WorkspaceSymbolsConfiguration workspaceSymbols;
+  late final FeatureConfiguration definition;
+  late final FeatureConfiguration highlights;
+  late final FeatureConfiguration documentSymbols;
+  late final FeatureConfiguration documentLinks;
+  late final FeatureConfiguration references;
+  late final FeatureConfiguration workspaceSymbols;
 
   LanguageConfiguration.from(dynamic config) {
-    definition = DefinitionConfiguration(
+    definition = FeatureConfiguration(
         enabled: config?['definition']?['enabled'] as bool? ?? true);
-    documentSymbols = DocumentSymbolsConfiguration(
+    documentSymbols = FeatureConfiguration(
         enabled: config?['documentSymbols']?['enabled'] as bool? ?? true);
-    documentLinks = DocumentLinksConfiguration(
+    documentLinks = FeatureConfiguration(
         enabled: config?['documentLinks']?['enabled'] as bool? ?? true);
-    references = ReferencesConfiguration(
+    highlights = FeatureConfiguration(
+        enabled: config?['highlights']?['enabled'] as bool? ?? true);
+    references = FeatureConfiguration(
         enabled: config?['references']?['enabled'] as bool? ?? true);
-    workspaceSymbols = WorkspaceSymbolsConfiguration(
+    workspaceSymbols = FeatureConfiguration(
         enabled: config?['workspaceSymbols']?['enabled'] as bool? ?? true);
   }
 }

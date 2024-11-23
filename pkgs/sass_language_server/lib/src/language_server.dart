@@ -174,6 +174,7 @@ class LanguageServer {
 
         var serverCapabilities = ServerCapabilities(
           definitionProvider: Either2.t1(true),
+          documentHighlightProvider: Either2.t1(true),
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
           referencesProvider: Either2.t1(true),
@@ -262,6 +263,28 @@ class LanguageServer {
         } on Exception catch (e) {
           _log.debug(e.toString());
           return null;
+        }
+      });
+
+      _connection.onDocumentHighlight((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) return [];
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.highlights.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+
+            var result = _ls.findDocumentHighlights(document, params.position);
+            return result;
+          } else {
+            return [];
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
         }
       });
 
