@@ -15,10 +15,10 @@ class DocumentHighlightsFeature extends LanguageFeature {
   List<lsp.DocumentHighlight> findDocumentHighlights(
       TextDocument document, lsp.Position position) {
     var stylesheet = ls.parseStylesheet(document);
+
     // Find the node whose definition we're looking for.
     var offset = document.offsetAt(position);
-    var visitor = NodeAtOffsetVisitor(offset);
-    var node = stylesheet.accept(visitor);
+    var node = getNodeAtOffset(stylesheet, offset);
     if (node == null || node is sass.Stylesheet) {
       return [];
     }
