@@ -119,7 +119,7 @@ class ScopedSymbols {
   }
 
   StylesheetDocumentSymbol? findSymbolFromNode(sass.AstNode node) {
-    if (node.runtimeType is sass.Interpolation) {
+    if (node is sass.Interpolation) {
       return null;
     }
 
