@@ -12,34 +12,35 @@ lsp.Range toRange(FileSpan span) {
 }
 
 lsp.Range selectorNameRange(
-    sass.StyleRule node, sass.CompoundSelector selector) {
+    {required FileSpan node, required FileSpan selector}) {
   // The selector span seems to be relative to node, not to the file.
   return lsp.Range(
     start: lsp.Position(
-      line: node.span.start.line + selector.span.start.line,
-      character: node.span.start.column + selector.span.start.column,
+      line: node.start.line + selector.start.line,
+      character: node.start.column + selector.start.column,
     ),
     end: lsp.Position(
-      line: node.span.start.line + selector.span.end.line,
-      character: node.span.start.column + selector.span.end.column,
+      line: node.start.line + selector.end.line,
+      character: node.start.column + selector.end.column,
     ),
   );
 }
 
 lsp.Range forwardVisibilityRange(sass.ForwardRule node, String name) {
-  var nameIndex = node.span.text.indexOf(
+  var span = node.span;
+  var nameIndex = span.text.indexOf(
     name,
-    node.span.start.offset + node.urlSpan.end.offset,
+    span.start.offset + node.urlSpan.end.offset,
   );
 
   var selectionRange = lsp.Range(
     start: lsp.Position(
-      line: node.span.start.line,
-      character: node.span.start.column + nameIndex,
+      line: span.start.line,
+      character: span.start.column + nameIndex,
     ),
     end: lsp.Position(
-      line: node.span.start.line,
-      character: node.span.start.column + nameIndex + name.length,
+      line: span.start.line,
+      character: span.start.column + nameIndex + name.length,
     ),
   );
   return selectionRange;

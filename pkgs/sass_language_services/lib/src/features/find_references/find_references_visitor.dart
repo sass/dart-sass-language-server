@@ -308,13 +308,16 @@ class FindReferencesVisitor
           }
 
           var component = complexSelector.components.first;
-          var selector = component.selector;
-          var name = selector.span.text;
+          var selectorSpan = component.selector.span;
+          var name = selectorSpan.text;
           if (!name.contains(_name)) {
             continue;
           }
 
-          var nameRange = selectorNameRange(node, selector);
+          var nameRange = selectorNameRange(
+            node: node.span,
+            selector: selectorSpan,
+          );
 
           candidates.add(
             Reference(

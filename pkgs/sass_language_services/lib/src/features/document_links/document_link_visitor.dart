@@ -97,17 +97,16 @@ class DocumentLinkVisitor with sass.RecursiveStatementVisitor {
         }
 
         const isSassLink = false;
+        var urlSpan = staticImport.url.span;
         unresolvedLinks.add((
           StylesheetDocumentLink(
             type: LinkType.import,
             target: target,
             range: lsp.Range(
               end: lsp.Position(
-                  line: staticImport.url.span.end.line,
-                  character: staticImport.url.span.end.column),
+                  line: urlSpan.end.line, character: urlSpan.end.column),
               start: lsp.Position(
-                  line: staticImport.url.span.start.line,
-                  character: staticImport.url.span.start.column),
+                  line: urlSpan.start.line, character: urlSpan.start.column),
             ),
           ),
           isSassLink

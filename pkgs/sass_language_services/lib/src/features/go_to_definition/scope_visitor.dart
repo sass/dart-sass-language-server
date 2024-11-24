@@ -67,11 +67,12 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     if (isCustomProperty) {
       // Add all custom properties to the global scope.
 
+      var nameSpan = node.name.span;
       var range = toRange(node.span);
-      var selectionRange = toRange(node.name.span);
+      var selectionRange = toRange(nameSpan);
 
       var symbol = StylesheetDocumentSymbol(
-        name: node.name.span.text,
+        name: nameSpan.text,
         referenceKind: ReferenceKind.customProperty,
         range: range,
         children: [],
@@ -86,24 +87,26 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitEachRule(sass.EachRule node) {
-    var lengthSubtract = node.list.span.end.offset - node.span.start.offset;
+    var span = node.span;
+    var listSpan = node.list.span;
+    var lengthSubtract = listSpan.end.offset - span.start.offset;
     var scope = _addScope(
-      offset: node.list.span.end.offset,
-      length: node.span.length - lengthSubtract,
+      offset: listSpan.end.offset,
+      length: span.length - lengthSubtract,
     );
 
     if (scope != null) {
       for (var variable in node.variables) {
-        var variableIndex = node.span.text.indexOf(variable);
+        var variableIndex = span.text.indexOf(variable);
 
-        var range = toRange(node.span);
+        var range = toRange(span);
         var selectionRange = lsp.Range(
           start: lsp.Position(
-              line: node.span.start.line,
-              character: node.span.start.column + variableIndex),
+              line: span.start.line,
+              character: span.start.column + variableIndex),
           end: lsp.Position(
-            line: node.span.start.line,
-            character: node.span.start.column + variable.length,
+            line: span.start.line,
+            character: span.start.column + variable.length,
           ),
         );
 
@@ -123,24 +126,25 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitForRule(sass.ForRule node) {
-    var toEndIndex = node.to.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, toEndIndex);
+    var span = node.span;
+    var toEndIndex = node.to.span.end.offset - span.start.offset;
+    var scopeIndex = span.text.indexOf(openBracketOrNewline, toEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset + scopeIndex,
-      length: node.span.length - scopeIndex,
+      offset: span.start.offset + scopeIndex,
+      length: span.length - scopeIndex,
     );
 
     if (scope != null) {
-      var variableIndex = node.span.text.indexOf(node.variable);
+      var variableIndex = span.text.indexOf(node.variable);
 
-      var range = toRange(node.span);
+      var range = toRange(span);
       var selectionRange = lsp.Range(
         start: lsp.Position(
-            line: node.span.start.line,
-            character: node.span.start.column + variableIndex),
+            line: span.start.line,
+            character: span.start.column + variableIndex),
         end: lsp.Position(
-          line: node.span.start.line,
-          character: node.span.start.column + node.variable.length,
+          line: span.start.line,
+          character: span.start.column + node.variable.length,
         ),
       );
 
@@ -159,20 +163,21 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitFunctionRule(node) {
+    var span = node.span;
     _addSymbol(
       name: node.name,
       kind: ReferenceKind.function,
-      symbolRange: toRange(node.span),
+      symbolRange: toRange(span),
       nameRange: toRange(node.nameSpan),
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: span.start.offset,
+      length: span.length,
     );
 
-    var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
+    var argsEndIndex = node.arguments.span.end.offset - span.start.offset;
+    var scopeIndex = span.text.indexOf(openBracketOrNewline, argsEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset + scopeIndex,
-      length: node.span.length - scopeIndex,
+      offset: span.start.offset + scopeIndex,
+      length: span.length - scopeIndex,
     );
 
     if (scope != null) {
@@ -196,37 +201,40 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   @override
   void visitIfRule(sass.IfRule node) {
     // TODO: would be nice to have the spans for clauses from sass_api.
+    var span = node.span;
     Scope? previousClause;
     for (var clause in node.clauses) {
-      var argsEndIndex =
-          clause.expression.span.end.offset - node.span.start.offset;
+      var argsEndIndex = clause.expression.span.end.offset - span.start.offset;
       var scopeStartIndex =
-          node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
+          span.text.indexOf(openBracketOrNewline, argsEndIndex);
 
       var toMatch = dialect == Dialect.indented ? '\n' : '}';
 
-      var lastChildIndex =
-          node.span.text.indexOf(clause.children.last.span.text);
-      var scopeEndIndex = node.span.text.indexOf(
-          toMatch, lastChildIndex + clause.children.last.span.text.length);
+      var lastChildSpan = clause.children.last.span;
+      var lastChildIndex = span.text.indexOf(lastChildSpan.text);
+      var scopeEndIndex = span.text.indexOf(
+        toMatch,
+        lastChildIndex + lastChildSpan.text.length,
+      );
 
       previousClause = _addScope(
-        offset: node.span.start.offset + scopeStartIndex,
+        offset: span.start.offset + scopeStartIndex,
         length: scopeEndIndex - scopeStartIndex + 1,
       );
     }
 
     if (previousClause != null && node.lastClause != null) {
-      var scopeIndex = node.span.text.indexOf(
-          openBracketOrNewline,
-          previousClause.offset -
-              node.span.start.offset +
-              previousClause.length +
-              "@else".length);
+      var scopeIndex = span.text.indexOf(
+        openBracketOrNewline,
+        previousClause.offset -
+            span.start.offset +
+            previousClause.length +
+            "@else".length,
+      );
 
       _addScope(
-        offset: node.span.start.offset + scopeIndex,
-        length: node.span.length - scopeIndex,
+        offset: span.start.offset + scopeIndex,
+        length: span.length - scopeIndex,
       );
     }
 
@@ -235,20 +243,21 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitMixinRule(node) {
+    var span = node.span;
     _addSymbol(
       name: node.name,
       kind: ReferenceKind.mixin,
-      symbolRange: toRange(node.span),
+      symbolRange: toRange(span),
       nameRange: toRange(node.nameSpan),
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: span.start.offset,
+      length: span.length,
     );
 
-    var argsEndIndex = node.arguments.span.end.offset - node.span.start.offset;
-    var scopeIndex = node.span.text.indexOf(openBracketOrNewline, argsEndIndex);
+    var argsEndIndex = node.arguments.span.end.offset - span.start.offset;
+    var scopeIndex = span.text.indexOf(openBracketOrNewline, argsEndIndex);
     var scope = _addScope(
-      offset: node.span.start.offset + scopeIndex,
-      length: node.span.length - scopeIndex,
+      offset: span.start.offset + scopeIndex,
+      length: span.length - scopeIndex,
     );
 
     if (scope != null) {
@@ -274,6 +283,8 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     if (node.selector.isPlain) {
       try {
         var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
+
+        var span = node.span;
         for (var complexSelector in selectorList.components) {
           // we only want selectors that can be used in @extend
           if (complexSelector.components.isEmpty ||
@@ -283,9 +294,10 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
           var component = complexSelector.components.first;
 
           var selector = component.selector;
-          var name = selector.span.text;
+          var selectorSpan = selector.span;
+          var name = selectorSpan.text;
 
-          var nameRange = selectorNameRange(node, selector);
+          var nameRange = selectorNameRange(node: span, selector: selectorSpan);
 
           // symbolRange: start position of selector's nameRange, end of stylerule (node.span.end).
           var symbolRange = lsp.Range(
@@ -294,8 +306,8 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
               character: nameRange.start.character,
             ),
             end: lsp.Position(
-              line: node.span.end.line,
-              character: node.span.end.column,
+              line: span.end.line,
+              character: span.end.column,
             ),
           );
 
@@ -306,14 +318,15 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
                 : ReferenceKind.selector,
             symbolRange: symbolRange,
             nameRange: nameRange,
-            offset: node.span.start.offset,
-            length: node.span.length,
+            offset: span.start.offset,
+            length: span.length,
           );
         }
 
+        var selectorsLength = node.selector.span.length;
         _addScope(
-          offset: node.span.start.offset + node.selector.span.length,
-          length: node.span.length - node.selector.span.length,
+          offset: span.start.offset + selectorsLength,
+          length: span.length - selectorsLength,
         );
       } on sass.SassFormatException catch (_) {
         // Do nothing.
@@ -325,10 +338,11 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitVariableDeclaration(node) {
+    var span = node.span;
     _addSymbol(
       name: node.name,
       kind: ReferenceKind.variable,
-      symbolRange: toRange(node.span),
+      symbolRange: toRange(span),
       nameRange: lsp.Range(
         start: lsp.Position(
           line: node.nameSpan.start.line,
@@ -340,8 +354,8 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
           character: node.nameSpan.end.column,
         ),
       ),
-      offset: node.span.start.offset,
-      length: node.span.length,
+      offset: span.start.offset,
+      length: span.length,
     );
 
     super.visitVariableDeclaration(node);
@@ -349,14 +363,13 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
 
   @override
   void visitWhileRule(sass.WhileRule node) {
-    var conditionEndIndex =
-        node.condition.span.end.offset - node.span.start.offset;
-    var scopeIndex =
-        node.span.text.indexOf(openBracketOrNewline, conditionEndIndex);
+    var span = node.span;
+    var conditionEndIndex = node.condition.span.end.offset - span.start.offset;
+    var scopeIndex = span.text.indexOf(openBracketOrNewline, conditionEndIndex);
 
     _addScope(
-      offset: node.span.start.offset + scopeIndex,
-      length: node.span.length - scopeIndex,
+      offset: span.start.offset + scopeIndex,
+      length: span.length - scopeIndex,
     );
 
     super.visitWhileRule(node);
