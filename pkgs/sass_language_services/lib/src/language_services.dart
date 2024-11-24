@@ -4,6 +4,7 @@ import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/features/document_highlights/document_highlights_feature.dart';
 import 'package:sass_language_services/src/features/find_references/find_references_feature.dart';
 import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
+import 'package:sass_language_services/src/features/rename/rename_feature.dart';
 
 import 'features/document_links/document_links_feature.dart';
 import 'features/document_symbols/document_symbols_feature.dart';
@@ -23,6 +24,7 @@ class LanguageServices {
   late final DocumentSymbolsFeature _documentSymbols;
   late final GoToDefinitionFeature _goToDefinition;
   late final FindReferencesFeature _findReferences;
+  late final RenameFeature _rename;
   late final WorkspaceSymbolsFeature _workspaceSymbols;
 
   LanguageServices({
@@ -34,6 +36,7 @@ class LanguageServices {
     _documentSymbols = DocumentSymbolsFeature(ls: this);
     _goToDefinition = GoToDefinitionFeature(ls: this);
     _findReferences = FindReferencesFeature(ls: this);
+    _rename = RenameFeature(ls: this);
     _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
   }
 
@@ -71,5 +74,15 @@ class LanguageServices {
 
   sass.Stylesheet parseStylesheet(TextDocument document) {
     return cache.getStylesheet(document);
+  }
+
+  Future<lsp.PrepareRenameResult> prepareRename(
+      TextDocument document, lsp.Position position) {
+    return _rename.prepareRename(document, position);
+  }
+
+  Future<lsp.WorkspaceEdit> rename(
+      TextDocument document, lsp.Position position, String newName) {
+    return _rename.rename(document, position, newName);
   }
 }

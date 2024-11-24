@@ -178,6 +178,7 @@ class LanguageServer {
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
           referencesProvider: Either2.t1(true),
+          renameProvider: Either2.t2(RenameOptions(prepareProvider: true)),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
           workspaceSymbolProvider: Either2.t1(true),
         );
@@ -362,6 +363,73 @@ class LanguageServer {
         } on Exception catch (e) {
           _log.debug(e.toString());
           return [];
+        }
+      });
+
+      _connection.onPrepareRename((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) {
+            return Either2.t2(
+              Either3.t2(
+                PrepareRenameResult2(defaultBehavior: true),
+              ),
+            );
+          }
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.rename.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+
+            var result = await _ls.prepareRename(
+              document,
+              params.position,
+            );
+            return Either2.t2(result);
+          } else {
+            return Either2.t2(
+              Either3.t2(
+                PrepareRenameResult2(defaultBehavior: true),
+              ),
+            );
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return Either2.t2(
+            Either3.t2(
+              PrepareRenameResult2(defaultBehavior: true),
+            ),
+          );
+        }
+      });
+
+      _connection.onRenameRequest((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) {
+            return WorkspaceEdit();
+          }
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.rename.enabled) {
+            if (initialScan != null) {
+              await initialScan;
+            }
+
+            var result = await _ls.rename(
+              document,
+              params.position,
+              params.newName,
+            );
+            return result;
+          } else {
+            return WorkspaceEdit();
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return WorkspaceEdit();
         }
       });
 
