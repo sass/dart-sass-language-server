@@ -170,11 +170,11 @@ class TextDocument {
   }
 
   static bool _isIncremental(TextDocumentContentChangeEvent event) {
-    return event.runtimeType == TextDocumentContentChangeEvent1;
+    return event is TextDocumentContentChangeEvent1;
   }
 
   static bool _isFull(TextDocumentContentChangeEvent event) {
-    return event.runtimeType == TextDocumentContentChangeEvent2;
+    return event is TextDocumentContentChangeEvent2;
   }
 
   List<int> _getLineOffsets() {
