@@ -3,3 +3,11 @@
 .a {
   @extend %brand;
 }
+
+:root {
+  --color-text: #000;
+}
+
+body {
+  color: var(--color-text);
+}
