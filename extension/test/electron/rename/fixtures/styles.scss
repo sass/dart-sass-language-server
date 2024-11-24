@@ -1,0 +1,5 @@
+@use 'theme';
+
+.a {
+  color: theme.$brand-color-primary;
+}
