@@ -22,18 +22,27 @@ class NodeAtOffsetVisitor
   NodeAtOffsetVisitor(int offset) : _offset = offset;
 
   sass.AstNode? _process(sass.AstNode node) {
-    var containsOffset =
-        node.span.start.offset <= _offset && node.span.end.offset >= _offset;
+    var nodeSpan = node.span;
+    var nodeStartOffset = nodeSpan.start.offset;
+    var nodeEndOffset = nodeSpan.end.offset;
+    var containsOffset = nodeStartOffset <= _offset && nodeEndOffset >= _offset;
 
     if (containsOffset) {
       if (candidate == null) {
         candidate = node;
-      } else if (node.span.length <= candidate!.span.length) {
-        candidate = node;
+      } else {
+        var nodeLength = nodeEndOffset - nodeStartOffset;
+        // store candidateSpan next to _candidate
+        var candidateSpan = candidate!.span;
+        var candidateLength =
+            candidateSpan.end.offset - candidateSpan.start.offset;
+        if (nodeLength <= candidateLength) {
+          candidate = node;
+        }
       }
     }
 
-    if (node.span.start.offset > _offset) {
+    if (nodeStartOffset > _offset) {
       return candidate;
     }
 
