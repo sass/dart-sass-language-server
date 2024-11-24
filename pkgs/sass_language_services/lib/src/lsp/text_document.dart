@@ -12,7 +12,7 @@ const carriageReturn = 13;
 class TextDocument {
   final Uri _uri;
   final String _languageId;
-  final int _version;
+  int _version;
   String _content;
   List<int>? _lineOffsets;
 
@@ -123,21 +123,23 @@ class TextDocument {
 
   /// Updates this text document by modifying its content.
   void update(List<TextDocumentContentChangeEvent> changes, int version) {
-    for (var change in changes) {
-      if (TextDocument._isIncremental(change)) {
-        var range = _getWellformedRange(
-            (change as TextDocumentContentChangeEvent1).range);
-        var text = (change as TextDocumentContentChangeEvent1).text;
+    _version = version;
+    for (var c in changes) {
+      var change = c.map((v) => v, (v) => v);
+      if (change is TextDocumentContentChangeEvent1) {
+        // Incremental sync.
+        var range = _getWellformedRange(change.range);
+        var text = change.text;
 
         var startOffset = offsetAt(range.start);
         var endOffset = offsetAt(range.end);
 
-        // update content
+        // Update content.
         _content = _content.substring(0, startOffset) +
             text +
             _content.substring(endOffset, _content.length);
 
-        // update offsets without recomputing for the whole document
+        // Update offsets without recomputing for the whole document.
         var startLine = max(range.start.line, 0);
         var endLine = max(range.end.line, 0);
         var lineOffsets = _lineOffsets!;
@@ -162,19 +164,12 @@ class TextDocument {
             lineOffsets[i] = lineOffsets[i] + diff;
           }
         }
-      } else if (TextDocument._isFull(change)) {
-        _content = (change as TextDocumentContentChangeEvent2).text;
+      } else if (change is TextDocumentContentChangeEvent2) {
+        // Full sync.
+        _content = change.text;
         _lineOffsets = null;
       }
     }
-  }
-
-  static bool _isIncremental(TextDocumentContentChangeEvent event) {
-    return event is TextDocumentContentChangeEvent1;
-  }
-
-  static bool _isFull(TextDocumentContentChangeEvent event) {
-    return event is TextDocumentContentChangeEvent2;
   }
 
   List<int> _getLineOffsets() {
