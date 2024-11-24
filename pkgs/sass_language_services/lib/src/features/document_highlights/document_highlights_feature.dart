@@ -2,7 +2,6 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/features/find_references/find_references_visitor.dart';
-import 'package:sass_language_services/src/utils/sass_lsp_utils.dart';
 
 import '../go_to_definition/scope_visitor.dart';
 import '../go_to_definition/scoped_symbols.dart';
@@ -39,17 +38,21 @@ class DocumentHighlightsFeature extends LanguageFeature {
     var symbol = symbols.findSymbolFromNode(node);
 
     var result = <lsp.DocumentHighlight>[];
-    var references = FindReferencesVisitor(
+    var visitor = FindReferencesVisitor(
       document,
       name,
       includeDeclaration: true,
     );
 
-    for (var reference in references.candidates) {
+    stylesheet.accept(visitor);
+
+    for (var reference in visitor.candidates) {
       if (symbol != null) {
-        if (symbol.referenceKind == reference.kind &&
-            symbol.name == reference.name &&
-            isSameRange(symbol.range, reference.location.range)) {
+        if (symbols.matchesSymbol(
+          reference,
+          document.offsetAt(reference.location.range.start),
+          symbol,
+        )) {
           result.add(
             lsp.DocumentHighlight(range: reference.location.range),
           );

@@ -1,6 +1,8 @@
 import 'package:sass_api/sass_api.dart' as sass;
+import 'package:sass_language_services/src/utils/sass_lsp_utils.dart';
 
 import '../document_symbols/stylesheet_document_symbol.dart';
+import '../find_references/reference.dart';
 import 'scope.dart';
 import 'scope_visitor.dart';
 
@@ -123,20 +125,20 @@ class ScopedSymbols {
 
     var referenceKind = getNodeReferenceKind(node);
     if (referenceKind != null) {
-      return _findSymbol(node, referenceKind);
+      return _findSymbol(
+          getNodeName(node), node.span.start.offset, referenceKind);
     }
 
     return null;
   }
 
   StylesheetDocumentSymbol? _findSymbol(
-      sass.AstNode node, ReferenceKind referenceKind) {
-    var name = getNodeName(node);
+      String? name, int offset, ReferenceKind referenceKind) {
     if (name == null) {
       return null;
     }
 
-    var scope = globalScope.findScope(offset: node.span.start.offset);
+    var scope = globalScope.findScope(offset: offset);
     while (scope != null) {
       var symbol = scope.getSymbol(name: name, referenceKind: referenceKind);
       if (symbol != null) {
@@ -166,5 +168,16 @@ class ScopedSymbols {
       scope = scope.parent;
     }
     return result;
+  }
+
+  bool matchesSymbol(
+      Reference reference, int offset, StylesheetDocumentSymbol symbol) {
+    var referenceSymbol = _findSymbol(reference.name, offset, reference.kind);
+    if (referenceSymbol == null) {
+      return false;
+    }
+    return referenceSymbol.name == symbol.name &&
+        referenceSymbol.kind == symbol.kind &&
+        isSameRange(referenceSymbol.range, symbol.range);
   }
 }
