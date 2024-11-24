@@ -109,7 +109,7 @@ class GoToDefinitionFeature extends LanguageFeature {
       }
     }
 
-    var definition =
+    var result =
         await findInWorkspace<(StylesheetDocumentSymbol, lsp.Location)>(
       lazy: true,
       initialDocument: initialDocument,
@@ -158,6 +158,9 @@ class GoToDefinitionFeature extends LanguageFeature {
       },
     );
 
+    var definition = result.result;
+    var visited = result.visited;
+
     if (definition != null && definition.isNotEmpty) {
       var symbol = definition.first.$1;
       var location = definition.first.$2;
@@ -168,11 +171,19 @@ class GoToDefinitionFeature extends LanguageFeature {
       );
     }
 
-    // Fall back to "@import-style" lookup on the whole workspace.
+    // Fall back to "@import-style" lookup on the rest of the workspace.
     for (var document in ls.cache.getDocuments()) {
+      if (visited.contains(document.uri.toString())) {
+        continue;
+      }
+
       var stylesheet = ls.parseStylesheet(document);
-      var symbols = ScopedSymbols(stylesheet,
-          document.languageId == 'sass' ? Dialect.indented : Dialect.scss);
+      var symbols = ls.cache.getDocumentSymbols(document) ??
+          ScopedSymbols(
+            stylesheet,
+            document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
+          );
+      ls.cache.setDocumentSymbols(document, symbols);
 
       for (var kind in kinds) {
         var symbol = symbols.globalScope.getSymbol(

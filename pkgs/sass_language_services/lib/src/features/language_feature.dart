@@ -3,6 +3,13 @@ import 'dart:math';
 import '../../sass_language_services.dart';
 import '../utils/uri_utils.dart';
 
+class WorkspaceResult<T> {
+  final List<T>? result;
+  final Set<String> visited;
+
+  WorkspaceResult(this.result, this.visited);
+}
+
 abstract class LanguageFeature {
   late final LanguageServices ls;
 
@@ -11,7 +18,7 @@ abstract class LanguageFeature {
   /// Helper to do some kind of lookup for the import tree of [initialDocument].
   ///
   /// The [callback] is called for each document in the import tree. Documents will only get visited once.
-  Future<List<T>?> findInWorkspace<T>(
+  Future<WorkspaceResult<T>> findInWorkspace<T>(
       {required Future<List<T>?> Function({
         required TextDocument document,
         required String prefix,
@@ -37,7 +44,7 @@ abstract class LanguageFeature {
     );
   }
 
-  Future<List<T>?> _findInWorkspace<T>(
+  Future<WorkspaceResult<T>> _findInWorkspace<T>(
       {required Future<List<T>?> Function({
         required TextDocument document,
         required String prefix,
@@ -57,19 +64,20 @@ abstract class LanguageFeature {
       bool lazy = false,
       int depth = 0}) async {
     if (visited.contains(currentDocument.uri.toString())) {
-      return Future.value([]);
+      return Future.value(WorkspaceResult([], visited));
     }
 
     var result = await callback(
-        document: currentDocument,
-        prefix: accumulatedPrefix,
-        hiddenMixinsAndFunctions: hiddenMixinsAndFunctions,
-        hiddenVariables: hiddenVariables,
-        shownMixinsAndFunctions: shownMixinsAndFunctions,
-        shownVariables: shownVariables);
+      document: currentDocument,
+      prefix: accumulatedPrefix,
+      hiddenMixinsAndFunctions: hiddenMixinsAndFunctions,
+      hiddenVariables: hiddenVariables,
+      shownMixinsAndFunctions: shownMixinsAndFunctions,
+      shownVariables: shownVariables,
+    );
 
     if (lazy && result != null) {
-      return result;
+      return WorkspaceResult(result, visited);
     }
 
     visited.add(currentDocument.uri.toString());
@@ -90,7 +98,7 @@ abstract class LanguageFeature {
     });
 
     if (links.isEmpty) {
-      return null;
+      return WorkspaceResult([], visited);
     }
 
     var linksResult = <T>[];
@@ -143,12 +151,12 @@ abstract class LanguageFeature {
         depth: depth + 1,
       );
 
-      if (linkResult != null) {
-        linksResult.addAll(linkResult);
+      if (linkResult.result != null) {
+        linksResult.addAll(linkResult.result!);
       }
     }
 
-    return linksResult;
+    return WorkspaceResult(linksResult, visited);
   }
 
   Future<TextDocument> getTextDocument(Uri uri) async {
