@@ -85,9 +85,8 @@ class LanguageServer {
           connection: _connection,
           onDidChangeContent: (params) async {
             try {
-              // Reparse the stylesheet to update the cache with the new
-              // version of the document.
-              _ls.parseStylesheet(params.document);
+              // Update the cache with the new version of the document.
+              _ls.cache.onDocumentChanged(params.document);
               if (initialScan != null) {
                 await initialScan;
               }

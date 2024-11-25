@@ -46,6 +46,35 @@ class LanguageServicesCache {
     return stylesheet;
   }
 
+  sass.Stylesheet onDocumentChanged(TextDocument document) {
+    // We need this non-version checking method because of
+    // the rename feature. With that feature the client can
+    // send us "the first version" of a TextDocument after
+    // a rename, except we already have our own version 1
+    // from initial scan.
+
+    late final sass.Stylesheet stylesheet;
+    final languageId = document.languageId;
+    switch (languageId) {
+      case 'css':
+        stylesheet = sass.Stylesheet.parseCss(document.getText());
+        break;
+      case 'scss':
+        stylesheet = sass.Stylesheet.parseScss(document.getText());
+        break;
+      case 'sass':
+        stylesheet = sass.Stylesheet.parseSass(document.getText());
+        break;
+      default:
+        throw 'Unsupported language ID $languageId';
+    }
+
+    final key = document.uri.toString();
+    _cache[key] = CacheEntry(document: document, stylesheet: stylesheet);
+
+    return stylesheet;
+  }
+
   TextDocument? getDocument(Uri uri) {
     return _cache[uri.toString()]?.document;
   }
