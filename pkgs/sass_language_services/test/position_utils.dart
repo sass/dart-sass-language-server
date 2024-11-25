@@ -11,6 +11,6 @@ lsp.Position position(int line, int char) {
 lsp.Range range(int startLine, int startChar, int endLine, int endChar) {
   return lsp.Range(
     start: at(line: startLine, char: startChar),
-    end: at(line: startLine, char: startChar),
+    end: at(line: endLine, char: endChar),
   );
 }
