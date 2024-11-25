@@ -134,7 +134,7 @@ klmno
 
       expect(
         document.getText(range: range(0, 0, 0, 5)),
-        equals('asdf'),
+        equals('abcde'),
       );
       expect(
         document.getText(range: range(0, 4, 1, 1)),
