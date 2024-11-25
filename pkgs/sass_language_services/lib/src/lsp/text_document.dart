@@ -115,8 +115,10 @@ class TextDocument {
     }
 
     var line = low - 1;
-    offset =
-        _ensureBeforeEndOfLine(offset: offset, lineOffset: lineOffsets[line]);
+    offset = _ensureBeforeEndOfLine(
+      offset: offset,
+      lineOffset: lineOffsets[line],
+    );
 
     return Position(character: offset - lineOffsets[line], line: line);
   }
@@ -151,8 +153,12 @@ class TextDocument {
             lineOffsets[i + startLine + 1] = addedLineOffsets[i];
           }
         } else {
+          // Avoid going outside the range on weird range inputs.
           lineOffsets.replaceRange(
-              startLine + 1, endLine - startLine, addedLineOffsets);
+            min(startLine + 1, lineOffsets.length),
+            min(endLine + 1, lineOffsets.length),
+            addedLineOffsets,
+          );
         }
 
         var diff = text.length - (endOffset - startOffset);
