@@ -176,6 +176,7 @@ class LanguageServer {
           documentHighlightProvider: Either2.t1(true),
           documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
           documentSymbolProvider: Either2.t1(true),
+          foldingRangeProvider: Either3.t1(true),
           referencesProvider: Either2.t1(true),
           renameProvider: Either2.t2(RenameOptions(prepareProvider: true)),
           selectionRangeProvider: Either3.t1(true),
@@ -430,6 +431,26 @@ class LanguageServer {
         } on Exception catch (e) {
           _log.debug(e.toString());
           return WorkspaceEdit();
+        }
+      });
+
+      _connection.onFoldingRanges((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) {
+            return [];
+          }
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.foldingRanges.enabled) {
+            var result = _ls.getFoldingRanges(document);
+            return result;
+          } else {
+            return [];
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
         }
       });
 
