@@ -11,6 +11,7 @@ class LanguageConfiguration {
   late final FeatureConfiguration documentLinks;
   late final FeatureConfiguration references;
   late final FeatureConfiguration rename;
+  late final FeatureConfiguration selectionRanges;
   late final FeatureConfiguration workspaceSymbols;
 
   LanguageConfiguration.from(dynamic config) {
@@ -26,6 +27,8 @@ class LanguageConfiguration {
         enabled: config?['references']?['enabled'] as bool? ?? true);
     rename = FeatureConfiguration(
         enabled: config?['rename']?['enabled'] as bool? ?? true);
+    selectionRanges = FeatureConfiguration(
+        enabled: config?['selectionRanges']?['enabled'] as bool? ?? true);
     workspaceSymbols = FeatureConfiguration(
         enabled: config?['workspaceSymbols']?['enabled'] as bool? ?? true);
   }
