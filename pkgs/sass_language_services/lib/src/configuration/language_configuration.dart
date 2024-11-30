@@ -6,9 +6,10 @@ class FeatureConfiguration {
 
 class LanguageConfiguration {
   late final FeatureConfiguration definition;
-  late final FeatureConfiguration highlights;
   late final FeatureConfiguration documentSymbols;
   late final FeatureConfiguration documentLinks;
+  late final FeatureConfiguration foldingRanges;
+  late final FeatureConfiguration highlights;
   late final FeatureConfiguration references;
   late final FeatureConfiguration rename;
   late final FeatureConfiguration selectionRanges;
@@ -21,6 +22,8 @@ class LanguageConfiguration {
         enabled: config?['documentSymbols']?['enabled'] as bool? ?? true);
     documentLinks = FeatureConfiguration(
         enabled: config?['documentLinks']?['enabled'] as bool? ?? true);
+    foldingRanges = FeatureConfiguration(
+        enabled: config?['foldingRanges']?['enabled'] as bool? ?? true);
     highlights = FeatureConfiguration(
         enabled: config?['highlights']?['enabled'] as bool? ?? true);
     references = FeatureConfiguration(

@@ -61,6 +61,28 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
   }
 
   @override
+  void visitAtRule(sass.AtRule node) {
+    if (node.children != null) {
+      var span = node.span;
+      _addScope(
+        offset: span.start.offset,
+        length: span.length,
+      );
+    }
+    super.visitAtRule(node);
+  }
+
+  @override
+  void visitAtRootRule(sass.AtRootRule node) {
+    var span = node.span;
+    _addScope(
+      offset: span.start.offset,
+      length: span.length,
+    );
+    super.visitAtRootRule(node);
+  }
+
+  @override
   void visitDeclaration(node) {
     var isCustomProperty =
         node.name.isPlain && node.name.asPlain!.startsWith("--");
@@ -239,6 +261,21 @@ class ScopeVisitor with sass.RecursiveStatementVisitor {
     }
 
     super.visitIfRule(node);
+  }
+
+  @override
+  void visitIncludeRule(sass.IncludeRule node) {
+    var span = node.span;
+
+    var argsEndIndex = node.arguments.span.end.offset - span.start.offset;
+    var scopeIndex = span.text.indexOf(openBracketOrNewline, argsEndIndex);
+
+    _addScope(
+      offset: span.start.offset + scopeIndex,
+      length: span.length - scopeIndex,
+    );
+
+    super.visitIncludeRule(node);
   }
 
   @override
