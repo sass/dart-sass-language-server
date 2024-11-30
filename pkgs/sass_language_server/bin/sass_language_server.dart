@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:lsp_server/lsp_server.dart';
 import 'package:sass_language_server/sass_language_server.dart';
 
 void main(List<String> arguments) async {
@@ -35,9 +38,10 @@ Logging options:
   var fileSystemProvider = LocalFileSystem();
   var server = LanguageServer();
 
+  Connection connection;
+  Socket? socket;
   if (transport == '--stdio') {
-    await server.start(
-        logLevel: logLevel, fileSystemProvider: fileSystemProvider);
+    connection = Connection(stdin, stdout);
   } else {
     // The client is the one listening to socket connections on the specified port.
     // In other words the language server is a _client_ for the socket transport.
@@ -46,11 +50,31 @@ Logging options:
     // the language server.
     var split = transport.split('=');
     int port = int.parse(split.last);
+    socket = await Socket.connect('127.0.0.1', port);
+    connection = Connection(socket, socket);
+  }
+
+  try {
+    exitCode = 1;
 
     await server.start(
-        logLevel: logLevel,
-        fileSystemProvider: fileSystemProvider,
-        transport: Transport.socket,
-        port: port);
+      connection: connection,
+      logLevel: logLevel,
+      fileSystemProvider: fileSystemProvider,
+    );
+
+    // See
+    // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#shutdown
+    // https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#exit
+    connection.onShutdown(() async {
+      socket?.close();
+      exitCode = 0;
+    });
+
+    connection.onExit(() async {
+      exit(exitCode);
+    });
+  } on Exception catch (_) {
+    exit(1);
   }
 }
