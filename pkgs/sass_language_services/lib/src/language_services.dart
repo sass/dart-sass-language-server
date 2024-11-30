@@ -5,6 +5,7 @@ import 'package:sass_language_services/src/features/document_highlights/document
 import 'package:sass_language_services/src/features/find_references/find_references_feature.dart';
 import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
 import 'package:sass_language_services/src/features/rename/rename_feature.dart';
+import 'package:sass_language_services/src/features/selection_ranges/selection_ranges_feature.dart';
 
 import 'features/document_links/document_links_feature.dart';
 import 'features/document_symbols/document_symbols_feature.dart';
@@ -25,6 +26,7 @@ class LanguageServices {
   late final GoToDefinitionFeature _goToDefinition;
   late final FindReferencesFeature _findReferences;
   late final RenameFeature _rename;
+  late final SelectionRangesFeature _selectionRanges;
   late final WorkspaceSymbolsFeature _workspaceSymbols;
 
   LanguageServices({
@@ -37,6 +39,7 @@ class LanguageServices {
     _goToDefinition = GoToDefinitionFeature(ls: this);
     _findReferences = FindReferencesFeature(ls: this);
     _rename = RenameFeature(ls: this);
+    _selectionRanges = SelectionRangesFeature(ls: this);
     _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
   }
 
@@ -65,6 +68,11 @@ class LanguageServices {
 
   List<lsp.WorkspaceSymbol> findWorkspaceSymbols(String? query) {
     return _workspaceSymbols.findWorkspaceSymbols(query);
+  }
+
+  List<lsp.SelectionRange> getSelectionRanges(
+      TextDocument document, List<lsp.Position> positions) {
+    return _selectionRanges.getSelectionRanges(document, positions);
   }
 
   Future<lsp.Location?> goToDefinition(

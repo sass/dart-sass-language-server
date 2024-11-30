@@ -21,6 +21,9 @@ class NodeAtOffsetVisitor
   /// Finds the node with the shortest span at [offset].
   NodeAtOffsetVisitor(int offset) : _offset = offset;
 
+  /// Here to allow subclasses to do something with each candidate.
+  void processCandidate(sass.AstNode node) {}
+
   sass.AstNode? _process(sass.AstNode node) {
     var nodeSpan = node.span;
     var nodeStartOffset = nodeSpan.start.offset;
@@ -30,6 +33,7 @@ class NodeAtOffsetVisitor
     if (containsOffset) {
       if (candidate == null) {
         candidate = node;
+        processCandidate(node);
       } else {
         var nodeLength = nodeEndOffset - nodeStartOffset;
         // store candidateSpan next to _candidate
@@ -38,6 +42,7 @@ class NodeAtOffsetVisitor
             candidateSpan.end.offset - candidateSpan.start.offset;
         if (nodeLength <= candidateLength) {
           candidate = node;
+          processCandidate(node);
         }
       }
     }

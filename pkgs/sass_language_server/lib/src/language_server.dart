@@ -178,6 +178,7 @@ class LanguageServer {
           documentSymbolProvider: Either2.t1(true),
           referencesProvider: Either2.t1(true),
           renameProvider: Either2.t2(RenameOptions(prepareProvider: true)),
+          selectionRangeProvider: Either3.t1(true),
           textDocumentSync: Either2.t1(TextDocumentSyncKind.Incremental),
           workspaceSymbolProvider: Either2.t1(true),
         );
@@ -429,6 +430,29 @@ class LanguageServer {
         } on Exception catch (e) {
           _log.debug(e.toString());
           return WorkspaceEdit();
+        }
+      });
+
+      _connection.onSelectionRanges((params) async {
+        try {
+          var document = _documents.get(params.textDocument.uri);
+          if (document == null) {
+            return [];
+          }
+
+          var configuration = _getLanguageConfiguration(document);
+          if (configuration.selectionRanges.enabled) {
+            var result = _ls.getSelectionRanges(
+              document,
+              params.positions,
+            );
+            return result;
+          } else {
+            return [];
+          }
+        } on Exception catch (e) {
+          _log.debug(e.toString());
+          return [];
         }
       });
 
