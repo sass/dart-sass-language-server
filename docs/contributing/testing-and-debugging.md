@@ -25,7 +25,7 @@ You should also turn off extensions like SCSS IntelliSense or Some Sass.
 
 ### Open the Dart DevTools
 
-In this configuration, the client has run `dart run --observe` in the local `sass_language_server` package. You can now use [Dart DevTools](https://dart.dev/tools/dart-devtools) to debug the language server.
+In this configuration, the client has run `dart run --enable-vm-service` in the local `sass_language_server` package. You can now use [Dart DevTools](https://dart.dev/tools/dart-devtools) to debug the language server.
 
 To find the link to open Dart DevTools, use the `[Extension Development Host]`.
 
