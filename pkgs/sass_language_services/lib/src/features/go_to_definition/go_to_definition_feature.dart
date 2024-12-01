@@ -123,7 +123,7 @@ class GoToDefinitionFeature extends LanguageFeature {
       }) async {
         for (var kind in kinds) {
           // `@forward` may add a prefix to [name],
-          // but we're comparing it to symbols without that prefix.
+          // but in [document] the symbols are without that prefix.
           var unprefixedName = kind == ReferenceKind.function ||
                   kind == ReferenceKind.mixin ||
                   kind == ReferenceKind.variable

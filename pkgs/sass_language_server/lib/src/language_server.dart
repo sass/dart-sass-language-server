@@ -152,7 +152,9 @@ class LanguageServer {
       _log.debug('workspace root $_workspaceRoot');
 
       _ls = LanguageServices(
-          clientCapabilities: _clientCapabilities, fs: fileSystemProvider);
+        clientCapabilities: _clientCapabilities,
+        fs: fileSystemProvider,
+      );
 
       var serverCapabilities = ServerCapabilities(
         definitionProvider: Either2.t1(true),
@@ -160,6 +162,7 @@ class LanguageServer {
         documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
         documentSymbolProvider: Either2.t1(true),
         foldingRangeProvider: Either3.t1(true),
+        hoverProvider: Either2.t1(true),
         referencesProvider: Either2.t1(true),
         renameProvider: Either2.t2(RenameOptions(prepareProvider: true)),
         selectionRangeProvider: Either3.t1(true),
@@ -323,6 +326,27 @@ class LanguageServer {
 
     _connection.peer
         .registerMethod('textDocument/documentSymbol', onDocumentSymbol);
+
+    _connection.onHover((params) async {
+      try {
+        var document = _documents.get(params.textDocument.uri);
+        if (document == null) {
+          // TODO: Would like to return null instead of empty content.
+          return Hover(contents: Either2.t2(""));
+        }
+
+        var configuration = _getLanguageConfiguration(document);
+        if (configuration.hover.enabled) {
+          var result = await _ls.hover(document, params.position);
+          return result ?? Hover(contents: Either2.t2(""));
+        } else {
+          return Hover(contents: Either2.t2(""));
+        }
+      } on Exception catch (e) {
+        _log.debug(e.toString());
+        return Hover(contents: Either2.t2(""));
+      }
+    });
 
     _connection.onReferences((params) async {
       try {

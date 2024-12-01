@@ -5,6 +5,7 @@ import 'package:sass_language_services/src/features/document_highlights/document
 import 'package:sass_language_services/src/features/find_references/find_references_feature.dart';
 import 'package:sass_language_services/src/features/folding_ranges/folding_ranges_feature.dart';
 import 'package:sass_language_services/src/features/go_to_definition/go_to_definition_feature.dart';
+import 'package:sass_language_services/src/features/hover/hover_feature.dart';
 import 'package:sass_language_services/src/features/rename/rename_feature.dart';
 import 'package:sass_language_services/src/features/selection_ranges/selection_ranges_feature.dart';
 
@@ -27,6 +28,7 @@ class LanguageServices {
   late final FoldingRangesFeature _foldingRanges;
   late final FindReferencesFeature _findReferences;
   late final GoToDefinitionFeature _goToDefinition;
+  late final HoverFeature _hover;
   late final RenameFeature _rename;
   late final SelectionRangesFeature _selectionRanges;
   late final WorkspaceSymbolsFeature _workspaceSymbols;
@@ -41,6 +43,7 @@ class LanguageServices {
     _findReferences = FindReferencesFeature(ls: this);
     _foldingRanges = FoldingRangesFeature(ls: this);
     _goToDefinition = GoToDefinitionFeature(ls: this);
+    _hover = HoverFeature(ls: this);
     _rename = RenameFeature(ls: this);
     _selectionRanges = SelectionRangesFeature(ls: this);
     _workspaceSymbols = WorkspaceSymbolsFeature(ls: this);
@@ -85,6 +88,10 @@ class LanguageServices {
   Future<lsp.Location?> goToDefinition(
       TextDocument document, lsp.Position position) {
     return _goToDefinition.goToDefinition(document, position);
+  }
+
+  Future<lsp.Hover?> hover(TextDocument document, lsp.Position position) {
+    return _hover.doHover(document, position);
   }
 
   sass.Stylesheet parseStylesheet(TextDocument document) {

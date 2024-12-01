@@ -1,7 +1,11 @@
 import 'dart:math';
 
+import 'package:lsp_server/lsp_server.dart' as lsp;
+import 'package:sass_api/sass_api.dart' as sass;
+
 import '../../sass_language_services.dart';
 import '../utils/uri_utils.dart';
+import 'node_at_offset_visitor.dart';
 
 class WorkspaceResult<T> {
   final List<T>? result;
@@ -157,6 +161,79 @@ abstract class LanguageFeature {
     }
 
     return WorkspaceResult(linksResult, visited);
+  }
+
+  /// Returns the value of the variable at [position].
+  ///
+  /// If the variable references another variable this method will find
+  /// that variable's definition and find the original value.
+  Future<String?> findVariableValue(
+      TextDocument document, lsp.Position position) async {
+    return _findValue(document, position);
+  }
+
+  Future<String?> _findValue(TextDocument document, lsp.Position position,
+      {int depth = 0}) async {
+    const maxDepth = 10;
+    if (depth > maxDepth) {
+      return null;
+    }
+
+    var stylesheet = ls.parseStylesheet(document);
+    var offset = document.offsetAt(position);
+    var visitor = NodeAtOffsetVisitor(offset);
+    var result = stylesheet.accept(visitor);
+    var variable = result ?? visitor.candidate;
+
+    if (variable is sass.Expression) {
+      var isDeclaration = visitor.path.any(
+        (node) => node is sass.VariableDeclaration,
+      );
+      if (isDeclaration) {
+        var referencesVariable = variable.toString().contains(r'$');
+        if (referencesVariable) {
+          return _findValue(
+            document,
+            document.positionAt(variable.span.start.offset),
+            depth: depth + 1,
+          );
+        } else {
+          return variable.toString();
+        }
+      } else {
+        var valueString = variable.toString();
+        var dollarIndex = valueString.indexOf(r'$');
+        if (dollarIndex != -1) {
+          var definition = await ls.goToDefinition(document, position);
+          if (definition != null) {
+            var definitionDocument = ls.cache.getDocument(definition.uri);
+            if (definitionDocument == null) {
+              return null;
+            }
+
+            if (definitionDocument.uri == document.uri) {
+              var definitionOffset = document.offsetAt(definition.range.start);
+              if (definitionOffset == variable.span.start.offset) {
+                // break early if we're looking up ourselves
+                return null;
+              }
+            }
+
+            return _findValue(
+              definitionDocument,
+              definition.range.start,
+              depth: depth + 1,
+            );
+          } else {
+            return null;
+          }
+        } else {
+          return valueString;
+        }
+      }
+    } else {
+      return null;
+    }
   }
 
   Future<TextDocument> getTextDocument(Uri uri) async {
