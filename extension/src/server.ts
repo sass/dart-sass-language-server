@@ -46,7 +46,7 @@ export async function createServerOptions(
     args: [
       'run',
       // '--pause-isolates-on-start', // Uncomment this to debug issues during startup and initial scan
-      '--observe',
+      '--enable-vm-service',
       'sass_language_server',
       '--loglevel=debug',
     ],

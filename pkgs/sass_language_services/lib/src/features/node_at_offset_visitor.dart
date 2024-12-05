@@ -1,4 +1,5 @@
 import 'package:sass_api/sass_api.dart' as sass;
+import 'package:sass_language_services/src/features/selector_at_offset_visitor.dart';
 
 sass.AstNode? getNodeAtOffset(sass.ParentStatement node, int offset) {
   if (node.span.start.offset > offset || offset > node.span.end.offset) {
@@ -16,6 +17,7 @@ class NodeAtOffsetVisitor
         sass.StatementSearchVisitor<sass.AstNode>,
         sass.AstSearchVisitor<sass.AstNode> {
   sass.AstNode? candidate;
+  final List<sass.AstNode> path = [];
   final int _offset;
 
   /// Finds the node with the shortest span at [offset].
@@ -33,6 +35,7 @@ class NodeAtOffsetVisitor
     if (containsOffset) {
       if (candidate == null) {
         candidate = node;
+        path.add(node);
         processCandidate(node);
       } else {
         var nodeLength = nodeEndOffset - nodeStartOffset;
@@ -42,13 +45,14 @@ class NodeAtOffsetVisitor
             candidateSpan.end.offset - candidateSpan.start.offset;
         if (nodeLength <= candidateLength) {
           candidate = node;
+          path.add(node);
           processCandidate(node);
         }
       }
     }
 
     if (nodeStartOffset > _offset) {
-      return candidate;
+      // return candidate;
     }
 
     return null;
@@ -233,7 +237,27 @@ class NodeAtOffsetVisitor
 
   @override
   sass.AstNode? visitStyleRule(sass.StyleRule node) {
-    return _process(node) ?? super.visitStyleRule(node);
+    var result = _process(node);
+    if (result != null) return result;
+
+    try {
+      if (node.selector.isPlain) {
+        var span = node.span;
+        var selectorList = sass.SelectorList.parse(node.selector.asPlain!);
+        var visitor = SelectorAtOffsetVisitor(_offset - span.start.offset);
+        var result = selectorList.accept(visitor) ?? visitor.candidate;
+
+        if (result != null) {
+          candidate = result;
+          path.addAll(visitor.path);
+          return result;
+        }
+      }
+    } on sass.SassFormatException catch (_) {
+      // Do nothing.
+    }
+
+    return super.visitStyleRule(node);
   }
 
   @override
