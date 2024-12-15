@@ -70,6 +70,7 @@ Specificity: ${readableSpecificity(specificity)}
 
   /// Go back up the path and calculate a full selector string and specificity.
   (String, int) _getSelectorHoverValue(List<sass.AstNode> path, int index) {
+    var pre = "";
     var selector = "";
     var specificity = 0;
     var pastImmediateStyleRule = false;
@@ -79,13 +80,19 @@ Specificity: ${readableSpecificity(specificity)}
       var node = path.elementAt(i);
       if (node is sass.ComplexSelector) {
         var sel = node.span.text;
-        if (sel.startsWith('&')) {
+        var parentSelectorIndex = sel.indexOf('&');
+        if (parentSelectorIndex != -1) {
           lastWasParentSelector = true;
-          selector = "${sel.substring(1)} $selector";
+
+          pre = sel.substring(0, parentSelectorIndex);
+          var post = sel.substring(parentSelectorIndex + 1);
+          selector = "$post $selector";
           specificity += node.specificity;
         } else {
           if (lastWasParentSelector) {
-            selector = "$sel$selector";
+            lastWasParentSelector = false;
+            selector = "$pre$sel$selector";
+            pre = "";
           } else {
             selector = "$sel $selector";
           }
@@ -105,25 +112,32 @@ Specificity: ${readableSpecificity(specificity)}
 
             // Just pick the first one in case of a list.
             var ruleSelector = selectorList.components.first;
-            var selectorString = ruleSelector.toString();
+            var sel = ruleSelector.toString();
 
             if (lastWasParentSelector) {
               lastWasParentSelector = false;
 
-              if (selectorString.startsWith('&')) {
+              var parentSelectorIndex = sel.indexOf('&');
+              if (parentSelectorIndex != -1) {
                 lastWasParentSelector = true;
-                selector = "${selectorString.substring(1)}$selector";
+                pre = "$pre ${sel.substring(0, parentSelectorIndex)}".trim();
+                var post = sel.substring(parentSelectorIndex + 1);
+                selector = "$post$selector";
               } else {
-                selector = "$selectorString$selector";
+                selector = "$pre $sel$selector".trim();
+                pre = "";
               }
               // subtract one class worth that would otherwise be duplicated
               specificity -= 1000;
             } else {
-              if (selectorString.startsWith('&')) {
+              var parentSelectorIndex = sel.indexOf('&');
+              if (parentSelectorIndex != -1) {
                 lastWasParentSelector = true;
-                selector = "${selectorString.substring(1)} $selector";
+                pre = sel.substring(0, parentSelectorIndex);
+                var post = sel.substring(parentSelectorIndex + 1);
+                selector = "$post $selector";
               } else {
-                selector = "$selectorString $selector";
+                selector = "$pre $sel $selector".trim();
               }
             }
             specificity += ruleSelector.specificity;

@@ -162,6 +162,28 @@ nav {
           contains('.button--primary::hover .icon--outline'));
       expect(getContents(result), contains('0, 2, 1'));
     });
+
+    test('parent selector not at the beginning of a selector', () async {
+      var document = fs.createDocument(r'''
+.button {
+  &--primary,
+  &--secondary {
+    html[data-touch] &.button--pressed::before {
+      animation: fancy;
+    }
+  }
+}
+''');
+
+      var result = await ls.hover(document, at(line: 3, char: 24));
+
+      expect(result, isNotNull);
+      expect(
+          getContents(result),
+          contains(
+              'html[data-touch] .button--primary.button--pressed::before'));
+      expect(getContents(result), contains('0, 3, 2'));
+    });
   });
 
   group('Sass variables', () {
