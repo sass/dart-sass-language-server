@@ -12,7 +12,7 @@ class SassData {
           SassModuleFunction(
             "adjust",
             description:
-                r"Increases or decreases one or more properties of `$color` by fixed amounts. All optional arguments must be numbers.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
+                "Increases or decreases one or more properties of `\$color` by fixed amounts. All optional arguments must be numbers.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
             signature:
                 r"($color, $red: null, $green: null, $blue: null, $hue: null, $saturation: null, $lightness: null, $whiteness: null, $blackness: null, $alpha: null, $space: null)",
             parameterSnippet: r"${1:color}",
@@ -29,7 +29,7 @@ class SassData {
           SassModuleFunction(
             "blackness",
             description:
-                r"Returns the HWB blackness of `$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#blackness) for how to migrate.",
+                "Returns the HWB blackness of `\$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#blackness) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -39,7 +39,7 @@ class SassData {
           SassModuleFunction(
             "blue",
             description:
-                r"Returns the blue channel of `$color` as a number between **0** and **255**.\n\nSee [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#blue) for how to migrate.",
+                "Returns the blue channel of `\$color` as a number between **0** and **255**.\n\nSee [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#blue) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -49,7 +49,7 @@ class SassData {
           SassModuleFunction(
             "change",
             description:
-                r"Sets one or more properties of `$color` to new values.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
+                "Sets one or more properties of `\$color` to new values.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
             signature:
                 r"($color, $red: null, $green: null, $blue: null, $hue: null, $saturation: null, $lightness: null, $whiteness: null, $blackness: null, $alpha: null, $space: null)",
             parameterSnippet: r"${1:color}",
@@ -81,7 +81,7 @@ class SassData {
           SassModuleFunction(
             "green",
             description:
-                r"Returns the green channel of `$color` as a number between **0** and **255**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#green) for how to migrate.",
+                "Returns the green channel of `\$color` as a number between **0** and **255**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#green) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -91,7 +91,7 @@ class SassData {
           SassModuleFunction(
             "hue",
             description:
-                r"Returns the hue of `$color` as a number between **0deg** and **360deg**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#hue) for how to migrate.",
+                "Returns the hue of `\$color` as a number between **0deg** and **360deg**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#hue) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -101,7 +101,7 @@ class SassData {
           SassModuleFunction(
             "hwb",
             description:
-                r"Returns a color with the given hue, whiteness, and blackness and the given alpha channel.\n\nThis function is [deprecated](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#css-color-functions-in-sass) in favor of the CSS [hwb function](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hwb).",
+                "Returns a color with the given hue, whiteness, and blackness and the given alpha channel.\n\nThis function is [deprecated](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#css-color-functions-in-sass) in favor of the CSS [hwb function](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/hwb).",
             signature: r"($hue, $whiteness, $blackness, $alpha: 1)",
             parameterSnippet: r"(${1:hue}, ${2:whiteness}, ${3:blackness})",
             returns: "color",
@@ -158,7 +158,7 @@ class SassData {
           SassModuleFunction(
             "lightness",
             description:
-                r"Returns the HSL lightness of `$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#lightness) for how to migrate.",
+                "Returns the HSL lightness of `\$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#lightness) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -176,7 +176,7 @@ class SassData {
           SassModuleFunction(
             "red",
             description:
-                r"Returns the red channel of `$color` as a number between **0** and **255**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#red) for how to migrate.",
+                "Returns the red channel of `\$color` as a number between **0** and **255**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#red) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -194,7 +194,7 @@ class SassData {
           SassModuleFunction(
             "saturation",
             description:
-                r"Returns the HSL saturation of `$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#saturation) for how to migrate.",
+                "Returns the HSL saturation of `\$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#saturation) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -204,7 +204,7 @@ class SassData {
           SassModuleFunction(
             "scale",
             description:
-                r"Fluidly scales one or more properties of `$color`. Each keyword argument must be a number between **-100%** and **100%**.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
+                "Fluidly scales one or more properties of `\$color`. Each keyword argument must be a number between **-100%** and **100%**.\n\nIt's an error to specify an RGB property at the same time as an HSL property, or either of those at the same time as an HWB property.",
             signature:
                 r"($color, $red: null, $green: null, $blue: null, $saturation: null, $lightness: null, $whiteness: null, $blackness: null, $alpha: null, $space: null)",
             parameterSnippet: r"${1:color}",
@@ -237,7 +237,7 @@ class SassData {
           SassModuleFunction(
             "whiteness",
             description:
-                r"Returns the HWB whiteness of `$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#whiteness) for how to migrate.",
+                "Returns the HWB whiteness of `\$color` as a number between **0%** and **100%**.\n\nThis function is deprecated in favor of color-space-friendly functions. See [the announcement post](https://sass-lang.com/blog/wide-gamut-colors-in-sass/#deprecated-functions) and [documentation](https://sass-lang.com/documentation/modules/color/#whiteness) for how to migrate.",
             signature: r"($color)",
             parameterSnippet: r"${1:color}",
             returns: "number",
@@ -261,7 +261,7 @@ class SassData {
           SassModuleFunction(
             "index",
             description:
-                r"Returns the index of `$value` in `$list`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
+                "Returns the index of `\$value` in `\$list`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
             signature: r"($list, $value)",
             parameterSnippet: r"${1:list}, ${2:value}",
             returns: "number",
@@ -299,14 +299,14 @@ class SassData {
           ),
           SassModuleFunction("nth",
               description:
-                  r"Returns the element of `$list` at index `$n`.\n\nIf `$n` is negative, it counts from the end of `$list`. Throws an error if there is no element at index `$n`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
+                  "Returns the element of `\$list` at index `\$n`.\n\nIf `\$n` is negative, it counts from the end of `\$list`. Throws an error if there is no element at index `\$n`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
               signature: r"($list, $n)",
               parameterSnippet: r"${1:list}, ${2:number}",
               returns: "T"),
           SassModuleFunction(
             "set-nth",
             description:
-                r"Returns a copy of `$list` with the element at index `$n` replaced with `$value`.\n\nIf `$n` is negative, it counts from the end of `$list`. Throws an error if there is no existing element at index `$n`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
+                "Returns a copy of `\$list` with the element at index `\$n` replaced with `\$value`.\n\nIf `\$n` is negative, it counts from the end of `\$list`. Throws an error if there is no existing element at index `\$n`.\n\nNote that the index **1** indicates the first element of the list in Sass.",
             signature: r"($list, $n, $value)",
             parameterSnippet: r"${1:list}, ${2:number}, ${3:value}",
             returns: "list",
@@ -322,7 +322,7 @@ class SassData {
           SassModuleFunction(
             "zip",
             description:
-                r"Combines every list in $lists into a single list of sub-lists.\n\nEach element in the returned list contains all the elements at that position in $lists. The returned list is as long as the shortest list in $lists.\n\nThe returned list is always comma-separated and the sub-lists are always space-separated.",
+                "Combines every list in \$lists into a single list of sub-lists.\n\nEach element in the returned list contains all the elements at that position in \$lists. The returned list is as long as the shortest list in \$lists.\n\nThe returned list is always comma-separated and the sub-lists are always space-separated.",
             signature: r"($lists...)",
             parameterSnippet: r"${1:lists}",
             returns: "list",
@@ -622,7 +622,7 @@ class SassData {
           SassModuleFunction(
             "call",
             description:
-                r"Invokes $function with $args and returns the result.\n\nThe $function should be a function returned by meta.get-function().",
+                "Invokes \$function with \$args and returns the result.\n\nThe \$function should be a function returned by meta.get-function().",
             signature: r"($function, $args...)",
             parameterSnippet: r"${1:function}, ${2:args}",
             returns: "T",
@@ -630,7 +630,7 @@ class SassData {
           SassModuleFunction(
             "content-exists",
             description:
-                r"Returns whether the current mixin was passed a @content block.\n\nThrows if called outside of a mixin.",
+                "Returns whether the current mixin was passed a @content block.\n\nThrows if called outside of a mixin.",
             signature: r"()",
             parameterSnippet: r"",
             returns: "boolean",
@@ -654,7 +654,7 @@ class SassData {
           SassModuleFunction(
             "get-function",
             description:
-                r"Returns the function named $name.\n\nIf $module is null, this returns the function named $name without a namespace. Otherwise, $module must be a string matching the namespace of a @use rule in the current file.\n\nBy default, this throws an error if $name doesn't refer to a Sass function. However, if $css is true, it instead returns a plain CSS function.\n\nThe returned function can be called using meta.call().",
+                "Returns the function named \$name.\n\nIf \$module is null, this returns the function named \$name without a namespace. Otherwise, \$module must be a string matching the namespace of a @use rule in the current file.\n\nBy default, this throws an error if \$name doesn't refer to a Sass function. However, if \$css is true, it instead returns a plain CSS function.\n\nThe returned function can be called using meta.call().",
             signature: r"($name, $css: false, $module: null)",
             parameterSnippet: r"${1:name}",
             returns: "function",
@@ -662,7 +662,7 @@ class SassData {
           SassModuleFunction(
             "global-variable-exists",
             description:
-                r"Returns whether a global variable named $name (without the $) exists.\n\nIf $module is null, this returns whether a variable named $name without a namespace exists. Otherwise, $module must be a string matching the namespace of a @use rule in the current file, in which case this returns whether that module has a variable named $name.",
+                "Returns whether a global variable named \$name (without the \$) exists.\n\nIf \$module is null, this returns whether a variable named \$name without a namespace exists. Otherwise, \$module must be a string matching the namespace of a @use rule in the current file, in which case this returns whether that module has a variable named \$name.",
             signature: r"($name, $module: null)",
             parameterSnippet: r"${1:name}",
             returns: "boolean",
@@ -670,7 +670,7 @@ class SassData {
           SassModuleFunction(
             "inspect",
             description:
-                r"Returns a string representation of $value.\n\nThis function is intended for debugging.",
+                "Returns a string representation of \$value.\n\nThis function is intended for debugging.",
             signature: r"($value)",
             parameterSnippet: r"${1:value}",
             returns: "string",
@@ -678,7 +678,7 @@ class SassData {
           SassModuleFunction(
             "keywords",
             description:
-                r"Returns the keywords passed to a mixin or function that takes arbitrary arguments. The $args argument must be an argument list.\n\nThe keywords are returned as a map from argument names as unquoted strings (not including $) to the values of those arguments.",
+                "Returns the keywords passed to a mixin or function that takes arbitrary arguments. The \$args argument must be an argument list.\n\nThe keywords are returned as a map from argument names as unquoted strings (not including \$) to the values of those arguments.",
             signature: r"($args)",
             parameterSnippet: r"${1:args}",
             returns: "map",
@@ -686,7 +686,7 @@ class SassData {
           SassModuleFunction(
             "mixin-exists",
             description:
-                r"Returns whether a mixin named $name exists.\n\nIf $module is null, this returns whether a mixin named $name without a namespace exists. Otherwise, $module must be a string matching the namespace of a @use rule in the current file, in which case this returns whether that module has a mixin named $name.",
+                "Returns whether a mixin named \$name exists.\n\nIf \$module is null, this returns whether a mixin named \$name without a namespace exists. Otherwise, \$module must be a string matching the namespace of a @use rule in the current file, in which case this returns whether that module has a mixin named \$name.",
             signature: r"($name, $module: null)",
             parameterSnippet: r"${1:name}",
             returns: "boolean",
@@ -694,7 +694,7 @@ class SassData {
           SassModuleFunction(
             "module-functions",
             description:
-                r"Returns all the functions defined in a module, as a map from function names to function values.\n\nThe $module parameter must be a string matching the namespace of a @use rule in the current file.",
+                "Returns all the functions defined in a module, as a map from function names to function values.\n\nThe \$module parameter must be a string matching the namespace of a @use rule in the current file.",
             signature: r"($module)",
             parameterSnippet: r"${1:module}",
             returns: "map",
@@ -702,7 +702,7 @@ class SassData {
           SassModuleFunction(
             "module-variables",
             description:
-                r"Returns all the variables defined in a module, as a map from variable names (without $) to the values of those variables.\n\nThe $module parameter must be a string matching the namespace of a @use rule in the current file.",
+                "Returns all the variables defined in a module, as a map from variable names (without \$) to the values of those variables.\n\nThe \$module parameter must be a string matching the namespace of a @use rule in the current file.",
             signature: r"($module)",
             parameterSnippet: r"${1:module}",
             returns: "map",
@@ -739,7 +739,7 @@ class SassData {
           SassModuleFunction(
             "append",
             description:
-                r"Combines `$selectors` without descendant combinators — that is, without whitespace between them.\n\nIf any selector in `$selectors` is a selector list, each complex selector is combined separately.\n\nThe `$selectors` may contain placeholder selectors, but not parent selectors.",
+                "Combines `\$selectors` without descendant combinators — that is, without whitespace between them.\n\nIf any selector in `\$selectors` is a selector list, each complex selector is combined separately.\n\nThe `\$selectors` may contain placeholder selectors, but not parent selectors.",
             signature: r"($selectors...)",
             parameterSnippet: r"${1:selectors}",
             returns: "selector",
@@ -785,7 +785,7 @@ class SassData {
           SassModuleFunction(
             "simple-selectors",
             description:
-                r"Returns a list of simple selectors in `$selector`.\n\n`$selector` must be a single string that contains a compound selector. This means it may not contain combinators (including spaces) or commas.\n\nThe returned list is comma-separated, and the simple selectors are unquoted strings.",
+                "Returns a list of simple selectors in `\$selector`.\n\n`\$selector` must be a single string that contains a compound selector. This means it may not contain combinators (including spaces) or commas.\n\nThe returned list is comma-separated, and the simple selectors are unquoted strings.",
             signature: r"($selector)",
             parameterSnippet: r"${1:selector}",
             returns: "list",
@@ -806,7 +806,7 @@ class SassData {
           SassModuleFunction(
             "index",
             description:
-                r"Returns the first index of `$substring` in `$string`, or `null` if the substring is not found.\n\nNote that the index **1** indicates the first character of `$string` in Sass.",
+                "Returns the first index of `\$substring` in `\$string`, or `null` if the substring is not found.\n\nNote that the index **1** indicates the first character of `\$string` in Sass.",
             signature: r"($string, $substring)",
             parameterSnippet: r"${1:string}, ${2:substring}",
             returns: "number",
@@ -814,7 +814,7 @@ class SassData {
           SassModuleFunction(
             "insert",
             description:
-                r"Returns a copy of `$string` with `$insert` inserted at `$index`.\n\nNote that the index **1** indicates the first character of `$string` in Sass.",
+                "Returns a copy of `\$string` with `\$insert` inserted at `\$index`.\n\nNote that the index **1** indicates the first character of `\$string` in Sass.",
             signature: r"($string, $insert, $index)",
             parameterSnippet: r"${1:string}, ${2:insert}, ${3:index}",
             returns: "string",
@@ -829,7 +829,7 @@ class SassData {
           SassModuleFunction(
             "slice",
             description:
-                r"Returns the slice of `$string` starting at index `$start-at` and ending at index `$end-at` (both inclusive).\n\nNote that the index **1** indicates the first character of `$string` in Sass.",
+                "Returns the slice of `\$string` starting at index `\$start-at` and ending at index `\$end-at` (both inclusive).\n\nNote that the index **1** indicates the first character of `\$string` in Sass.",
             signature: r"($string, $start-at, $end-at: -1)",
             parameterSnippet: r"${1:string}, ${2:start-at}",
             returns: "string",
@@ -837,7 +837,7 @@ class SassData {
           SassModuleFunction(
             "split",
             description:
-                r"Returns a bracketed, comma-separated list of substrings of `$string` that are separated by `$separator`. The `$separator`s aren't included in these substrings.\n\nIf `$limit` is a number 1 or higher, this splits on at most that many `$separator`s (and so returns at most `$limit` + 1 strings). The last substring contains the rest of the string, including any remaining `$separator`s.",
+                "Returns a bracketed, comma-separated list of substrings of `\$string` that are separated by `\$separator`. The `\$separator`s aren't included in these substrings.\n\nIf `\$limit` is a number 1 or higher, this splits on at most that many `\$separator`s (and so returns at most `\$limit` + 1 strings). The last substring contains the rest of the string, including any remaining `\$separator`s.",
             signature: r"($string, $separator, $limit: null)",
             parameterSnippet: r"${1:string}, ${2:separator}",
             returns: "list",

@@ -11,6 +11,13 @@
 			"outFiles": ["${workspaceRoot}/extension/dist/main.js"],
 			"autoAttachChildProcesses": true,
       "preLaunchTask": "npm: build - extension"
-		}
+		},
+    {
+      "name": "Attach to language server",
+      "request": "attach",
+      "type": "dart",
+      "cwd": "pkgs/sass_language_server",
+      "vmServiceUri": "${command:dart.promptForVmService}" // Prompt for the VM Service URI
+    },
 	]
 }

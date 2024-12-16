@@ -9,6 +9,8 @@ import '../go_to_definition/definition.dart';
 import 'reference.dart';
 
 class FindReferencesFeature extends GoToDefinitionFeature {
+  final _sassData = SassData();
+
   FindReferencesFeature({required super.ls});
 
   Future<List<lsp.Location>> findReferences(TextDocument document,
@@ -29,8 +31,7 @@ class FindReferencesFeature extends GoToDefinitionFeature {
     String? builtin;
     if (definition.location == null) {
       // If we don't have a location we might be dealing with a built-in.
-      var sassData = SassData();
-      for (var module in sassData.modules) {
+      for (var module in _sassData.modules) {
         for (var function in module.functions) {
           if (function.name == definition.name) {
             builtin = function.name;

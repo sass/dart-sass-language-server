@@ -1,0 +1,9 @@
+@use "sass:string"
+@use "other"
+
+$_id: string.unique-id()
+$_prefix: other.$from-other
+
+.card
+  .body:has(:not(.stuff))
+    padding: 4px
