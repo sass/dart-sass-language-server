@@ -412,8 +412,8 @@ $border-width: rem(1px);
 
       var result = await ls.hover(document, at(line: 2, char: 14));
       expect(result, isNotNull);
-      expect(getContents(result), contains(r'π'));
-      expect(getContents(result), contains(r'sass-lang.com'));
+      expect(getContents(result), contains('π'));
+      expect(getContents(result), contains('sass-lang.com'));
     });
 
     test('math function', () async {
@@ -426,8 +426,22 @@ $border-width: rem(1px);
       var result = await ls.hover(document, at(line: 2, char: 14));
       expect(result, isNotNull);
       expect(getContents(result),
-          contains(r'Rounds up to the nearest whole number'));
-      expect(getContents(result), contains(r'sass-lang.com'));
+          contains('Rounds up to the nearest whole number'));
+      expect(getContents(result), contains('sass-lang.com'));
+    });
+
+    test('function as variable expression', () async {
+      var document = fs.createDocument(r'''
+@use "sass:string";
+
+$_id: string.unique-id();
+''');
+
+      var result = await ls.hover(document, at(line: 2, char: 14));
+      expect(result, isNotNull);
+      expect(getContents(result),
+          contains('Returns a randomly-generated unquoted string'));
+      expect(getContents(result), contains('sass-lang.com'));
     });
   });
 }

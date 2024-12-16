@@ -105,6 +105,9 @@ class GoToDefinitionFeature extends LanguageFeature {
         }
       } on StateError {
         return null;
+      } on UnsupportedError {
+        // The target URI scheme may be unsupported.
+        return null;
       }
     }
 

@@ -239,15 +239,11 @@ $browsers
     var range = toRange(node.nameSpan);
 
     var definition = await internalGoToDefinition(document, range.start);
-    if (definition == null) {
-      return null;
-    }
-
-    if (definition.location == null) {
+    if (definition == null || definition.location == null) {
       // If we don't have a location we are likely dealing with a built-in.
       for (var module in _sassData.modules) {
         for (var variable in module.variables) {
-          if (variable.name == definition.name) {
+          if ('\$${variable.name}' == name) {
             if (_supportsMarkdown()) {
               var contents = _asMarkdown('''
 ${variable.description}
@@ -298,13 +294,13 @@ ${variable.description}
     if (_supportsMarkdown()) {
       var contents = _asMarkdown('''
 ```${document.languageId}
-${docComment != null ? '$docComment\n' : ''}$name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}
-```
+$name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}
+```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
       var contents = _asPlaintext('''
-${docComment != null ? '$docComment\n' : ''}$name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}
+$name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     }
@@ -316,15 +312,11 @@ ${docComment != null ? '$docComment\n' : ''}$name: ${resolvedValue ?? rawValue}$
     var range = toRange(node.nameSpan);
 
     var definition = await internalGoToDefinition(document, range.start);
-    if (definition == null) {
-      return null;
-    }
-
-    if (definition.location == null) {
-      // If we don't have a location we are likely dealing with a built-in.
+    if (definition == null || definition.location == null) {
+      // If we don't have a location we may be dealing with a built-in.
       for (var module in _sassData.modules) {
         for (var function in module.functions) {
-          if (function.name == definition.name) {
+          if (function.name == name) {
             if (_supportsMarkdown()) {
               var contents = _asMarkdown('''
 ${function.description}
@@ -366,14 +358,14 @@ ${function.description}
 
     if (_supportsMarkdown()) {
       var contents = _asMarkdown('''
-${docComment != null ? '$docComment\n' : ''}```${document.languageId}
+```${document.languageId}
 @function $name$arguments
-```
+```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
       var contents = _asPlaintext('''
-${docComment != null ? '$docComment\n' : ''}@function $name$arguments
+@function $name$arguments${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     }
@@ -413,14 +405,14 @@ ${docComment != null ? '$docComment\n' : ''}@function $name$arguments
 
     if (_supportsMarkdown()) {
       var contents = _asMarkdown('''
-${docComment != null ? '$docComment\n' : ''}```${document.languageId}
+```${document.languageId}
 @mixin $name$arguments
-```
+```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
       var contents = _asPlaintext('''
-${docComment != null ? '$docComment\n' : ''}@mixin $name$arguments
+@mixin $name$arguments${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     }
