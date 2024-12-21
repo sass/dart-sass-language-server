@@ -4,6 +4,25 @@ class FeatureConfiguration {
   FeatureConfiguration({required this.enabled});
 }
 
+enum MixinStyle { all, noBracket, bracket }
+
+class CompletionConfiguration extends FeatureConfiguration {
+  final bool completePropertyWithSemicolon;
+  final bool css;
+  final MixinStyle mixinStyle;
+  final bool suggestFromUseOnly;
+  final bool triggerPropertyValueCompletion;
+
+  CompletionConfiguration({
+    required super.enabled,
+    required this.completePropertyWithSemicolon,
+    required this.css,
+    required this.mixinStyle,
+    required this.suggestFromUseOnly,
+    required this.triggerPropertyValueCompletion,
+  });
+}
+
 class HoverConfiguration extends FeatureConfiguration {
   final bool documentation;
   final bool references;
@@ -16,6 +35,7 @@ class HoverConfiguration extends FeatureConfiguration {
 }
 
 class LanguageConfiguration {
+  late final CompletionConfiguration completion;
   late final FeatureConfiguration definition;
   late final FeatureConfiguration documentSymbols;
   late final FeatureConfiguration documentLinks;
@@ -28,6 +48,20 @@ class LanguageConfiguration {
   late final FeatureConfiguration workspaceSymbols;
 
   LanguageConfiguration.from(dynamic config) {
+    completion = CompletionConfiguration(
+      enabled: config?['completion']?['enabled'] as bool? ?? true,
+      completePropertyWithSemicolon:
+          config?['completion']?['completePropertyWithSemicolon'] as bool? ??
+              true,
+      css: config?['completion']?['css'] as bool? ?? true,
+      mixinStyle: _toMixinStyle(config?['completion']?['mixinStyle']),
+      suggestFromUseOnly:
+          config?['completion']?['suggestFromUseOnly'] as bool? ?? true,
+      triggerPropertyValueCompletion:
+          config?['completion']?['triggerPropertyValueCompletion'] as bool? ??
+              true,
+    );
+
     definition = FeatureConfiguration(
         enabled: config?['definition']?['enabled'] as bool? ?? true);
     documentSymbols = FeatureConfiguration(
@@ -53,5 +87,18 @@ class LanguageConfiguration {
         enabled: config?['selectionRanges']?['enabled'] as bool? ?? true);
     workspaceSymbols = FeatureConfiguration(
         enabled: config?['workspaceSymbols']?['enabled'] as bool? ?? true);
+  }
+
+  MixinStyle _toMixinStyle(dynamic style) {
+    var styleString = style as String? ?? 'all';
+    switch (styleString) {
+      case 'nobracket':
+        return MixinStyle.noBracket;
+      case 'bracket':
+        return MixinStyle.bracket;
+      case 'all':
+      default:
+        return MixinStyle.all;
+    }
   }
 }
