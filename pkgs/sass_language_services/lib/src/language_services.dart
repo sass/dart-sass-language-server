@@ -1,6 +1,7 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/features/completion/completion_feature.dart';
 import 'package:sass_language_services/src/features/document_highlights/document_highlights_feature.dart';
 import 'package:sass_language_services/src/features/find_references/find_references_feature.dart';
 import 'package:sass_language_services/src/features/folding_ranges/folding_ranges_feature.dart';
@@ -27,6 +28,7 @@ class LanguageServices {
   LanguageServerConfiguration configuration =
       LanguageServerConfiguration.create(null);
 
+  late final CompletionFeature _completion;
   late final DocumentHighlightsFeature _documentHighlights;
   late final DocumentLinksFeature _documentLinks;
   late final DocumentSymbolsFeature _documentSymbols;
@@ -42,6 +44,7 @@ class LanguageServices {
     required this.clientCapabilities,
     required this.fs,
   }) : cache = LanguageServicesCache() {
+    _completion = CompletionFeature(ls: this);
     _documentHighlights = DocumentHighlightsFeature(ls: this);
     _documentLinks = DocumentLinksFeature(ls: this);
     _documentSymbols = DocumentSymbolsFeature(ls: this);
@@ -56,6 +59,14 @@ class LanguageServices {
 
   void configure(LanguageServerConfiguration configuration) {
     this.configuration = configuration;
+  }
+
+  /// Get a response for the [completion proposal](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.18/specification/#textDocument_completion) request.
+  ///
+  /// Editors use this response to show relevant suggestions when typing.
+  Future<lsp.CompletionList> doComplete(
+      TextDocument document, lsp.Position position) {
+    return _completion.doComplete(document, position);
   }
 
   /// Get a response for the [document highlights](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.18/specification/#textDocument_documentHighlight) request.
