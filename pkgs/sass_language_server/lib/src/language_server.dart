@@ -157,6 +157,25 @@ class LanguageServer {
       );
 
       var serverCapabilities = ServerCapabilities(
+        completionProvider: CompletionOptions(
+          resolveProvider: false,
+          triggerCharacters: [
+            // For SassDoc annotation completion
+            "@",
+            "/",
+            // For @use completion
+            '"',
+            "'",
+            // For placeholder completion
+            "%",
+            // For namespaced completions
+            ".",
+            // For property values
+            ":",
+            // For custom properties
+            "-",
+          ],
+        ),
         definitionProvider: Either2.t1(true),
         documentHighlightProvider: Either2.t1(true),
         documentLinkProvider: DocumentLinkOptions(resolveProvider: false),
@@ -327,6 +346,26 @@ class LanguageServer {
     _connection.peer
         .registerMethod('textDocument/documentSymbol', onDocumentSymbol);
 
+    _connection.onCompletion((params) async {
+      try {
+        var document = _documents.get(params.textDocument.uri);
+        if (document == null) {
+          return CompletionList(isIncomplete: true, items: []);
+        }
+
+        var configuration = _getLanguageConfiguration(document);
+        if (configuration.completion.enabled) {
+          var result = await _ls.doComplete(document, params.position);
+          return result;
+        } else {
+          return CompletionList(isIncomplete: true, items: []);
+        }
+      } on Exception catch (e) {
+        _log.debug(e.toString());
+        return CompletionList(isIncomplete: true, items: []);
+      }
+    });
+
     _connection.onHover((params) async {
       try {
         var document = _documents.get(params.textDocument.uri);
@@ -337,7 +376,7 @@ class LanguageServer {
 
         var configuration = _getLanguageConfiguration(document);
         if (configuration.hover.enabled) {
-          var result = await _ls.hover(document, params.position);
+          var result = await _ls.doHover(document, params.position);
           return result ?? Hover(contents: Either2.t2(""));
         } else {
           return Hover(contents: Either2.t2(""));
