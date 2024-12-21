@@ -46,7 +46,7 @@ nav {
     }
 }
 ''');
-      var result = await ls.doHover(document, at(line: 1, char: 5));
+      var result = await ls.hover(document, at(line: 1, char: 5));
 
       expect(result, isNotNull);
       expect(getContents(result), contains('nav ul'));
@@ -60,7 +60,7 @@ nav {
   padding: 0;
 }
 ''');
-      var result = await ls.doHover(document, at(line: 0, char: 2));
+      var result = await ls.hover(document, at(line: 0, char: 2));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(':has(.foo)'));
@@ -74,7 +74,7 @@ nav {
   padding: 0;
 }
 ''');
-      var result = await ls.doHover(document, at(line: 0, char: 2));
+      var result = await ls.hover(document, at(line: 0, char: 2));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(':has(#bar)'));
@@ -94,7 +94,7 @@ nav {
   padding: 0;
 }
 ''');
-      var result = await ls.doHover(document, at(line: 1, char: 3));
+      var result = await ls.hover(document, at(line: 1, char: 3));
 
       expect(result, isNotNull);
       expect(getContents(result), contains('margin'));
@@ -115,7 +115,7 @@ nav {
     }
 }
 ''');
-      var result = await ls.doHover(document, at(line: 1, char: 5));
+      var result = await ls.hover(document, at(line: 1, char: 5));
 
       expect(result, isNotNull);
       expect(getContents(result), contains('.button--primary'));
@@ -133,7 +133,7 @@ nav {
   }
 }
 ''');
-      var result = await ls.doHover(document, at(line: 2, char: 10));
+      var result = await ls.hover(document, at(line: 2, char: 10));
 
       expect(result, isNotNull);
       expect(getContents(result), contains('.button--primary::hover'));
@@ -155,7 +155,7 @@ nav {
   }
 }
 ''');
-      var result = await ls.doHover(document, at(line: 6, char: 10));
+      var result = await ls.hover(document, at(line: 6, char: 10));
 
       expect(result, isNotNull);
       expect(getContents(result),
@@ -175,7 +175,7 @@ nav {
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 3, char: 24));
+      var result = await ls.hover(document, at(line: 3, char: 24));
 
       expect(result, isNotNull);
       expect(
@@ -200,7 +200,7 @@ $_button-border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 3, char: 23));
+      var result = await ls.hover(document, at(line: 3, char: 23));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'$_button-border-width: rem(1px)'));
@@ -223,7 +223,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 3, char: 23));
+      var result = await ls.hover(document, at(line: 3, char: 23));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'$button-border-width: rem(1px)'));
@@ -246,7 +246,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 5, char: 14));
+      var result = await ls.hover(document, at(line: 5, char: 14));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@function getPrimary()'));
@@ -261,7 +261,7 @@ $border-width: rem(1px);
 @debug compare($b: 2);
 ''');
 
-      var result = await ls.doHover(document, at(line: 4, char: 9));
+      var result = await ls.hover(document, at(line: 4, char: 9));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@function compare($a: 1, $b)'));
@@ -280,7 +280,7 @@ $border-width: rem(1px);
 @debug core.compare($b: 2);
 ''');
 
-      var result = await ls.doHover(document, at(line: 2, char: 9));
+      var result = await ls.hover(document, at(line: 2, char: 9));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@function compare($a: 1, $b)'));
@@ -303,7 +303,7 @@ $border-width: rem(1px);
 @debug core.math-compare($b: 2);
 ''');
 
-      var result = await ls.doHover(document, at(line: 2, char: 19));
+      var result = await ls.hover(document, at(line: 2, char: 19));
 
       expect(result, isNotNull);
       expect(
@@ -327,7 +327,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 5, char: 14));
+      var result = await ls.hover(document, at(line: 5, char: 14));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@mixin primary'));
@@ -344,7 +344,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 5, char: 14));
+      var result = await ls.hover(document, at(line: 5, char: 14));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@mixin theme($base: green)'));
@@ -365,7 +365,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 3, char: 19));
+      var result = await ls.hover(document, at(line: 3, char: 19));
 
       expect(result, isNotNull);
       expect(getContents(result), contains(r'@mixin theme($base: green)'));
@@ -390,7 +390,7 @@ $border-width: rem(1px);
 }
 ''');
 
-      var result = await ls.doHover(document, at(line: 3, char: 19));
+      var result = await ls.hover(document, at(line: 3, char: 19));
 
       expect(result, isNotNull);
       expect(
@@ -410,7 +410,7 @@ $border-width: rem(1px);
 @debug math.$pi;
 ''');
 
-      var result = await ls.doHover(document, at(line: 2, char: 14));
+      var result = await ls.hover(document, at(line: 2, char: 14));
       expect(result, isNotNull);
       expect(getContents(result), contains('π'));
       expect(getContents(result), contains('sass-lang.com'));
@@ -423,7 +423,7 @@ $border-width: rem(1px);
 @debug math.ceil(4);
 ''');
 
-      var result = await ls.doHover(document, at(line: 2, char: 14));
+      var result = await ls.hover(document, at(line: 2, char: 14));
       expect(result, isNotNull);
       expect(getContents(result),
           contains('Rounds up to the nearest whole number'));
@@ -437,7 +437,7 @@ $border-width: rem(1px);
 $_id: string.unique-id();
 ''');
 
-      var result = await ls.doHover(document, at(line: 2, char: 14));
+      var result = await ls.hover(document, at(line: 2, char: 14));
       expect(result, isNotNull);
       expect(getContents(result),
           contains('Returns a randomly-generated unquoted string'));

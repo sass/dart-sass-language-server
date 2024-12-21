@@ -1,11 +1,27 @@
+import 'dart:math';
+
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
+import 'package:sass_language_services/src/css/entry_status.dart';
 
+import '../../utils/sass_lsp_utils.dart';
 import '../language_feature.dart';
 import '../node_at_offset_visitor.dart';
 import './completion_context.dart';
 import './completion_list.dart';
+
+final triggerSuggestCommand = lsp.Command(
+  title: 'Suggest',
+  command: 'editor.action.triggerSuggest',
+);
+
+// Sort string prefixes
+const enums = ' ';
+const normal = 'e';
+const vendorPrefix = 'o';
+const term = 'p';
+const variable = 'q';
 
 class CompletionFeature extends LanguageFeature {
   CompletionFeature({required super.ls});
@@ -47,7 +63,7 @@ class CompletionFeature extends LanguageFeature {
       lineBeforePosition: lineBeforePosition,
     );
 
-    for (var i = path.length; i >= 0; i--) {
+    for (var i = path.length - 1; i >= 0; i--) {
       var node = path[i];
       if (node is sass.Declaration) {
         _declarationCompletion(node, context, result);
@@ -130,12 +146,9 @@ class CompletionFeature extends LanguageFeature {
 
     // From offset, go back until hitting a newline
     var i = offset - 1;
-    var codeUnit = text.codeUnitAt(i);
-    const lineFeed = 10; // \n
-    const carriageReturn = 13; // \r
-    while (codeUnit != lineFeed && codeUnit != carriageReturn) {
+    var linebreaks = '\n\r'.codeUnits;
+    while (i >= 0 && !linebreaks.contains(text.codeUnitAt(i))) {
       i--;
-      codeUnit = text.codeUnitAt(i);
     }
     var lineBeforePosition = text.substring(i + 1, offset);
 
@@ -150,8 +163,63 @@ class CompletionFeature extends LanguageFeature {
     return (lineBeforePosition, currentWord);
   }
 
-  void _declarationCompletion(sass.Declaration node, CompletionContext context,
-      CompletionList result) {}
+  void _declarationCompletion(
+      sass.AstNode node, CompletionContext context, CompletionList result) {
+    for (var property in cssData.properties) {
+      var range = context.defaultReplaceRange;
+      var insertText = property.name;
+      var triggerSuggest = false;
+
+      if (node is sass.Declaration) {
+        range = toRange(node.name.span);
+        if (!node.span.text.contains(':')) {
+          insertText += ': ';
+          triggerSuggest = true;
+        }
+      } else {
+        insertText += ': ';
+        triggerSuggest = true;
+      }
+
+      var isDeprecated = property.status == EntryStatus.nonstandard ||
+          property.status == EntryStatus.obsolete;
+
+      if (property.restrictions == null) {
+        triggerSuggest = false;
+      }
+
+      lsp.Command? command;
+      if (context.configuration.triggerPropertyValueCompletion &&
+          triggerSuggest) {
+        command = triggerSuggestCommand;
+      }
+
+      var relevance = 50;
+      if (property.relevance case var rel?) {
+        relevance = min(max(rel, 0), 99);
+      }
+
+      var suffix = (255 - relevance).toRadixString(16);
+      var prefix = insertText.startsWith('-') ? vendorPrefix : normal;
+      var sortText = '${prefix}_$suffix';
+
+      var item = lsp.CompletionItem(
+        label: property.name,
+        documentation: supportsMarkdown()
+            ? property.getMarkdownDescription()
+            : property.getPlaintextDescription(),
+        tags: isDeprecated ? [lsp.CompletionItemTag.Deprecated] : [],
+        textEdit: lsp.Either2.t2(
+          lsp.TextEdit(range: range, newText: insertText),
+        ),
+        insertTextFormat: lsp.InsertTextFormat.Snippet,
+        sortText: sortText,
+        kind: lsp.CompletionItemKind.Property,
+        command: command,
+      );
+      result.items.add(item);
+    }
+  }
 
   void _interpolationCompletion(sass.Interpolation node,
       CompletionContext context, CompletionList result) {}
@@ -166,7 +234,9 @@ class CompletionFeature extends LanguageFeature {
       CompletionContext context, CompletionList result) {}
 
   void _styleRuleCompletion(
-      sass.StyleRule node, CompletionContext context, CompletionList result) {}
+      sass.StyleRule node, CompletionContext context, CompletionList result) {
+    _declarationCompletion(node, context, result);
+  }
 
   void _variableDeclarationCompletion(sass.VariableDeclaration node,
       CompletionContext context, CompletionList result) {}

@@ -376,7 +376,7 @@ class LanguageServer {
 
         var configuration = _getLanguageConfiguration(document);
         if (configuration.hover.enabled) {
-          var result = await _ls.doHover(document, params.position);
+          var result = await _ls.hover(document, params.position);
           return result ?? Hover(contents: Either2.t2(""));
         } else {
           return Hover(contents: Either2.t2(""));
