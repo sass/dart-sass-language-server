@@ -63,3 +63,21 @@ bool isSameRange(lsp.Range a, lsp.Range b) {
       a.end.line == b.end.line &&
       a.end.character == b.end.character;
 }
+
+lsp.Either2<lsp.MarkupContent, String> asMarkdown(String content) {
+  return lsp.Either2.t1(
+    lsp.MarkupContent(
+      kind: lsp.MarkupKind.Markdown,
+      value: content,
+    ),
+  );
+}
+
+lsp.Either2<lsp.MarkupContent, String> asPlaintext(String content) {
+  return lsp.Either2.t1(
+    lsp.MarkupContent(
+      kind: lsp.MarkupKind.PlainText,
+      value: content,
+    ),
+  );
+}

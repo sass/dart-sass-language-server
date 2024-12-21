@@ -4,6 +4,8 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 
 import '../../sass_language_services.dart';
+import '../css/css_data.dart';
+import '../sass/sass_data.dart';
 import '../utils/uri_utils.dart';
 import 'node_at_offset_visitor.dart';
 
@@ -15,7 +17,16 @@ class WorkspaceResult<T> {
 }
 
 abstract class LanguageFeature {
+  final cssData = CssData();
+  final sassData = SassData();
+
   late final LanguageServices ls;
+
+  bool supportsMarkdown() =>
+      ls.clientCapabilities.textDocument?.hover?.contentFormat
+              ?.any((f) => f == lsp.MarkupKind.Markdown) ==
+          true ||
+      ls.clientCapabilities.general?.markdown != null;
 
   LanguageFeature({required this.ls});
 
