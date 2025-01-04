@@ -84,7 +84,23 @@ void main() {
       ls.cache.clear();
     });
 
-    test('in an empty style rule', () async {
+    // TODO: The parser throws if the stylesheet is not valid which makes implementing completions a bit tricky.
+    // Error: Expected expression.
+    //    ╷
+    //  2 │   display: ;
+    //    │            ^
+    //    ╵
+    //    - 2:12  root stylesheet
+    //  package:sass/src/utils.dart 428:3                                                     throwWithTrace
+    //  package:sass/src/parse/parser.dart 732:7                                              Parser.wrapSpanFormatException
+    //  package:sass/src/parse/stylesheet.dart 86:12                                          StylesheetParser.parse
+    //  package:sass/src/ast/sass/statement/stylesheet.dart 134:38                            new Stylesheet.parseScss
+    //  package:sass_language_services/src/language_services_cache.dart 35:38                 LanguageServicesCache.getStylesheet
+    //  package:sass_language_services/src/language_services.dart 106:18                      LanguageServices.parseStylesheet
+    //  package:sass_language_services/src/features/completion/completion_feature.dart 52:25  CompletionFeature.doComplete
+    //  package:sass_language_services/src/language_services.dart 61:24                       LanguageServices.doComplete
+    //  test/features/completion/completion_test.dart 94:29                                   main.<fn>.<fn>
+    test('for display', () async {
       var document = fs.createDocument(r'''
 .a {
   display: ;
