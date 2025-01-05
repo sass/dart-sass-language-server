@@ -59,6 +59,11 @@ Copy the first link, then go back to the Run and debug window where you started 
 
 Your debugger should be attached, allowing you to place breakpoints and step through code.
 
+_The video below demonstrates how to attach a debugger._
+
+https://github.com/user-attachments/assets/d5143197-e092-483d-9d66-f1c9c52a075b
+
+
 ### Test in VS Code without built-in SCSS features
 
 VS Code ships with some built-in support for SCSS and CSS. To test this language server in isolation you can disable the built-in extension.
