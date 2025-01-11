@@ -1,17 +1,14 @@
 # Sass for Visual Studio Code
 
-This extension requires you install [`sass-language-server`](https://github.com/sass/dart-sass-language-server/tree/main/pkgs/sass_language_server). The extension will not work without it. <!-- Go for VS Code has a check for missing tools and an install helper, for inspiration. -->
+At the moment this extension is here only to test and debug the language server.
+In the future this extension can act as an official VS Code client.
 
-<!-- Not quite there yet
+Outside of this repo the extension will need `sass-language-server` on your `PATH`. See [how to build from source](../docs/contributing/building.md). [Go for VS Code](https://github.com/golang/vscode-go/tree/master/extension) has a check for missing tools and an install helper, for inspiration down the line.
+
 ## Recommended settings
 
-We recommend you turn off the built-in CSS/SCSS/Less language extension.
+It's recommend you turn off the built-in CSS/SCSS/Less language extension to avoid conflicts and to test this extension in isolation.
 
 1. Go to the Extensions tab and search for @builtin css language features.
 2. Click the settings icon and pick Disable from the list.
 3. Click Restart extension to turn it off.
--->
-
-## Changelog
-
-Visit the [release section on GitHub](https://github.com/sass/dart-sass-language-server/releases) to see what has changed.
