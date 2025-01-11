@@ -18,5 +18,7 @@ A summary of what you need:
    - Look at existing features for some common patterns, such as how to parse a `TextDocument` to get the AST.
    - You may want to know what AST node is at a given `Position`. See `node_at_offset_visitor.dart`.
    - Use `findInWorkspace` to run a callback on each linked document, recursively (with a `lazy` option).
+   - Write [tests](../../pkgs/sass_language_services/test/features/) using the [memory file system](../../pkgs/sass_language_services/test/memory_file_system.dart).
 7. Add the feature to the public API in [language_services.dart](../../pkgs/sass_language_services/lib/src/language_services.dart).
 8. Use the feature in the request handler in `language_server.dart`.
+9. Add a VS Code test as an an end-to-end "smoketest" in the [extension](../../extension/test/README.md).

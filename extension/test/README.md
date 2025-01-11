@@ -8,8 +8,8 @@ Each subdirectory in `electron/` will run in a separate instance of VS Code.
 
 By convention subdirectories in `electron/` should have:
 
-- `index.js` as the entrypoint that finds test files and passes them to Mocha
-- at least one `*.test.js` file with some tests
-- a `fixtures/` subdirectory with:
-  - `.vscode/settings.json`
-  - `styles.scss` or `styles.sass`
+- `index.js` as the entrypoint that finds test files and passes them to Mocha.
+- At least one `*.test.js` file with some tests.
+- A `fixtures/` subdirectory with:
+  - `.vscode/settings.json` with any non-default settings you want to test.
+  - `styles.scss` or `styles.sass`.
