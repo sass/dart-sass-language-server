@@ -2,13 +2,12 @@ import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 
 import '../../utils/sass_lsp_utils.dart';
-import '../document_symbols/stylesheet_document_symbol.dart';
+import 'scoped_symbols.dart';
+import 'stylesheet_document_symbol.dart';
 import 'scope.dart';
 
 final deprecated = RegExp(r'///\s*@deprecated');
 final openBracketOrNewline = RegExp(r'[\{\n]');
-
-enum Dialect { scss, indented }
 
 /// Builds scopes and a list of symbols in those scopes starting at [scope] (typically the global scope).
 class ScopeVisitor with sass.RecursiveStatementVisitor {

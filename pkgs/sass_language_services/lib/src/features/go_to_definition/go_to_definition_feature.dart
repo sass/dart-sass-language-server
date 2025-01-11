@@ -1,13 +1,11 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
-import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
 import '../../utils/sass_lsp_utils.dart';
 import '../language_feature.dart';
 import 'definition.dart';
-import 'scope_visitor.dart';
 
 class GoToDefinitionFeature extends LanguageFeature {
   GoToDefinitionFeature({required super.ls});
@@ -59,13 +57,7 @@ class GoToDefinitionFeature extends LanguageFeature {
 
       // Look for the symbol in the current document.
       // It may be a scoped symbol.
-      // TODO: refactor so L63-68 is a function in DocumentSymbolsFeature, remove duplicates.
-      var symbols = ls.cache.getDocumentSymbols(document) ??
-          ScopedSymbols(
-            stylesheet,
-            document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-          );
-      ls.cache.setDocumentSymbols(document, symbols);
+      var symbols = ls.getScopedSymbols(document);
       var symbol = symbols.findSymbolFromNode(node);
       if (symbol != null) {
         // Found the definition in the same document.
@@ -134,14 +126,7 @@ class GoToDefinitionFeature extends LanguageFeature {
               ? name!.replaceFirst(prefix, '')
               : name!;
 
-          var stylesheet = ls.parseStylesheet(document);
-
-          var symbols = ls.cache.getDocumentSymbols(document) ??
-              ScopedSymbols(
-                stylesheet,
-                document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-              );
-          ls.cache.setDocumentSymbols(document, symbols);
+          var symbols = ls.getScopedSymbols(document);
 
           var symbol = symbols.globalScope.getSymbol(
             name: unprefixedName,
@@ -180,13 +165,7 @@ class GoToDefinitionFeature extends LanguageFeature {
         continue;
       }
 
-      var stylesheet = ls.parseStylesheet(document);
-      var symbols = ls.cache.getDocumentSymbols(document) ??
-          ScopedSymbols(
-            stylesheet,
-            document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-          );
-      ls.cache.setDocumentSymbols(document, symbols);
+      var symbols = ls.getScopedSymbols(document);
 
       for (var kind in kinds) {
         var symbol = symbols.globalScope.getSymbol(

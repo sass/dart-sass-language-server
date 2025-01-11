@@ -82,6 +82,11 @@ class LanguageServices {
     return _documentSymbols.findDocumentSymbols(document);
   }
 
+  /// Builds scopes and a list of symbols in those scopes starting at the global scope.
+  ScopedSymbols getScopedSymbols(TextDocument document) {
+    return _documentSymbols.getScopedSymbols(document);
+  }
+
   /// Get a response for the [references](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.18/specification/#textDocument_references) request.
   Future<List<lsp.Location>> findReferences(TextDocument document,
       lsp.Position position, lsp.ReferenceContext context) {

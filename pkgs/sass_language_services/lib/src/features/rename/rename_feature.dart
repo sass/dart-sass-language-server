@@ -1,7 +1,6 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_api/sass_api.dart';
 import 'package:sass_language_services/sass_language_services.dart';
-import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 import 'package:sass_language_services/src/features/node_at_offset_visitor.dart';
 
 import '../find_references/find_references_feature.dart';

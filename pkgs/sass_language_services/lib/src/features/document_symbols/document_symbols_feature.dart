@@ -14,4 +14,17 @@ class DocumentSymbolsFeature extends LanguageFeature {
 
     return symbolsVisitor.symbols;
   }
+
+  ScopedSymbols getScopedSymbols(TextDocument document) {
+    var stylesheet = ls.parseStylesheet(document);
+
+    var symbols = ls.cache.getScopedSymbols(document) ??
+        ScopedSymbols(
+          stylesheet,
+          document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
+        );
+    ls.cache.setScopedSymbols(document, symbols);
+
+    return symbols;
+  }
 }

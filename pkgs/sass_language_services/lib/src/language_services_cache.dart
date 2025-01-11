@@ -1,6 +1,5 @@
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
-import 'package:sass_language_services/src/features/go_to_definition/scoped_symbols.dart';
 
 class CacheEntry {
   TextDocument document;
@@ -95,11 +94,11 @@ class LanguageServicesCache {
     return _cache[document.uri.toString()]?.links;
   }
 
-  /// Get the cached symbols for [TextDocument].
+  /// Get the cached [ScopedSymbols] for [TextDocument].
   ///
   /// We cache this since some workspace features read these symbols
   /// for all linked documents (recursively), which can get CPU intensive.
-  ScopedSymbols? getDocumentSymbols(TextDocument document) {
+  ScopedSymbols? getScopedSymbols(TextDocument document) {
     return _cache[document.uri.toString()]?.symbols;
   }
 
@@ -110,7 +109,7 @@ class LanguageServicesCache {
   }
 
   /// Store the result from [ScopedSymbols].
-  void setDocumentSymbols(TextDocument document, ScopedSymbols symbols) {
+  void setScopedSymbols(TextDocument document, ScopedSymbols symbols) {
     _cache[document.uri.toString()]?.symbols = symbols;
   }
 

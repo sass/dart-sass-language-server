@@ -1,5 +1,5 @@
 import 'package:sass_language_services/sass_language_services.dart';
-import 'package:sass_language_services/src/features/go_to_definition/scope.dart';
+import 'package:sass_language_services/src/features/document_symbols/scope.dart';
 import 'package:test/test.dart';
 
 import '../../memory_file_system.dart';
