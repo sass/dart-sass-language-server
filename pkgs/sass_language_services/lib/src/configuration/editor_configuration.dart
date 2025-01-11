@@ -12,7 +12,7 @@ class EditorConfiguration {
     colorDecoratorsLimit = config?['colorDecoratorsLimit'] as int? ?? 500;
     insertSpaces = config?['insertSpaces'] as bool? ?? false;
 
-    // legacy reasons in VS Code
+    // legacy options in VS Code
     var maybeIndentSize = config?['indentSize'];
     if (maybeIndentSize is int) {
       indentSize = maybeIndentSize;

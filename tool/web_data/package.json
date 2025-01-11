@@ -8,6 +8,6 @@
   "scripts": {},
   "license": "MIT",
   "dependencies": {
-    "@vscode/web-custom-data": "0.4.12"
+    "@vscode/web-custom-data": "0.4.13"
   }
 }

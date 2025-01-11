@@ -11,6 +11,9 @@ import 'css_pseudo_element.dart';
 import 'css_units.dart';
 import 'element_selectors.dart';
 
+/// Documentation and API reference used for hover information and completions.
+///
+/// See also [SassData].
 class CssData extends CssDataGenerated {
   final _propertiesSet = <String, CssProperty>{};
   final _atDirectivesSet = <String, CssAtDirective>{};

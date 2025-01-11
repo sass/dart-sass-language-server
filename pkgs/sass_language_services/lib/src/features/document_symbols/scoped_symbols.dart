@@ -1,10 +1,12 @@
 import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/src/utils/sass_lsp_utils.dart';
 
-import '../document_symbols/stylesheet_document_symbol.dart';
+import 'stylesheet_document_symbol.dart';
 import '../find_references/reference.dart';
 import 'scope.dart';
 import 'scope_visitor.dart';
+
+enum Dialect { scss, indented }
 
 ReferenceKind? getNodeReferenceKind(sass.AstNode node) {
   if (node is sass.VariableDeclaration) {

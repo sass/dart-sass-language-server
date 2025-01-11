@@ -1,23 +1,14 @@
 import 'package:lsp_server/lsp_server.dart' as lsp;
 import 'package:sass_language_services/sass_language_services.dart';
 
-import '../go_to_definition/scope.dart';
-import '../go_to_definition/scope_visitor.dart';
-import '../go_to_definition/scoped_symbols.dart';
+import '../document_symbols/scope.dart';
 import '../language_feature.dart';
 
 class FoldingRangesFeature extends LanguageFeature {
   FoldingRangesFeature({required super.ls});
 
   List<lsp.FoldingRange> getFoldingRanges(TextDocument document) {
-    var stylesheet = ls.parseStylesheet(document);
-
-    var symbols = ls.cache.getDocumentSymbols(document) ??
-        ScopedSymbols(
-          stylesheet,
-          document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-        );
-    ls.cache.setDocumentSymbols(document, symbols);
+    var symbols = ls.getScopedSymbols(document);
 
     var result = <lsp.FoldingRange>[];
     // Omit the global scope.

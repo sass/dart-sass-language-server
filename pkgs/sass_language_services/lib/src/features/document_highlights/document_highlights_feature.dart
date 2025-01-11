@@ -3,8 +3,6 @@ import 'package:sass_api/sass_api.dart' as sass;
 import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/features/find_references/find_references_visitor.dart';
 
-import '../go_to_definition/scope_visitor.dart';
-import '../go_to_definition/scoped_symbols.dart';
 import '../language_feature.dart';
 import '../node_at_offset_visitor.dart';
 
@@ -28,12 +26,7 @@ class DocumentHighlightsFeature extends LanguageFeature {
     }
     var kind = getNodeReferenceKind(node);
 
-    var symbols = ls.cache.getDocumentSymbols(document) ??
-        ScopedSymbols(
-          stylesheet,
-          document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-        );
-    ls.cache.setDocumentSymbols(document, symbols);
+    var symbols = ls.getScopedSymbols(document);
 
     var symbol = symbols.findSymbolFromNode(node);
 

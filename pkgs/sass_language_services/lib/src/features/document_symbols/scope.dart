@@ -1,4 +1,4 @@
-import '../document_symbols/stylesheet_document_symbol.dart';
+import 'stylesheet_document_symbol.dart';
 
 class Scope {
   Scope? parent;

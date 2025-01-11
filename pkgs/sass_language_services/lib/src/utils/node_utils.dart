@@ -2,7 +2,10 @@ import 'package:path/path.dart' as p;
 
 final context = p.Context(style: p.Style.url);
 
-String getModuleNameFromPath(String path) {
+/// Get a Node module's name from an import string.
+///
+/// For example, given `@scope/foo/styles/main.scss` this method returns `@scope/foo`.
+String getModuleNameFromImportString(String path) {
   var normalized = context.normalize(path);
   var firstSlash = normalized.indexOf('/');
   if (firstSlash == -1) return normalized;

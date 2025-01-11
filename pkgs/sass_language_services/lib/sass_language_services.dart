@@ -4,6 +4,8 @@
 /// if your language server is also written in Dart. Otherwise you may
 /// want to use [the request forwarding pattern](https://code.visualstudio.com/api/language-extensions/embedded-languages#request-forwarding)
 /// in your languages' client.
+///
+/// [LanguageServices] is the main public API.
 library;
 
 export 'src/configuration/configuration.dart' show LanguageServerConfiguration;
@@ -21,4 +23,5 @@ export 'src/file_system_provider.dart'
 export 'src/language_services.dart' show LanguageServices;
 
 export 'src/features/document_links/stylesheet_document_link.dart';
+export 'src/features/document_symbols/scoped_symbols.dart';
 export 'src/features/document_symbols/stylesheet_document_symbol.dart';

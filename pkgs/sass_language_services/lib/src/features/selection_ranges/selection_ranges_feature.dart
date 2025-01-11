@@ -3,8 +3,6 @@ import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/features/selection_ranges/selection_ranges_visitor.dart';
 import 'package:sass_language_services/src/utils/sass_lsp_utils.dart';
 
-import '../go_to_definition/scope_visitor.dart';
-import '../go_to_definition/scoped_symbols.dart';
 import '../language_feature.dart';
 
 class SelectionRangesFeature extends LanguageFeature {
@@ -13,12 +11,6 @@ class SelectionRangesFeature extends LanguageFeature {
   List<lsp.SelectionRange> getSelectionRanges(
       TextDocument document, List<lsp.Position> positions) {
     var stylesheet = ls.parseStylesheet(document);
-    var symbols = ls.cache.getDocumentSymbols(document) ??
-        ScopedSymbols(
-          stylesheet,
-          document.languageId == 'sass' ? Dialect.indented : Dialect.scss,
-        );
-    ls.cache.setDocumentSymbols(document, symbols);
 
     var result = <lsp.SelectionRange>[];
 
