@@ -1,10 +1,30 @@
 class WorkspaceConfiguration {
-  /// Exclude paths from the initial workspace scan. Defaults include `.git` and `node_modules`.
+  /// Exclude paths from the initial workspace scan.
+  ///
+  /// Defaults include `.git` and `node_modules`.
   final List<String> exclude = ['/**/.git/**', '/**/node_modules/**'];
+
+  /// Aliases pointing at file paths.
+  ///
+  /// Some users may have configured build tools to translate
+  /// from an alias to a path on disk, for example `@assets`
+  /// to `src/assets`.
   final Map<String, String> importAliases = {};
 
-  /// Pass in [load paths](https://sass-lang.com/documentation/cli/dart-sass/#load-path) that will be used in addition to `node_modules`.
+  /// Pass in [load paths](https://sass-lang.com/documentation/cli/dart-sass/#load-path)
+  /// that will be used in addition to `node_modules`.
   final List<String> loadPaths = [];
+
+  /// Decide what log messages get sent from the server to the client.
+  ///
+  /// Valid options are:
+  ///
+  /// - "silent"
+  /// - "error"
+  /// - "warn"
+  /// - "info"
+  /// - "log"
+  /// - "debug"
   late final String logLevel;
 
   Uri? workspaceRoot;

@@ -230,7 +230,7 @@ class DocumentLinksFeature extends LanguageFeature {
 
     final documentFolder = dirname(document);
 
-    final moduleName = getModuleNameFromPath(target.path);
+    final moduleName = getModuleNameFromImportString(target.path);
     final modulePath =
         await _resolvePathToModule(moduleName, documentFolder, rootFolder);
     if (modulePath != null) {
@@ -263,7 +263,7 @@ class DocumentLinksFeature extends LanguageFeature {
       Uri target, Uri document, Uri rootFolder) async {
     final bareTarget = target.path.replaceFirst('pkg:', '');
     final moduleName = bareTarget.contains('/')
-        ? getModuleNameFromPath(bareTarget)
+        ? getModuleNameFromImportString(bareTarget)
         : bareTarget;
     final documentFolder = dirname(document);
 

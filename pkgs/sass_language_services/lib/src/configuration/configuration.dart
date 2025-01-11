@@ -2,6 +2,7 @@ import 'editor_configuration.dart';
 import 'language_configuration.dart';
 import 'workspace_configuration.dart';
 
+/// User configuration for the different language server features.
 class LanguageServerConfiguration {
   late LanguageConfiguration css;
   late LanguageConfiguration scss;

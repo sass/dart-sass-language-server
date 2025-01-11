@@ -59,6 +59,7 @@ class GoToDefinitionFeature extends LanguageFeature {
 
       // Look for the symbol in the current document.
       // It may be a scoped symbol.
+      // TODO: refactor so L63-68 is a function in DocumentSymbolsFeature, remove duplicates.
       var symbols = ls.cache.getDocumentSymbols(document) ??
           ScopedSymbols(
             stylesheet,

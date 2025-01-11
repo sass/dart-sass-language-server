@@ -4,11 +4,15 @@ A Dart implementation of a language server for Sass. The language server uses th
 
 ## Installing the Sass language server
 
+See the contributing documentation for [how to build the language server](../../docs/contributing/building.md) so you can add it to your `PATH`.
+
+<!--
+
 ### From Pub
 
-<!-- Assuming this is how it will be -->
-
 If you're a [Dart](https://dart.dev/get-dart) user, you can install the Sass language server globally using `pub global activate sass_language_server`, which will provide a `sass-language-server` executable.
+
+-->
 
 ## Using the Sass language server
 

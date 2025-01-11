@@ -1,4 +1,7 @@
 class FeatureConfiguration {
+  /// All features should be turned on by default.
+  ///
+  /// Leave it to language clients to configure themselves to be compatible with an editor's built-in features.
   final bool enabled;
 
   FeatureConfiguration({required this.enabled});
@@ -15,6 +18,12 @@ class HoverConfiguration extends FeatureConfiguration {
   });
 }
 
+/// Configuration for a given syntax (CSS, SCSS or Sass indented).
+///
+/// We have a separate configuration per syntax so users of editors
+/// that ship some sort of built-in functionality for Sass have
+/// options to turn off features that cause duplicates or other
+/// interoperability errors.
 class LanguageConfiguration {
   late final FeatureConfiguration definition;
   late final FeatureConfiguration documentSymbols;

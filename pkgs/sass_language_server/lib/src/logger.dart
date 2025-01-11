@@ -25,6 +25,11 @@ int levelToRank(String level) {
   }
 }
 
+/// An interface so send log messages to the client.
+///
+/// It's up to each individual editor how to display these log messages.
+/// They may get shown in a status bar, in a dedicated output pane, or
+/// not shown at all.
 class Logger {
   late RemoteConsole _console;
   late int _level;

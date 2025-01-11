@@ -4,19 +4,23 @@ Here we assume you have set up a [development environment](./development-environ
 
 ## Run the language extension and server
 
-The quickest way to test the language server is to debug the language extension in Visual Studio Code. A debugging launch configuration is included in the repository. To use it:
+The quickest way to test the language server is to debug the language extension in [Visual Studio Code](https://code.visualstudio.com). A debugging launch configuration is included in the repository. To use it:
 
 1. Open this repository in VS Code.
-2. Go to the Run and Debug view.
+2. Go to the [Run and Debug view](https://code.visualstudio.com/docs/editor/debugging).
 3. Pick Debug extension and language server from the menu.
 4. Click Start debugging.
 
 This will open another window of Visual Studio Code, this one running as an `[Extension Development Host]`.
 
-### Find the link to Dart DevTools or VM service
+### Attach the debugger
 
 When debugging, the client runs [`dart run --enable-vm-service`](https://github.com/sass/dart-sass-language-server/blob/main/extension/src/server.ts#L49)
-in the local `sass_language_server` package.
+in the local `sass_language_server` package. This lets us attach a debugger to set breakpoints.
+
+The video below demonstrates how to attach a debugger.
+
+https://github.com/user-attachments/assets/d5143197-e092-483d-9d66-f1c9c52a075b
 
 Use the `[Extension Development Host]` window to find the link to open Dart DevTools or to [attach the debugger](#attach-to-language-server).
 
@@ -32,26 +36,6 @@ The Dart VM service is listening on http://127.0.0.1:8181/SMIxtkPzlAY=/
 The Dart DevTools debugger and profiler is available at: http://127.0.0.1:8181/SMIxtkPzlAY=/devtools/?uri=ws://127.0.0.1:8181/SMIxtkPzlAY=/ws
 ```
 
-Click the second link to open Dart DevTools, or copy the first link to [attach a debugger](#attach-to-language-server).
-
-![screenshot showing the output pane and the dropdown with sass selected](https://github.com/user-attachments/assets/85839d2f-4305-4fb9-aeb0-d78f435e8b7d)
-
-### Attach to language server
-
-The debugger in Dart DevTools is deprecated in favor the debugger that ships with [Dart for Visual Studio Code][vscodedart].
-
-To start debugging in VS Code (provided you have the Dart extension):
-
-1. [Run the language server and extension](#run-the-language-extension-and-server) in debug mode.
-2. [Find the link to the Dart VM](#find-the-link-to-dart-devtools-or-vm-service).
-
-You should see output similar to this in the `[Extension Development Host]`.
-
-```
-The Dart VM service is listening on http://127.0.0.1:8181/SMIxtkPzlAY=/
-The Dart DevTools debugger and profiler is available at: http://127.0.0.1:8181/SMIxtkPzlAY=/devtools/?uri=ws://127.0.0.1:8181/SMIxtkPzlAY=/ws
-```
-
 Copy the first link, then go back to the Run and debug window where you started the language server and extension.
 
 1. Click the Run and debug drop-down and run `Attach to language server`.
@@ -59,10 +43,13 @@ Copy the first link, then go back to the Run and debug window where you started 
 
 Your debugger should be attached, allowing you to place breakpoints and step through code.
 
-_The video below demonstrates how to attach a debugger._
+### Dart DevTools
 
-https://github.com/user-attachments/assets/d5143197-e092-483d-9d66-f1c9c52a075b
+The second link in the Output pane is to the [Dart DevTools](https://dart.dev/tools/dart-devtools).
 
+The debugger in Dart DevTools is deprecated in favor the debugger that ships with [Dart for Visual Studio Code][vscodedart], but the DevTools have other usefool tools such as a memory and CPU profiler.
+
+![screenshot showing the output pane and the dropdown with sass selected](https://github.com/user-attachments/assets/85839d2f-4305-4fb9-aeb0-d78f435e8b7d)
 
 ### Test in VS Code without built-in SCSS features
 

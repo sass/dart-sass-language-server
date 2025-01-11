@@ -2,6 +2,9 @@ import 'package:sass_language_services/src/sass/sass_module.dart';
 import 'package:sass_language_services/src/sass/sass_module_function.dart';
 import 'package:sass_language_services/src/sass/sass_module_variable.dart';
 
+/// Documentation and API reference used for hover information and completions.
+///
+/// See also [CssData].
 class SassData {
   final modules = [
     SassModule("sass:color",

@@ -9,6 +9,10 @@ class ProviderFileStat {
   const ProviderFileStat(this.type, this.ctime, this.mtime, this.size);
 }
 
+/// An abstraction of file system methods needed by the language server.
+///
+/// All I/O must happen via a [FileSystemProvider] so the server has
+/// a chance to work with remote file systems, such as running in the browser.
 abstract class FileSystemProvider {
   /// Check if the file at the given [uri] exists or not.
   Future<bool> exists(Uri uri);

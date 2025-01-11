@@ -16,9 +16,6 @@ To work on the language extension, or test your changes in Visual Studio Code:
 
 - [Node.js v20 or higher](https://nodejs.org/en)
 - [Visual Studio Code](https://code.visualstudio.com/) or [VSCodium](https://github.com/VSCodium/vscodium) (we'll refer to Visual Studio Code, VS Code for short, in the documentation)
-
-### Recommended software
-
 - [Dart extension for VS Code](https://github.com/Dart-Code/Dart-Code)
 
 ## Install dependencies

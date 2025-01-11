@@ -9,13 +9,15 @@ Here we assume you have set up a [development environment](./development-environ
 
 ## Building the language server
 
-In `pkgs/sass_language_server`:
+In `pkgs/sass_language_server`, run this command:
 
 ```sh
 dart compile exe bin/sass_language_server.dart -o bin/sass-language-server
 ```
 
-This builds an executable for your current operating system named `sass-language-server`.
+This builds an executable for your current operating system named `sass-language-server`. You can add this to your `PATH` and use it with any editor that has an LSP client.
+
+Run `sass-language-server --help` to see available options.
 
 ## Building the language extension
 
