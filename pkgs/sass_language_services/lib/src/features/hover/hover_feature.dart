@@ -4,22 +4,11 @@ import 'package:sass_language_services/sass_language_services.dart';
 import 'package:sass_language_services/src/utils/sass_lsp_utils.dart';
 import 'package:sass_language_services/src/utils/string_utils.dart';
 
-import '../../css/css_data.dart';
-import '../../sass/sass_data.dart';
 import '../go_to_definition/go_to_definition_feature.dart';
 import '../node_at_offset_visitor.dart';
 
 class HoverFeature extends GoToDefinitionFeature {
-  final _cssData = CssData();
-  final _sassData = SassData();
-
   HoverFeature({required super.ls});
-
-  bool _supportsMarkdown() =>
-      ls.clientCapabilities.textDocument?.hover?.contentFormat
-              ?.any((f) => f == lsp.MarkupKind.Markdown) ==
-          true ||
-      ls.clientCapabilities.general?.markdown != null;
 
   Future<lsp.Hover?> doHover(
       TextDocument document, lsp.Position position) async {
@@ -50,8 +39,8 @@ class HoverFeature extends GoToDefinitionFeature {
   lsp.Hover _selectorHover(List<sass.AstNode> path, int index) {
     var (selector, specificity) = _getSelectorHoverValue(path, index);
 
-    if (_supportsMarkdown()) {
-      var contents = _asMarkdown('''```scss
+    if (supportsMarkdown()) {
+      var contents = asMarkdown('''```scss
 $selector
 ```
 
@@ -59,7 +48,7 @@ $selector
 ''');
       return lsp.Hover(contents: contents);
     } else {
-      var contents = _asPlaintext('''
+      var contents = asPlaintext('''
 $selector
 
 Specificity: ${readableSpecificity(specificity)}
@@ -151,26 +140,8 @@ Specificity: ${readableSpecificity(specificity)}
     return (selector.trim(), specificity);
   }
 
-  lsp.Either2<lsp.MarkupContent, String> _asMarkdown(String content) {
-    return lsp.Either2.t1(
-      lsp.MarkupContent(
-        kind: lsp.MarkupKind.Markdown,
-        value: content,
-      ),
-    );
-  }
-
-  lsp.Either2<lsp.MarkupContent, String> _asPlaintext(String content) {
-    return lsp.Either2.t1(
-      lsp.MarkupContent(
-        kind: lsp.MarkupKind.PlainText,
-        value: content,
-      ),
-    );
-  }
-
   lsp.Hover? _declarationHover(sass.Declaration node) {
-    var data = _cssData.getProperty(node.name.toString());
+    var data = cssData.getProperty(node.name.toString());
     if (data == null) return null;
 
     var description = data.description;
@@ -186,7 +157,7 @@ Specificity: ${readableSpecificity(specificity)}
       "O": "Opera",
     };
 
-    if (_supportsMarkdown()) {
+    if (supportsMarkdown()) {
       var browsers = data.browsers?.map<String>((b) {
         var matches = re.firstMatch(b);
         if (matches != null) {
@@ -200,7 +171,7 @@ Specificity: ${readableSpecificity(specificity)}
       var references = data.references
           ?.map<String>((r) => '[${r.name}](${r.uri.toString()})')
           .join('\n');
-      var contents = _asMarkdown('''
+      var contents = asMarkdown('''
 $description
 
 Syntax: $syntax
@@ -222,7 +193,7 @@ $browsers
         return b;
       }).join(', ');
 
-      var contents = _asPlaintext('''
+      var contents = asPlaintext('''
 $description
 
 Syntax: $syntax
@@ -241,18 +212,18 @@ $browsers
     var definition = await internalGoToDefinition(document, range.start);
     if (definition == null || definition.location == null) {
       // If we don't have a location we are likely dealing with a built-in.
-      for (var module in _sassData.modules) {
+      for (var module in sassData.modules) {
         for (var variable in module.variables) {
           if ('\$${variable.name}' == name) {
-            if (_supportsMarkdown()) {
-              var contents = _asMarkdown('''
+            if (supportsMarkdown()) {
+              var contents = asMarkdown('''
 ${variable.description}
 
 [Sass reference](${module.reference}#${variable.name})
 ''');
               return lsp.Hover(contents: contents, range: range);
             } else {
-              var contents = _asPlaintext(variable.description);
+              var contents = asPlaintext(variable.description);
               return lsp.Hover(contents: contents, range: range);
             }
           }
@@ -291,15 +262,15 @@ ${variable.description}
       );
     }
 
-    if (_supportsMarkdown()) {
-      var contents = _asMarkdown('''
+    if (supportsMarkdown()) {
+      var contents = asMarkdown('''
 ```${document.languageId}
 $name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}
 ```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
-      var contents = _asPlaintext('''
+      var contents = asPlaintext('''
 $name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
@@ -314,18 +285,18 @@ $name: ${resolvedValue ?? rawValue}${document.languageId != 'sass' ? ';' : ''}${
     var definition = await internalGoToDefinition(document, range.start);
     if (definition == null || definition.location == null) {
       // If we don't have a location we may be dealing with a built-in.
-      for (var module in _sassData.modules) {
+      for (var module in sassData.modules) {
         for (var function in module.functions) {
           if (function.name == name) {
-            if (_supportsMarkdown()) {
-              var contents = _asMarkdown('''
+            if (supportsMarkdown()) {
+              var contents = asMarkdown('''
 ${function.description}
 
 [Sass reference](${module.reference}#${function.name})
 ''');
               return lsp.Hover(contents: contents, range: range);
             } else {
-              var contents = _asPlaintext(function.description);
+              var contents = asPlaintext(function.description);
               return lsp.Hover(contents: contents, range: range);
             }
           }
@@ -356,15 +327,15 @@ ${function.description}
       }
     }
 
-    if (_supportsMarkdown()) {
-      var contents = _asMarkdown('''
+    if (supportsMarkdown()) {
+      var contents = asMarkdown('''
 ```${document.languageId}
 @function $name$arguments
 ```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
-      var contents = _asPlaintext('''
+      var contents = asPlaintext('''
 @function $name$arguments${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
@@ -403,15 +374,15 @@ ${function.description}
       }
     }
 
-    if (_supportsMarkdown()) {
-      var contents = _asMarkdown('''
+    if (supportsMarkdown()) {
+      var contents = asMarkdown('''
 ```${document.languageId}
 @mixin $name$arguments
 ```${docComment != null ? '\n____\n${docComment.replaceAll('\n', '\n\n')}\n\n' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
     } else {
-      var contents = _asPlaintext('''
+      var contents = asPlaintext('''
 @mixin $name$arguments${docComment != null ? '\n\n$docComment' : ''}
 ''');
       return lsp.Hover(contents: contents, range: range);
